@@ -8,9 +8,13 @@
 | Evidência lab | [`runbooks/sites/smoke-evidence-2026-07-11-aceite-piloto.md`](./runbooks/sites/smoke-evidence-2026-07-11-aceite-piloto.md) |
 | Matriz de features | [`MATRIZ_FUNCIONALIDADES.md`](./MATRIZ_FUNCIONALIDADES.md) |
 | Data de criação | 2026-07-11 |
-| Última atualização | 2026-07-11 (F2.1 rascunho UAT) |
-| Dono do plano | _definir_ |
-| Cliente piloto #1 | _definir (ex.: Rio Quality / Grupo Marra)_ |
+| Última atualização | 2026-07-11 (execução F0 done · F1 em curso) |
+| Dono do plano | **Edson Martins** |
+| Cliente piloto #1 | **Rio Quality** |
+| Revisor UAT | **Edson Martins** |
+| Protocolos UAT | SSH + Postgres **obrigatórios**; Guac browser **desejável**; Windows **fora do MVP** |
+| Data-alvo UAT | _a definir (F0.6)_ |
+| Evidência execução | [`runbooks/sites/smoke-evidence-2026-07-11-homolog-prep.md`](./runbooks/sites/smoke-evidence-2026-07-11-homolog-prep.md) |
 
 ---
 
@@ -81,22 +85,27 @@ Um revisor (humano) consegue, em **≤ 30 minutos** com o runbook de UAT:
 
 | Campo | Valor |
 |-------|--------|
-| Status | `todo` |
+| Status | `done` (F0.5 opcional aberto; F0.6 data-alvo aberta) |
 | Esforço típico | 0,5–1 dia |
 | Bloqueia | Tudo abaixo se cliente/dono não definidos |
 
 #### Tarefas
 
-- [ ] **F0.1** Nomear **dono do plano** e **revisor de homologação** (assinam §6).
-- [ ] **F0.2** Escolher **cliente piloto #1** (stack de VPN, contato, janela de peer).
-- [ ] **F0.3** Congelar escopo MVP: copiar §2 para o e-mail/kickoff de UAT (o que entra / o que não entra).
-- [ ] **F0.4** Decidir protocolos obrigatórios no UAT: `SSH` · `Postgres` · `Guac browser` (sim/não) · `Windows` (sim/não).
+- [x] **F0.1** Nomear **dono do plano** e **revisor de homologação** (assinam §6).  
+  _2026-07-11: Edson Martins (dono e revisor)._
+- [x] **F0.2** Escolher **cliente piloto #1** (stack de VPN, contato, janela de peer).  
+  _2026-07-11: **Rio Quality**. Stack atual no SoT: `lab_overlay` (peer real = F3)._
+- [x] **F0.3** Congelar escopo MVP: copiar §2 para o e-mail/kickoff de UAT (o que entra / o que não entra).  
+  _Escopo = §2 deste plano._
+- [x] **F0.4** Decidir protocolos obrigatórios no UAT: `SSH` · `Postgres` · `Guac browser` (sim/não) · `Windows` (sim/não).  
+  _SSH+PG obrigatórios; Guac desejável; Windows fora do MVP._
 - [ ] **F0.5** Criar issue/board (GitHub Projects ou equivalente) com as tasks F1–F5 (opcional, 1 card por ID).
-- [ ] **F0.6** Atualizar este documento: dono, cliente piloto, data-alvo de UAT: `____/____/______`.
+- [ ] **F0.6** Atualizar este documento: dono, cliente piloto, data-alvo de UAT: `____/____/______`.  
+  _Dono/cliente OK; falta só a **data-alvo**._
 
 #### Critério de saída F0
 
-Dono + cliente piloto + protocolos UAT definidos por escrito neste arquivo.
+Dono + cliente piloto + protocolos UAT definidos por escrito neste arquivo. ✅
 
 ---
 
@@ -104,33 +113,33 @@ Dono + cliente piloto + protocolos UAT definidos por escrito neste arquivo.
 
 | Campo | Valor |
 |-------|--------|
-| Status | `todo` |
+| Status | `doing` |
 | Esforço típico | 1–2 dias |
 | Depende de | F0 (parcialmente; pode rodar em paralelo a F0.2 se lab for genérico) |
-| Referência | [`runbooks/ACEITE-PILOTO-LAB.md`](./runbooks/ACEITE-PILOTO-LAB.md) |
+| Referência | [`runbooks/ACEITE-PILOTO-LAB.md`](./runbooks/ACEITE-PILOTO-LAB.md) · evidência homolog-prep |
 
 #### Tarefas
 
 - [ ] **F1.1** Login **OIDC** no console no browser → dashboard (print ou sessão gravada).  
-  _Waiver atual: 1.1_
+  _2026-07-11: pré-check 307→/dashboard + OIDC discovery 200. **Falta print humano.**_
 - [ ] **F1.2** Reteste **offboarding** interativo: disable user no Kanidm → próximo SSO falha (console e/ou WG).  
-  _Waiver: 1.5_
+  _Pendente humano / janela controlada._
 - [ ] **F1.3** Guacamole: login via portão SSO + **sessão SSH browser** lab (ou cliente) OK.  
-  _Waiver: 2.5_
-- [ ] **F1.4** Confirmar **gravação** de sessão (path WG e/ou Guac) e anotar path na evidência.  
-  _Waiver: 2.6_
+  _Portão SSO e2e **PASS**; sessão gráfica pendente humano._
+- [x] **F1.4** Confirmar **gravação** de sessão (path WG e/ou Guac) e anotar path na evidência.  
+  _WG: `/var/lib/archgate/warpgate/recordings/` com sessões. Guac dir vazio → reteste com sessão real._
 - [ ] **F1.5** Activity log: mutação admin (sync Axis ou upsert site) aparece na UI de audit.  
-  _Waiver: 5.4_
+  _SQLite reinit + seed; mutação real + UI pendentes._
 - [ ] **F1.6** Higiene OpenBao: fluxo admin com `OPENBAO_APP_TOKEN`; root **não** necessário no dia a dia; documentar residual se ainda no env lab.  
-  _Waiver: 5.2_
-- [ ] **F1.7** Revalidar smoke automático:
+  _APP_TOKEN presente; ROOT ainda no env (`ARCHGATE_LAB`) — waiver documentado._
+- [x] **F1.7** Revalidar smoke automático:
   ```bash
   WG_HOST=192.168.1.180 bash deploy/validation/smoke-operator-access.sh
   bash deploy/openbao/smoke-kanidm-jwt.sh
-  # opcional isolamento:
-  # bash deploy/validation/tenant-isolation-e2e.sh
+  # isolamento manual: rio OK / marra denied
   ```
-- [ ] **F1.8** Atualizar evidência: copiar template → `runbooks/sites/smoke-evidence-YYYY-MM-DD-homolog-prep.md` (ou estender a de 2026-07-11).
+  _SSH+PG PASS · JWT PASS · isolamento PASS · WG admin API PASS._
+- [x] **F1.8** Atualizar evidência: `runbooks/sites/smoke-evidence-2026-07-11-homolog-prep.md`.
 - [ ] **F1.9** Revisor assina aceite lab (PASS limpo **ou** PASS com waiver **escrito** + prazo).
 
 #### Critério de saída F1
@@ -143,7 +152,7 @@ Aceite lab assinado; waivers restantes só com prazo e aprovador.
 
 | Campo | Valor |
 |-------|--------|
-| Status | `todo` |
+| Status | `doing` |
 | Esforço típico | 1–2 dias |
 | Depende de | F1 recomendado; F0 obrigatório |
 
@@ -159,8 +168,10 @@ Aceite lab assinado; waivers restantes só com prazo e aprovador.
   - `uat-admin`, `uat-op-a`, `uat-op-b`, `uat-viewer` (nomes livres, documentar).
 - [ ] **F2.3** Matriz RBAC na evidência: o que cada persona **vê / não vê** em `/sites` e targets WG.
 - [ ] **F2.4** Demo browser: user **sem** super-admin e **sem** `tenant_*` amplo → deny-by-default (sites filtrados).
-- [ ] **F2.5** Checklist de endpoints estável: conferir [`runbooks/endpoints-staging.md`](./runbooks/endpoints-staging.md) (id, console, wg, guac).
-- [ ] **F2.6** Pacote de snippets para o revisor (SSH + DBeaver/psql) apontando para o **alvo do piloto** (não só lab genérico).
+- [x] **F2.5** Checklist de endpoints estável: conferir [`runbooks/endpoints-staging.md`](./runbooks/endpoints-staging.md) (id, console, wg, guac).  
+  _2026-07-11: URLs OK no host (307/303/307/302)._
+- [ ] **F2.6** Pacote de snippets para o revisor (SSH + DBeaver/psql) apontando para o **alvo do piloto** (não só lab genérico).  
+  _Lab Rio OK; hosts **reais** após F3._
 - [ ] **F2.7** Dry-run interno do UAT (executor ≠ revisor) e anotar fricções no `HOMOLOGACAO-UAT.md`.
 
 #### Critério de saída F2
@@ -173,7 +184,7 @@ Qualquer revisor consegue seguir o runbook sem “perguntar no chat”.
 
 | Campo | Valor |
 |-------|--------|
-| Status | `todo` |
+| Status | `blocked` (aguarda peer/janela **Rio Quality**) |
 | Esforço típico | 1–3 semanas (calendário; depende do cliente) |
 | Depende de | F0.2, F2 (runbook pode ser atualizado com hosts reais) |
 | Risco principal | Janela de rede / peer no cliente |
@@ -184,6 +195,7 @@ Qualquer revisor consegue seguir o runbook sem “perguntar no chat”.
   - stack VPN (`wireguard` | `openvpn` | `openfortivpn` | …);
   - hosts alvos (SSH/PG);
   - `inventariado=true`; stack ≠ `a_confirmar`.
+  - _Hoje: `rio_quality` / `lab_overlay` / inventariado=true — **lab**, não peer real._
   - Refs: [`runbooks/sites/INVENTARIO.md`](./runbooks/sites/INVENTARIO.md), [`runbooks/onboarding-cliente-site.md`](./runbooks/onboarding-cliente-site.md).
 - [ ] **F3.2** Onboard **peer/connector real** no cliente (checklist `deploy/connector/onboarding-cliente-peer.md`).
 - [ ] **F3.3** Validar connector 1/1 e reachability bastion → rede do site (ping/SSH interno conforme stack).
@@ -206,16 +218,18 @@ Critério de ouro: bastion-first até host **real** do cliente, com isolamento e
 
 | Campo | Valor |
 |-------|--------|
-| Status | `todo` |
+| Status | `doing` |
 | Esforço típico | 2–4 dias |
 | Depende de | F1; paralelo a F3 quando possível |
 
 #### Tarefas
 
-- [ ] **F4.1** Documentar e testar **backup** dos PG usados (Warpgate, Guacamole, `archguard_console`) — procedimento + último teste de dump.
+- [ ] **F4.1** Documentar e testar **backup** dos PG usados (Warpgate, Guacamole, `archguard_console`) — procedimento + último teste de dump.  
+  _DBs confirmados em `.110:5434` (tamanhos ~10/9/8 MB). Runbook em andamento._
 - [ ] **F4.2** Documentar **restore dry-run** (ou restore em lab) — data e executor.
 - [ ] **F4.3** Runbook de **boot / unseal** OpenBao (timer + falha de task) — link em `/platform` ou runbooks.
-- [ ] **F4.4** Inventariar secrets no serviço console: sem `LAB_SSH_PASSWORD`; passwords de alvo só `TARGET_SECRET_*` ou vault.
+- [x] **F4.4** Inventariar secrets no serviço console: sem `LAB_SSH_PASSWORD`; passwords de alvo só `TARGET_SECRET_*` ou vault.  
+  _Sem `LAB_SSH_PASSWORD` no console (2026-07-11)._
 - [ ] **F4.5** Política lab: `ARCHGATE_LAB=1` e tokens root — o que some antes de “homologado” vs waiver explícito.
 - [ ] **F4.6** Conferir TLS/DNS: id, console, wg, guac sem certificado inválido no browser do revisor.
 - [ ] **F4.7** (Opcional pré-prod) mTLS ou rede restrita Axis — se não fizer, registrar waiver de homolog **interna**.
@@ -339,26 +353,27 @@ Atualizar a cada sync.
 
 | ID | Fase | Tarefa (resumo) | Status | Dono | Evidência / nota |
 |----|------|-----------------|--------|------|------------------|
-| F0.1 | F0 | Dono + revisor | todo | | |
-| F0.2 | F0 | Cliente piloto #1 | todo | | |
-| F0.3 | F0 | Congelar escopo | todo | | |
-| F0.4 | F0 | Protocolos UAT | todo | | |
-| F1.1 | F1 | OIDC browser | todo | | waiver 1.1 |
-| F1.2 | F1 | Offboarding interativo | todo | | waiver 1.5 |
-| F1.3 | F1 | Guac sessão | todo | | waiver 2.5 |
-| F1.4 | F1 | Recording | todo | | waiver 2.6 |
-| F1.5 | F1 | Activity log UI | todo | | waiver 5.4 |
-| F1.6 | F1 | OpenBao APP_TOKEN | todo | | waiver 5.2 |
-| F1.9 | F1 | Assinatura lab | todo | | |
-| F2.1 | F2 | Escrever HOMOLOGACAO-UAT.md | done | | runbooks/HOMOLOGACAO-UAT.md |
+| F0.1 | F0 | Dono + revisor | **done** | Edson | |
+| F0.2 | F0 | Cliente piloto #1 | **done** | Edson | Rio Quality |
+| F0.3 | F0 | Congelar escopo | **done** | | §2 plano |
+| F0.4 | F0 | Protocolos UAT | **done** | | SSH+PG; Guac opcional |
+| F0.6 | F0 | Data-alvo UAT | todo | Edson | |
+| F1.1 | F1 | OIDC browser | doing | Edson | pré-check 307 OK |
+| F1.2 | F1 | Offboarding interativo | todo | Edson | |
+| F1.3 | F1 | Guac sessão | doing | | portão SSO PASS |
+| F1.4 | F1 | Recording WG | **done** | | path WG OK |
+| F1.5 | F1 | Activity log UI | doing | | sqlite reinit |
+| F1.6 | F1 | OpenBao APP_TOKEN | doing | | root residual lab |
+| F1.7 | F1 | Smokes auto | **done** | | SSH/PG/JWT/isol |
+| F1.8 | F1 | Evidência homolog-prep | **done** | | smoke-evidence-…-homolog-prep |
+| F1.9 | F1 | Assinatura lab | todo | Edson | |
+| F2.1 | F2 | Escrever HOMOLOGACAO-UAT.md | **done** | | |
 | F2.2 | F2 | Contas UAT | todo | | |
+| F2.5 | F2 | Endpoints | **done** | | |
 | F2.7 | F2 | Dry-run UAT | todo | | |
-| F3.1 | F3 | Ficha site real | todo | | |
-| F3.2 | F3 | Peer real | todo | | |
-| F3.5 | F3 | E2E alvo real | todo | | **crítico** |
-| F3.6 | F3 | Isolamento | todo | | |
-| F4.1 | F4 | Backup PG | todo | | |
-| F4.3 | F4 | Runbook unseal | todo | | |
+| F3.* | F3 | Peer real Rio | **blocked** | cliente | lab_overlay only |
+| F4.1 | F4 | Backup PG | doing | | DBs mapeados |
+| F4.4 | F4 | Sem LAB_SSH console | **done** | | |
 | F5.2 | F5 | UAT com revisor | todo | | |
 | F5.5 | F5 | Assinar §6 | todo | | |
 
@@ -389,3 +404,4 @@ Atualizar a cada sync.
 |------|---------|
 | 2026-07-11 | Criação do plano F0–F5 + estacionamento pós-MVP |
 | 2026-07-11 | F2.1: rascunho `runbooks/HOMOLOGACAO-UAT.md` |
+| 2026-07-11 | Execução: F0 fechado (Rio Quality + Edson); F1 smokes PASS; evidência homolog-prep; F3 blocked peer real |

@@ -5,8 +5,10 @@
 | Plano pai | [`../PLAN-HOMOLOGACAO-MVP.md`](../PLAN-HOMOLOGACAO-MVP.md) (tarefa **F2.1**) |
 | Objetivo | Revisor humano valida o produto em **≤ 30 min** |
 | Ambiente | Staging lab — ver [`endpoints-staging.md`](./endpoints-staging.md) |
+| Cliente piloto | **Rio Quality** (lab_overlay até F3; depois peer real) |
+| Dono / revisor | **Edson Martins** |
 | Duração alvo | 30 minutos (happy path) + 15 min opcionais (isolamento / Guac / admin) |
-| Versão do roteiro | 0.1 |
+| Versão do roteiro | 0.2 |
 | Data | 2026-07-11 |
 
 ---
@@ -245,3 +247,4 @@ Salvar em `documentos/runbooks/sites/smoke-evidence-YYYY-MM-DD-uat.md` (copiar [
 | Data | Mudança |
 |------|---------|
 | 2026-07-11 | Rascunho inicial (F2.1) — alvos reais ainda placeholder até F3 |
+| 2026-07-11 | v0.2 — piloto Rio Quality; dono/revisor Edson; evidência homolog-prep |
