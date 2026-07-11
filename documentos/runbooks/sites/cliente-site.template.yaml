@@ -1,0 +1,57 @@
+# Template — ficha de site / cliente REAL (produção ou pré-prod)
+# Copiar para: documentos/runbooks/sites/reais/<slug>.yaml
+# NÃO colocar senhas, chaves privadas, .ovpn completos ou tokens.
+
+cliente: ""                    # nome comercial
+slug: ""                       # ex. acme
+tenant_group: tenant_          # Kanidm: tenant_<slug>
+ambiente: producao             # producao | preprod | dr
+warpgate_roles:
+  - tenant-                    # ex. tenant-acme
+
+conectividade:
+  # ADR-008
+  tipo: a_confirmar            # connector_peer | tunnel_agent | vpn_user_exception
+  # Stack de VPN do CLIENTE (no connector, não no notebook do ops)
+  stack: a_confirmar           # wireguard | openvpn | openfortivpn | cloudflare_tunnel | mixed
+  # Detalhes por stack (preencher o bloco relevante)
+  wireguard:
+    endpoint: ""               # host:port do peer do cliente (se connector_peer)
+    allowed_ips: []            # subnets do cliente
+  openvpn:
+    profile_ref: ""            # referência ao secret store / path host (não git)
+    conta_servico: ""
+    mfa: false
+  openfortivpn:
+    host: ""
+    port: 443
+    conta_servico: ""
+    mfa_otp: a_confirmar       # false | true | token_vault
+  cloudflare_tunnel:
+    tunnel_name: ""
+    notas: ""
+  subnets_alvo: []             # least privilege
+  connector_id: connector-     # id no runtime ArchGate
+  ip_saida_visto_pelo_cliente: ""
+  notas: ""
+
+targets: []
+  # - nome: acme-app-ssh
+  #   engine: warpgate
+  #   protocolo: ssh
+  #   host: 10.x.x.x           # IP interno visto pelo connector
+  #   port: 22
+  #   roles: [tenant-acme]
+
+identidade:
+  operadores: []
+  tenant_admins: []
+
+estado:
+  inventariado: false
+  connector_deployed: false
+  smoke_operador: false
+  data_revisao: ""
+
+credenciais_alvo: warpgate_and_guacamole_only
+anti_padrao: never_document_direct_ip_or_target_password_to_operators

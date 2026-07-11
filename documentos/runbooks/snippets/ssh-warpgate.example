@@ -1,0 +1,33 @@
+# Snippet — SSH via Warpgate (OpenSSH)
+# SO: Linux | macOS | Windows (OpenSSH Client)
+# ADR-008 / operator-client-access — SEM credencial do alvo no notebook
+#
+# Preencha:
+#   WG_HOST     — hostname do Warpgate (ex.: wg.archgate.com.br)
+#   WG_PORT     — porta SSH do proxy (padrão lab: 2222)
+#   WG_USER     — identidade no bastion (ex.: testuser)
+#   WG_TARGET   — nome do target (ex.: rio-lab-ssh)
+#
+# Autenticação: senha/SSO do **operador no Warpgate**, não a senha root/labuser do alvo.
+
+# --- one-liner (idêntico nos três SO) ---
+# ssh -p ${WG_PORT} "${WG_USER}:${WG_TARGET}@${WG_HOST}"
+
+# Lab IntegrAllTech (staging runtime):
+ssh -p 2222 'testuser:rio-lab-ssh@192.168.1.180'
+# Em produção / DNS público:
+# ssh -p 2222 'SEU_USUARIO:rio-lab-ssh@wg.archgate.com.br'
+
+# Opções úteis:
+#   -o StrictHostKeyChecking=accept-new
+#   -o PreferredAuthentications=password   # se só password no lab
+#   -o PubkeyAuthentication=no
+
+# --- ~/.ssh/config (opcional) ---
+# Host archgate-rio-ssh
+#   HostName wg.archgate.com.br
+#   Port 2222
+#   User SEU_USUARIO:rio-lab-ssh
+#   StrictHostKeyChecking accept-new
+#
+# Uso: ssh archgate-rio-ssh

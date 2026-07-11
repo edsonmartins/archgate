@@ -1,0 +1,46 @@
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Secrets (never commit plaintext bootstrap)
+.env
+.env.*
+!.env.example
+!**/*.env.example
+deploy/env/*.env
+!deploy/env.example/**
+*.dec.env
+bootstrap.env
+.age-key.txt
+keys.txt
+
+# SOPS age private keys
+**/*.agekey
+**/keys.txt
+
+# Local data / volumes
+data/
+*.sql.gz
+deploy/postgres/data/
+
+# Build artifacts
+target/
+node_modules/
+dist/
+build/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# Logs
+*.log
+logs/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl

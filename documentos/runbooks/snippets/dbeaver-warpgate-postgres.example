@@ -1,0 +1,48 @@
+# Snippet — PostgreSQL via Warpgate (CLI + DBeaver)
+# SO: Linux | macOS | Windows
+# ADR-008 / operator-client-access — SEM senha do Postgres do cliente no notebook
+#
+# O Warpgate exige TLS no lado cliente do proxy (mesmo se o alvo interno for sem TLS).
+# Username do proxy:  WG_USER:WG_TARGET   (também aceita WG_USER#WG_TARGET)
+# Password do proxy:  credencial do **operador no Warpgate** (não a do role Postgres)
+
+# --- variáveis (exemplo lab) ---
+# WG_PG_HOST=192.168.1.180          # ou wg.archgate.com.br
+# WG_PG_PORT=55432
+# WG_USER=testuser
+# WG_TARGET=rio-lab-postgres
+# WG_PASS=<senha do operador no Warpgate — NÃO commitar>
+# DB_NAME=archgate_lab
+
+# --- psql (Linux / macOS / Windows com psql no PATH) ---
+# PGPASSWORD="$WG_PASS" psql \
+#   "host=${WG_PG_HOST} port=${WG_PG_PORT} user=${WG_USER}:${WG_TARGET} dbname=${DB_NAME} sslmode=require" \
+#   -c 'select current_user, 1 as ok;'
+
+# Lab IntegrAllTech (preencher senha do operador em runtime):
+# PGPASSWORD='***' psql \
+#   'host=192.168.1.180 port=55432 user=testuser:rio-lab-postgres dbname=archgate_lab sslmode=require' \
+#   -c 'select current_user, 1 as ok;'
+
+# --- DBeaver — New Connection → PostgreSQL ---
+# Host:     wg.archgate.com.br   (ou 192.168.1.180 no lab)
+# Port:     55432
+# Database: archgate_lab         (ou default do target)
+# Username: testuser:rio-lab-postgres
+# Password: <senha operador Warpgate>
+# SSL:
+#   Use SSL = true
+#   SSL mode = require
+#   (não precisa trust do servidor alvo; é o TLS do proxy Warpgate)
+#
+# Driver properties (se a UI pedir):
+#   sslmode = require
+
+# --- JDBC URL (DataGrip / outros) ---
+# jdbc:postgresql://wg.archgate.com.br:55432/archgate_lab?sslmode=require
+# user: testuser:rio-lab-postgres
+# password: <operador Warpgate>
+
+# NÃO use no fluxo padrão:
+#   host=10.x / 192.168.x interno do cliente
+#   user=archgate_lab (role real do banco) com senha do alvo

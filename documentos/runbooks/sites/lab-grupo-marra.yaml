@@ -1,0 +1,44 @@
+# Ficha de site — lab Grupo Marra (IntegrAllTech staging)
+cliente: Grupo Marra (lab)
+slug: grupo_marra
+tenant_group: tenant_grupo_marra
+ambiente: staging
+warpgate_roles:
+  - tenant-grupo-marra
+
+conectividade:
+  tipo: tunnel_agent
+  notas: >
+    Mesmo runtime 192.168.1.180 que Rio Quality (lab multi-tenant).
+    Isolamento por role Warpgate + grupo Kanidm, não por VPN separada.
+    Produção: connector dedicado se a rede do cliente for distinta.
+
+targets:
+  - nome: marra-lab-ssh
+    engine: warpgate
+    protocolo: ssh
+    host: 10.0.2.99
+    port: 2222
+    roles: [tenant-grupo-marra]
+    operador_como: "ssh -p 2222 'USER:marra-lab-ssh@wg-or-180'"
+
+  - nome: marra-lab-postgres
+    engine: warpgate
+    protocolo: postgres
+    host: 192.168.1.110
+    port: 5434
+    database: archgate_lab
+    roles: [tenant-grupo-marra]
+    operador_como: "psql user=USER:marra-lab-postgres port=55432 sslmode=require"
+
+identidade:
+  operadores_lab:
+    - testadmin  # ambos tenants (super)
+  # testuser NÃO deve ter marra (isolamento 6.2)
+
+validado_em:
+  isolamento_vs_rio: true   # tenant-isolation-e2e.sh (Fase 1)
+  ssh_via_bastion: true
+  db_via_bastion: true
+
+credenciais_alvo: warpgate_only

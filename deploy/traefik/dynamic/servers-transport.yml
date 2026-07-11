@@ -1,0 +1,5 @@
+# Traefik dynamic config — allow HTTPS backends with self-signed certs (Kanidm).
+http:
+  serversTransports:
+    insecure-skip-verify:
+      insecureSkipVerify: true

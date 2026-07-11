@@ -1,0 +1,14 @@
+[Unit]
+Description=Periodically unseal ArchGate OpenBao (lab — after recreate/reboot)
+After=network-online.target
+
+[Timer]
+# Soon after boot, then every 2 minutes while host is up (idempotent)
+OnBootSec=30s
+OnUnitActiveSec=2min
+AccuracySec=15s
+Persistent=true
+Unit=archgate-openbao-unseal.service
+
+[Install]
+WantedBy=timers.target

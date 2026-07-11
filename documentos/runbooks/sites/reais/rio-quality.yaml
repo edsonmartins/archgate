@@ -1,0 +1,52 @@
+# Ficha — Rio Quality PRODUÇÃO (conectividade real a confirmar)
+# Lab: ver ../lab-rio-quality.yaml
+
+cliente: Rio Quality
+slug: rio_quality
+tenant_group: tenant_rio_quality
+ambiente: producao
+warpgate_roles:
+  - tenant-rio-quality
+
+conectividade:
+  tipo: a_confirmar            # esperado: tunnel_agent e/ou connector_peer
+  stack: a_confirmar           # candidato: cloudflare_tunnel (+ ? openvpn|wireguard|openfortivpn)
+  cloudflare_tunnel:
+    tunnel_name: a_confirmar   # arquitetura ArchGate menciona Tunnel existente (Rio Quality)
+    notas: >
+      Validar se Tunnel cobre só borda HTTP ou também path a hosts SSH/DB.
+      Se houver VPN legada em paralelo, registrar stack mista.
+  wireguard:
+    endpoint: ""
+    allowed_ips: []
+  openvpn:
+    profile_ref: ""
+    conta_servico: ""
+    mfa: false
+  openfortivpn:
+    host: ""
+    port: 443
+    conta_servico: ""
+    mfa_otp: a_confirmar
+  subnets_alvo: []
+  connector_id: connector-rio-quality
+  ip_saida_visto_pelo_cliente: ""
+  notas: >
+    Oracle/Consinco no roadmap (ADR-001). Confirmar stack VPN com ops
+    e atualizar clientes-reais-por-stack.md.
+
+targets: []
+  # Preencher após inventário de hosts reais (não copiar IPs de lab)
+
+identidade:
+  operadores: []               # SPNs / usernames Kanidm de produção
+  tenant_admins: []
+
+estado:
+  inventariado: false
+  connector_deployed: false
+  smoke_operador: false
+  data_revisao: "2026-07-11"
+
+credenciais_alvo: warpgate_and_guacamole_only
+anti_padrao: never_document_direct_ip_or_target_password_to_operators

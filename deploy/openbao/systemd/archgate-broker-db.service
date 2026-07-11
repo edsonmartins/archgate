@@ -1,0 +1,13 @@
+[Unit]
+Description=ArchGate OpenBao to Warpgate DB credential broker
+After=network-online.target docker.service archgate-openbao-unseal.service
+Wants=network-online.target archgate-openbao-unseal.service
+
+[Service]
+Type=oneshot
+# Secrets loaded by wrapper from bootstrap.env (mode 600 on host)
+ExecStart=/usr/local/sbin/archgate-broker-warpgate-db-run
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

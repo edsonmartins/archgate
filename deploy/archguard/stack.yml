@@ -1,0 +1,117 @@
+# ArchGuard identity stack on ArchGate Swarm (192.168.1.180)
+# Reuses product code from ~/desenvolvimento/archguard — does not reimplement Kanidm.
+#
+# Prerequisites:
+#   - networks archgate-public, archgate-data
+#   - image archguard-console:local built (see deploy.sh)
+#   - /var/lib/archgate/kanidm/{server.toml,chain.pem,key.pem}
+#   - env: ACME not required for backends; Traefik terminates TLS
+
+version: "3.8"
+
+services:
+  kanidmd:
+    image: ${KANIDM_IMAGE:-kanidm/server:1.10.4}
+    networks:
+      - archgate-public
+      - archgate-data
+    volumes:
+      - type: bind
+        source: /var/lib/archgate/kanidm
+        target: /data
+    # Temporary direct access for bootstrap/tools (also via Traefik Host id.*)
+    ports:
+      - target: 8443
+        published: 8443
+        protocol: tcp
+        mode: host
+    healthcheck:
+      test: ["CMD", "/sbin/kanidmd", "healthcheck", "-c", "/data/server.toml"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.archgate.runtime == true
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=archgate-public
+        - traefik.http.routers.kanidm.rule=Host(`id.archgate.com.br`)
+        - traefik.http.routers.kanidm.entrypoints=websecure
+        - traefik.http.routers.kanidm.tls=true
+        - traefik.http.routers.kanidm.tls.certresolver=letsencrypt
+        - traefik.http.routers.kanidm.service=kanidm
+        - traefik.http.services.kanidm.loadbalancer.server.port=8443
+        - traefik.http.services.kanidm.loadbalancer.server.scheme=https
+        - traefik.http.services.kanidm.loadbalancer.serverstransport=insecure-skip-verify@file
+        # HTTP → HTTPS redirect handled globally; also allow ACME on web if needed
+        - traefik.http.routers.kanidm-http.rule=Host(`id.archgate.com.br`)
+        - traefik.http.routers.kanidm-http.entrypoints=web
+        - traefik.http.routers.kanidm-http.middlewares=kanidm-https-redirect
+        - traefik.http.middlewares.kanidm-https-redirect.redirectscheme.scheme=https
+
+  archguard-console:
+    image: ${ARCHGUARD_CONSOLE_IMAGE:-archguard-console:local}
+    networks:
+      - archgate-public
+      - archgate-data
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOST: "0.0.0.0"
+      ARCHGUARD_ID_URL: https://id.archgate.com.br
+      ARCHGUARD_VAULT_URL: ${ARCHGUARD_VAULT_URL:-https://vault.archgate.com.br}
+      ARCHGUARD_SA_TOKEN: ${ARCHGUARD_SA_TOKEN:?set ARCHGUARD_SA_TOKEN after setup-kanidm}
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET}
+      LOG_LEVEL: info
+      # Node must trust self-signed when calling Kanidm via public name through Traefik,
+      # or call internal service name. Prefer internal HTTPS with NODE_TLS_REJECT_UNAUTHORIZED
+      # only if needed; better: use service DNS with skip — Node has no skip flag.
+      # Console reaches Kanidm via Traefik Host using published URL (needs working DNS/hosts).
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.archgate.runtime == true
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=archgate-public
+        - traefik.http.routers.console.rule=Host(`console.archgate.com.br`)
+        - traefik.http.routers.console.entrypoints=websecure
+        - traefik.http.routers.console.tls=true
+        - traefik.http.routers.console.tls.certresolver=letsencrypt
+        - traefik.http.routers.console.service=console
+        - traefik.http.services.console.loadbalancer.server.port=3000
+        - traefik.http.routers.console-http.rule=Host(`console.archgate.com.br`)
+        - traefik.http.routers.console-http.entrypoints=web
+        - traefik.http.routers.console-http.middlewares=console-https-redirect
+        - traefik.http.middlewares.console-https-redirect.redirectscheme.scheme=https
+
+networks:
+  archgate-public:
+    external: true
+    name: archgate-public
+  archgate-data:
+    external: true
+    name: archgate-data

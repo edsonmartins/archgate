@@ -1,0 +1,29 @@
+# Local validation of task 1.1 (no Swarm required).
+# Usage:
+#   export POSTGRES_SUPERUSER_PASSWORD=... POSTGRES_WARPGATE_PASSWORD=... POSTGRES_GUACAMOLE_PASSWORD=...
+#   docker compose -f deploy/postgres/docker-compose.local.yml up -d
+#   ./deploy/postgres/verify.sh
+
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:16.9-alpine}
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:-archgate}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?set POSTGRES_SUPERUSER_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-archgate}
+      POSTGRES_WARPGATE_PASSWORD: ${POSTGRES_WARPGATE_PASSWORD:?set POSTGRES_WARPGATE_PASSWORD}
+      POSTGRES_GUACAMOLE_PASSWORD: ${POSTGRES_GUACAMOLE_PASSWORD:?set POSTGRES_GUACAMOLE_PASSWORD}
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+      - ./init/01-create-databases.sh:/docker-entrypoint-initdb.d/01-create-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  postgres_local_data:

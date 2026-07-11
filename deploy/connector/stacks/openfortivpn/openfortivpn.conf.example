@@ -1,0 +1,14 @@
+# Exemplo — copiar para /var/lib/archgate/connector/<site>/forti/openfortivpn.conf
+# NÃO commitar segredos.
+
+host = vpn.cliente.example
+port = 443
+username = svc_archgate
+password = CHANGE_ME
+
+# Se certificado self-signed (pegar fingerprint na 1ª conexão):
+# trusted-cert = 0123abc...
+
+set-routes = 1
+set-dns = 0
+pppd-use-peerdns = 0

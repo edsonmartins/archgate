@@ -1,0 +1,36 @@
+# Ficha de site — Piloto connector (Fase 3 parcial)
+# Simula cliente com LAN isolada; path só via connector institucional.
+cliente: Piloto Lab (connector)
+slug: piloto
+tenant_group: tenant_rio_quality   # reusa role rio no lab
+ambiente: staging
+warpgate_roles:
+  - tenant-rio-quality
+
+conectividade:
+  tipo: tunnel_agent
+  implementacao_lab: dual-network-connector-socat
+  notas: >
+    Rede overlay archgate-site-piloto (10.77.10.0/24) = LAN simulada do cliente.
+    Alvo SSH só nessa rede. Connector em archgate-data + site faz forward :2223 → site:2222.
+    Produção: trocar socat por WireGuard/peer VPN (ver deploy/connector/wireguard-peer.example.conf)
+    ou agent NetBird (add-network-mesh). Operadores NÃO usam VPN do cliente.
+
+targets:
+  - nome: piloto-lab-ssh
+    engine: warpgate
+    protocolo: ssh
+    host: archgate-site-piloto_connector   # DNS Swarm na rede data — NÃO IP da LAN site
+    port: 2223
+    roles: [tenant-rio-quality]
+    operador_como: "ssh -p 2222 'USER:piloto-lab-ssh@wg.archgate.com.br'"
+
+validado_em:
+  site_isolated_from_data: true      # 2026-07-10 smoke
+  path_via_connector: true
+  operator_via_warpgate: true
+  evidencia: deploy/connector/smoke-connector-piloto.sh
+
+deploy:
+  script: deploy/connector/deploy-piloto-lab.sh
+  smoke: deploy/connector/smoke-connector-piloto.sh

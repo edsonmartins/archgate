@@ -1,0 +1,64 @@
+# Ficha de site — lab Rio Quality (IntegrAllTech staging)
+# Template: documentos/runbooks/onboarding-cliente-site.md
+# ADR-008 / operator-client-access task 2.8
+
+cliente: Rio Quality (lab)
+slug: rio_quality
+tenant_group: tenant_rio_quality
+ambiente: staging
+warpgate_roles:
+  - tenant-rio-quality
+
+conectividade:
+  # Lab: alvos na rede Swarm/data do runtime — sem VPN de cliente real
+  tipo: tunnel_agent
+  notas: >
+    Runtime 192.168.1.180; lab SSH container na rede archgate-data (10.0.2.x);
+    Postgres lab em 192.168.1.110:5434 alcançável do runtime.
+    Em produção real do cliente, preferir connector_peer ou tunnel_agent
+    na VPN/rede do cliente (não vpn_user_exception).
+
+targets:
+  - nome: rio-lab-ssh
+    engine: warpgate
+    protocolo: ssh
+    host: 10.0.2.99   # IP lab no overlay; não publicar ao operador
+    port: 2222
+    roles: [tenant-rio-quality]
+    operador_como: "ssh -p 2222 'USER:rio-lab-ssh@wg-or-180'"
+
+  - nome: rio-lab-postgres
+    engine: warpgate
+    protocolo: postgres
+    host: 192.168.1.110
+    port: 5434
+    database: archgate_lab
+    roles: [tenant-rio-quality]
+    operador_como: "psql host=WG port=55432 user=USER:rio-lab-postgres sslmode=require"
+
+  - nome: lab-ssh-browser
+    engine: guacamole
+    protocolo: ssh
+    host: (lab ssh via guacd)
+    port: 2222
+    roles: [guac local — ADR-007]
+    operador_como: "https://guac.archgate.com.br → lab-ssh-browser"
+
+identidade:
+  operadores_lab:
+    - testuser   # tenant_rio_quality + archguard_users
+    - tenantadmin  # archguard_tenant_admins + tenant_rio_quality
+  super_admin_lab:
+    - testadmin  # ambos tenants
+
+validado_em:
+  ssh_linux_operador: true      # 2026-07-10 smoke-operator-access.sh no .180
+  ssh_macos_operador: true      # 2026-07-10 smoke do notebook Darwin → .180
+  ssh_windows_operador: false   # pending host Windows; procedimento em smoke-evidence-2026-07-10.md
+  db_proxy: true                # linux+macos psql via :55432 sslmode=require
+  rdp_browser: n/a              # sem host Windows RDP no lab ainda
+  ssh_web_browser: true         # Guacamole API + connection lab-ssh-browser
+  evidencia: smoke-evidence-2026-07-10.md
+
+credenciais_alvo: warpgate_and_guacamole_only
+anti_padrao: never_document_direct_ip_or_target_password_to_operators

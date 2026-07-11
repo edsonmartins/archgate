@@ -1,0 +1,13 @@
+[Unit]
+Description=Renew Warpgate DB credentials from OpenBao every 20 minutes
+After=network-online.target
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=20min
+AccuracySec=1min
+Persistent=true
+Unit=archgate-broker-db.service
+
+[Install]
+WantedBy=timers.target

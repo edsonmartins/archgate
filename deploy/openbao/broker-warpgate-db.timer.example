@@ -1,0 +1,25 @@
+# Example systemd timer — renew OpenBao→Warpgate DB leases before TTL (30m)
+# Install on runtime host (optional lab/prod):
+#
+#   cp broker-warpgate-db.sh /usr/local/sbin/
+#   cat > /etc/systemd/system/archgate-broker-db.service <<EOF
+#   [Unit]
+#   Description=ArchGate OpenBao→Warpgate DB credential broker
+#   [Service]
+#   Type=oneshot
+#   EnvironmentFile=/root/archgate/bootstrap.env
+#   ExecStart=/usr/local/sbin/broker-warpgate-db.sh issue
+#   EOF
+#
+#   cat > /etc/systemd/system/archgate-broker-db.timer <<EOF
+#   [Unit]
+#   Description=Renew Warpgate DB creds from OpenBao every 20m
+#   [Timer]
+#   OnBootSec=2m
+#   OnUnitActiveSec=20m
+#   Persistent=true
+#   [Install]
+#   WantedBy=timers.target
+#   EOF
+#
+#   systemctl daemon-reload && systemctl enable --now archgate-broker-db.timer

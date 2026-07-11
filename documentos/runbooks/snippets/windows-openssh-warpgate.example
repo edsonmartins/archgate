@@ -1,0 +1,27 @@
+# Windows — OpenSSH Client → Warpgate (task 2.5)
+# PowerShell ou Windows Terminal
+#
+# Instalar OpenSSH Client (se necessário):
+#   Settings → Apps → Optional features → OpenSSH Client
+#   ou: Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
+
+ssh -V
+
+# Parte B — SSH (mesmo formato Linux/macOS)
+ssh -p 2222 "testuser:rio-lab-ssh@192.168.1.180"
+# Produção:
+# ssh -p 2222 "SEU_USUARIO:NOME_TARGET@wg.archgate.com.br"
+
+# Postgres — DBeaver (recomendado no Windows)
+# Host: 192.168.1.180 (ou wg.archgate.com.br)
+# Port: 55432
+# Database: archgate_lab
+# Username: testuser:rio-lab-postgres
+# Password: <senha operador Warpgate>
+# SSL: require
+#
+# Ver também: dbeaver-warpgate-postgres.example
+
+# Smoke em WSL2 (opcional):
+#   sudo apt install sshpass postgresql-client
+#   WG_HOST=192.168.1.180 bash smoke-operator-access.sh

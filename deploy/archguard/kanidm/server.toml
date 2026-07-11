@@ -1,0 +1,18 @@
+# Kanidm 1.10.x — ArchGuard identity (ArchGate lab/staging)
+version = "2"
+bindaddress = "0.0.0.0:8443"
+db_path = "/data/kanidm.db"
+tls_chain = "/data/chain.pem"
+tls_key = "/data/key.pem"
+domain = "id.archgate.com.br"
+origin = "https://id.archgate.com.br"
+log_level = "info"
+
+[http_client_address_info]
+# Trust X-Forwarded-For from Traefik / Cloudflare Tunnel (proxy hop list)
+x-forward-for = ["127.0.0.1", "127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+
+[online_backup]
+path = "/data/kanidm/backups/"
+schedule = "00 22 * * *"
+versions = 7

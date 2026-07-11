@@ -1,0 +1,16 @@
+[Unit]
+Description=Unseal ArchGate OpenBao (lab single-node)
+After=network-online.target docker.service
+Wants=network-online.target
+# OpenBao is a Swarm service; wait until port answers
+Before=archgate-broker-db.service
+
+[Service]
+Type=oneshot
+# RemainAfterExit=no so timer can re-invoke after service recreate (sealed again)
+RemainAfterExit=no
+ExecStart=/usr/local/sbin/archgate-openbao-unseal
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target

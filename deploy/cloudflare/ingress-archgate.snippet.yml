@@ -1,0 +1,38 @@
+# Snippet to merge into /etc/cloudflared/config.yml on 192.168.1.180
+# after Kanidm / Warpgate / Guacamole are listening locally.
+# Cloudflare terminates TLS for *.archgate.com.br.
+#
+# Prerequisites:
+#   - DNS for id/wg/guac/console.archgate.com.br as CNAME to the tunnel
+#   - cloudflared tunnel route dns <tunnel> <hostname>
+#
+# Insert BEFORE the catch-all: - service: http_status:404
+
+  # === ArchGate ===
+  - hostname: id.archgate.com.br
+    service: https://127.0.0.1:443
+    originRequest:
+      originServerName: id.archgate.com.br
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: wg.archgate.com.br
+    service: https://127.0.0.1:443
+    originRequest:
+      originServerName: wg.archgate.com.br
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: guac.archgate.com.br
+    service: https://127.0.0.1:443
+    originRequest:
+      originServerName: guac.archgate.com.br
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  - hostname: console.archgate.com.br
+    service: https://127.0.0.1:443
+    originRequest:
+      originServerName: console.archgate.com.br
+      noTLSVerify: true
+      connectTimeout: 30s

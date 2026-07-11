@@ -1,0 +1,65 @@
+# ArchGate — PostgreSQL externo (Fase 1, tarefa 1.1 / ADR-003)
+# Deploy: ver deploy/README.md
+#
+# Creates databases/roles:
+#   - warpgate  / warpgate
+#   - guacamole / guacamole
+# Never use SQLite for Warpgate/Guacamole in production.
+
+version: "3.8"
+
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:16.9-alpine}
+    networks:
+      - archgate-data
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:-archgate}
+      # Official image supports *_FILE for the superuser password
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_superuser_password
+      POSTGRES_DB: ${POSTGRES_DB:-archgate}
+      # App role passwords: read from /run/secrets by init/01-create-databases.sh
+    secrets:
+      - postgres_superuser_password
+      - postgres_warpgate_password
+      - postgres_guacamole_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init/01-create-databases.sh:/docker-entrypoint-initdb.d/01-create-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.archgate.postgres == true
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
+
+networks:
+  archgate-data:
+    external: true
+    name: archgate-data
+
+volumes:
+  postgres_data:
+    driver: local
+
+secrets:
+  postgres_superuser_password:
+    external: true
+  postgres_warpgate_password:
+    external: true
+  postgres_guacamole_password:
+    external: true
