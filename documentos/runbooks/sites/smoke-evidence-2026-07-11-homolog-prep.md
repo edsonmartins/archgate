@@ -108,13 +108,27 @@ TARGET=marra-lab-ssh → Permission denied (publickey,keyboard-interactive)
 
 ---
 
+## F2.2 — Contas UAT (2026-07-11)
+
+| User | Kanidm auth | WG roles | Smoke SSH |
+|------|-------------|----------|-----------|
+| uat-admin | ✅ REST | admin, archgate-operators | — |
+| uat-op-a | ✅ REST | tenant-rio-quality | rio-lab-ssh ✅ · marra-lab-ssh ❌ deny |
+| uat-op-b | ✅ REST | tenant-grupo-marra | — |
+| uat-viewer | ✅ REST | (none) | — |
+
+Creds: `/root/archgate/uat-credentials.env` (host only).  
+Script: `deploy/validation/provision-uat-users.sh`.
+
+---
+
 ## Bloqueios / próximos passos
 
-1. **Humano (Edson):** login OIDC console + Guac sessão + assinar F1.9 / data-alvo UAT (F0.6).  
-2. **F2.2:** criar contas `uat-*` no Kanidm (ou confirmar uso de `testuser` no dry-run).  
+1. **Humano (Edson):** login OIDC console com `uat-admin` / `uat-op-a` + Guac sessão + assinar F1.9 / data-alvo UAT (F0.6).  
+2. **F2.7:** dry-run do `HOMOLOGACAO-UAT.md` com personas UAT.  
 3. **F3:** contactar Rio Quality para peer real; até lá UAT dry-run usa lab targets.  
-4. **F4.1:** script/runbook `pg_dump` dos 3 DBs.  
-5. **F1.5:** após mutação real no console (sync/upsert site), confirmar linha nova em activity_log + UI.
+4. **F4.2:** restore dry-run dos dumps em `/var/backups/archgate-pg/`.  
+5. **F1.5:** após mutação real no console (sync/upsert site), confirmar activity_log + UI.
 
 ---
 

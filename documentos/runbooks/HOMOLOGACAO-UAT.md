@@ -28,16 +28,19 @@
 UnifiedUI, Oracle, peer em N clientes, HA OpenBao, orquestração full de pessoas, NetBird, SIEM remoto.  
 Lista completa: plano §2.2.
 
-### 0.3 Contas de teste
+### 0.3 Contas de teste (F2.2 — provisionadas 2026-07-11)
 
-Preencher na preparação (**F2.2**). Enquanto isso, lab pode usar as contas abaixo se existirem.
+Credenciais **só no runtime**: `/root/archgate/uat-credentials.env` (mode 600; **não** no git).  
+Reprovisionar: `bash deploy/validation/provision-uat-users.sh`
 
-| Persona | Usuário (exemplo) | Tenant / papéis esperados | Senha / auth |
-|---------|-------------------|---------------------------|--------------|
-| Admin plataforma | _uat-admin_ / lab admin | super-admin / visão ampla | SSO Kanidm |
-| Operador A | _uat-op-a_ / `testuser` (lab) | tenant **A** (ex. Rio) | SSO ou user WG |
-| Operador B | _uat-op-b_ | tenant **B** (ex. Marra) | SSO ou user WG |
-| Viewer | _uat-viewer_ | leitura restrita / sem targets | SSO |
+| Persona | Usuário | Kanidm groups | Warpgate roles | Uso no UAT |
+|---------|---------|---------------|----------------|------------|
+| Admin plataforma | `uat-admin` | `archguard_users`, `archguard_super_admins` | `admin`, `archgate-operators` | Console full + bastion amplo |
+| Operador A (Rio) | `uat-op-a` | `archguard_users`, `tenant_rio_quality` | `tenant-rio-quality` | SSH/PG `rio-lab-*`; **nega** marra |
+| Operador B (Marra) | `uat-op-b` | `archguard_users`, `tenant_grupo_marra` | `tenant-grupo-marra` | Isolamento inverso |
+| Viewer | `uat-viewer` | `archguard_users`, `archguard_viewers` | _(nenhuma)_ | Deny-by-default sites/targets |
+
+**Auth verificada (lab):** REST Kanidm OK para as 4 contas; WG `uat-op-a:rio-lab-ssh` → hostname lab; `uat-op-a:marra-lab-ssh` → Permission denied.
 
 **Regra:** operador **nunca** recebe senha do host/alvo; só identidade ArchGate / Warpgate.
 
@@ -86,12 +89,13 @@ Snippets: [`snippets/ssh-warpgate.example`](./snippets/ssh-warpgate.example), [`
 
 ### 1.2 SSH via Warpgate
 
-Substitua `OPERADOR` e `TARGET` (lab: `testuser` + `rio-lab-ssh`; real: conforme F3).
+Substitua `OPERADOR` e `TARGET` (lab UAT: `uat-op-a` + `rio-lab-ssh`; real: conforme F3).
 
 ```bash
-ssh -p 2222 'OPERADOR:TARGET@192.168.1.180'
+# senha em /root/archgate/uat-credentials.env → UAT_PASS_uat_op_a
+ssh -p 2222 'uat-op-a:rio-lab-ssh@192.168.1.180'
 # ou
-ssh -p 2222 'OPERADOR:TARGET@wg.archgate.com.br'
+ssh -p 2222 'uat-op-a:rio-lab-ssh@wg.archgate.com.br'
 ```
 
 | # | Ação | Resultado esperado | ☐ |
@@ -128,7 +132,7 @@ Com **Operador A** (Rio / tenant A):
 
 ```bash
 # Deve FALHAR (Permission denied / unauthorized)
-ssh -p 2222 'OPERADOR_A:marra-lab-ssh@192.168.1.180'
+ssh -p 2222 'uat-op-a:marra-lab-ssh@192.168.1.180'
 ```
 
 | # | Ação | Resultado esperado | ☐ |
@@ -248,3 +252,4 @@ Salvar em `documentos/runbooks/sites/smoke-evidence-YYYY-MM-DD-uat.md` (copiar [
 |------|---------|
 | 2026-07-11 | Rascunho inicial (F2.1) — alvos reais ainda placeholder até F3 |
 | 2026-07-11 | v0.2 — piloto Rio Quality; dono/revisor Edson; evidência homolog-prep |
+| 2026-07-11 | v0.3 — F2.2 contas uat-* provisionadas (Kanidm+WG); matriz RBAC §0.3 |

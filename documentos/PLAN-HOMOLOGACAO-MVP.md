@@ -164,9 +164,11 @@ Aceite lab assinado; waivers restantes só com prazo e aprovador.
   - tempo-alvo ≤ 30 min;
   - lista “fora de escopo” (link §2.2).  
   _Feito 2026-07-11 — rascunho v0.1; contas UAT e alvo real ainda F2.2 / F3._
-- [ ] **F2.2** Provisionar **contas Kanidm de UAT** (não reutilizar só `testuser` de lab se possível):
-  - `uat-admin`, `uat-op-a`, `uat-op-b`, `uat-viewer` (nomes livres, documentar).
-- [ ] **F2.3** Matriz RBAC na evidência: o que cada persona **vê / não vê** em `/sites` e targets WG.
+- [x] **F2.2** Provisionar **contas Kanidm de UAT** (não reutilizar só `testuser` de lab se possível):
+  - `uat-admin`, `uat-op-a`, `uat-op-b`, `uat-viewer`  
+  _2026-07-11: Kanidm + Warpgate. Script `deploy/validation/provision-uat-users.sh`. Creds: `/root/archgate/uat-credentials.env`._
+- [x] **F2.3** Matriz RBAC na evidência: o que cada persona **vê / não vê** em `/sites` e targets WG.  
+  _Ver tabela em `HOMOLOGACAO-UAT.md` §0.3 + smoke `uat-op-a` rio OK / marra deny._
 - [ ] **F2.4** Demo browser: user **sem** super-admin e **sem** `tenant_*` amplo → deny-by-default (sites filtrados).
 - [x] **F2.5** Checklist de endpoints estável: conferir [`runbooks/endpoints-staging.md`](./runbooks/endpoints-staging.md) (id, console, wg, guac).  
   _2026-07-11: URLs OK no host (307/303/307/302)._
@@ -368,7 +370,8 @@ Atualizar a cada sync.
 | F1.8 | F1 | Evidência homolog-prep | **done** | | smoke-evidence-…-homolog-prep |
 | F1.9 | F1 | Assinatura lab | todo | Edson | |
 | F2.1 | F2 | Escrever HOMOLOGACAO-UAT.md | **done** | | |
-| F2.2 | F2 | Contas UAT | todo | | |
+| F2.2 | F2 | Contas UAT | **done** | | uat-* Kanidm+WG |
+| F2.3 | F2 | Matriz RBAC | **done** | | HOMOLOGACAO-UAT §0.3 |
 | F2.5 | F2 | Endpoints | **done** | | |
 | F2.7 | F2 | Dry-run UAT | todo | | |
 | F3.* | F3 | Peer real Rio | **blocked** | cliente | lab_overlay only |
