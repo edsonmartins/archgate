@@ -10,6 +10,7 @@ Plataforma de acesso privilegiado (bastion/gateway) da IntegrAllTech. Este pacot
 4. **`openspec/project.md`** — contexto de stack, repo e convenções (contém as decisões de ambiente `[A DEFINIR]`).
 5. **`openspec/changes/README.md`** — índice das fases e ordem de execução.
 6. **`MATRIZ_FUNCIONALIDADES.md`** — o que está **feito** vs **falta** no lab (atualizado com o progresso de implementação).
+7. **`PLAN-HOMOLOGACAO-MVP.md`** — plano com tarefas F0–F5 até produto **homologável** (não confundir com lab nem com Fases 4–5).
 
 ## Conteúdo
 
