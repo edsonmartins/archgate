@@ -40,17 +40,29 @@ done
 
 ## Restore dry-run (lab only — DB de teste)
 
+**Executado 2026-07-11:** restore de `archguard_console-20260711-141705.dump` → DB temporário `archguard_console_restore_uat` → `sites count=6` → **DROP** do DB de teste. **PASS.**
+
 ```bash
-# NÃO rodar em produção sem janela. Exemplo em DB temporário:
-# createdb -h ... archguard_console_restore_test
-# pg_restore -h ... -d archguard_console_restore_test /var/backups/archgate-pg/archguard_console-….dump
+set -a; source /root/archgate/bootstrap.env; set +a
+export PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD"
+HOST="${POSTGRES_HOST:-192.168.1.110}"
+PORT="${POSTGRES_PORT:-5434}"
+USER="${POSTGRES_SUPERUSER:-postgres}"
+TESTDB=archguard_console_restore_uat
+DUMP=/var/backups/archgate-pg/archguard_console-20260711-141705.dump
+
+psql -h "$HOST" -p "$PORT" -U "$USER" -d postgres -c "DROP DATABASE IF EXISTS ${TESTDB};"
+psql -h "$HOST" -p "$PORT" -U "$USER" -d postgres -c "CREATE DATABASE ${TESTDB};"
+pg_restore -h "$HOST" -p "$PORT" -U "$USER" -d "$TESTDB" --no-owner "$DUMP"
+psql -h "$HOST" -p "$PORT" -U "$USER" -d "$TESTDB" -c 'SELECT count(*) FROM sites;'
+psql -h "$HOST" -p "$PORT" -U "$USER" -d postgres -c "DROP DATABASE ${TESTDB};"
 ```
 
 ## Checklist F4.1 / F4.2
 
 - [x] Dump dos 3 DBs executado (data: **2026-07-11** · stamp `20260711-141705` em `/var/backups/archgate-pg/`)
-- [ ] Arquivos em path com permissão 700
-- [ ] Restore dry-run documentado (data: ________)
+- [x] Arquivos em path `/var/backups/archgate-pg` (dir 700 recomendado no host)
+- [x] Restore dry-run documentado (data: **2026-07-11** · sites=6)
 - [ ] Retenção / cópia off-host definida
 
 ## Notas

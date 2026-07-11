@@ -8,8 +8,9 @@
 | Cliente piloto | **Rio Quality** (lab_overlay até F3; depois peer real) |
 | Dono / revisor | **Edson Martins** |
 | Duração alvo | 30 minutos (happy path) + 15 min opcionais (isolamento / Guac / admin) |
-| Versão do roteiro | 0.2 |
+| Versão do roteiro | 0.4 |
 | Data | 2026-07-11 |
+| Dry-run auto | **2026-07-11** — bastion PASS (ver evidência homolog-prep §F2.7) |
 
 ---
 
@@ -253,3 +254,15 @@ Salvar em `documentos/runbooks/sites/smoke-evidence-YYYY-MM-DD-uat.md` (copiar [
 | 2026-07-11 | Rascunho inicial (F2.1) — alvos reais ainda placeholder até F3 |
 | 2026-07-11 | v0.2 — piloto Rio Quality; dono/revisor Edson; evidência homolog-prep |
 | 2026-07-11 | v0.3 — F2.2 contas uat-* provisionadas (Kanidm+WG); matriz RBAC §0.3 |
+| 2026-07-11 | v0.4 — F2.7 dry-run auto PASS (SSH/PG/isolamento 4 personas) |
+
+---
+
+## 11. Fricções do dry-run automatizado (F2.7)
+
+| # | Fricção | Impacto UAT | Mitigação |
+|---|---------|-------------|-----------|
+| 1 | Login OIDC console / Guac **browser** não automatizado | Revisor precisa de 10–15 min manuais | Usar `uat-admin` / `uat-op-a` + senhas em `uat-credentials.env` |
+| 2 | Cert visto via `127.0.0.1` = Traefik DEFAULT | Browser local pode avisar | Acessar por DNS `*.archgate.com.br` (ou aceitar lab) |
+| 3 | Site Rio ainda `lab_overlay` | Não prova peer cliente real | **F3** — bloqueio de gate F5 “cliente real” |
+| 4 | `uat-op-b:marra-lab-ssh` cai no mesmo container lab que rio | Isolamento é por **target/role**, não por host distinto | OK para lab; F3 usa hosts reais diferentes |

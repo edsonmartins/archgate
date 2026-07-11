@@ -139,3 +139,53 @@ Script: `deploy/validation/provision-uat-users.sh`.
 | F0 | **done** (exceto F0.5 opcional e F0.6 data) |
 | F1 automatizável | **PASS com waiver** (browser OIDC/Guac/offboarding/UI audit) |
 | Pronto para UAT formal (F5)? | **Não** — falta F3 cliente real + assinaturas browser |
+
+---
+
+## F2.7 — Dry-run UAT automatizado (2026-07-11 tarde)
+
+| Bloco UAT | Resultado | Evidência |
+|-----------|-----------|-----------|
+| 1.2 SSH `uat-op-a:rio-lab-ssh` | ✅ PASS | hostname `45baba7d8be4` user `labuser` |
+| 1.3 PG `uat-op-a:rio-lab-postgres` | ✅ PASS | `select 1` → 1 (`sslmode=require`) |
+| 2 Isolamento op-a ↛ marra | ✅ PASS | Permission denied |
+| 2 Isolamento op-b ↛ rio | ✅ PASS | Permission denied |
+| 2 op-b → marra-lab-ssh | ✅ PASS | shell OK (mesmo host lab) |
+| Viewer ↛ rio | ✅ PASS | Permission denied |
+| 1.1 Console OIDC browser | ⚠️ | 307 + discovery 200; **login humano pendente** |
+| 4 Guac sessão | ⚠️ | Portão 302→IdP OK; sessão humana pendente |
+| 3 Admin CP browser | ⚠️ | humano |
+| 5 Offboarding | ⚠️ | humano |
+
+### F4.2 Restore dry-run
+
+```
+pg_restore archguard_console-20260711-141705.dump → archguard_console_restore_uat
+sites_count=6
+DROP DATABASE cleanup OK
+RESULT: restore_dry_run=PASS
+```
+
+### F4.3 Unseal
+
+- timer `archgate-openbao-unseal.timer` **enabled/active**
+- last run: `OpenBao already unsealed` exit 0
+- runbook: `documentos/runbooks/openbao-unseal-lab.md`
+
+### F1.5 Activity log
+
+- SQLite activity_log com linha `uat.dryrun.f2.7` (actor `uat-admin`)
+- UI browser ainda pendente
+
+---
+
+## Status parcial pós dry-run
+
+| Fase | Status |
+|------|--------|
+| F0 | done (falta F0.6 data) |
+| F1 | doing — smokes+recordings OK; browser/assinatura pendentes |
+| F2 | doing — F2.1–2.3,2.5,2.7 auto OK; F2.4/2.6 browser |
+| F3 | **blocked** peer Rio real |
+| F4 | F4.1–4.4 done/partial; F4.2 PASS |
+| F5 | blocked até F1 humano + F3 |

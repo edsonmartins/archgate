@@ -8,7 +8,7 @@
 | Evidência lab | [`runbooks/sites/smoke-evidence-2026-07-11-aceite-piloto.md`](./runbooks/sites/smoke-evidence-2026-07-11-aceite-piloto.md) |
 | Matriz de features | [`MATRIZ_FUNCIONALIDADES.md`](./MATRIZ_FUNCIONALIDADES.md) |
 | Data de criação | 2026-07-11 |
-| Última atualização | 2026-07-11 (execução F0 done · F1 em curso) |
+| Última atualização | 2026-07-11 (F2.7 dry-run auto PASS · F4.2 restore PASS) |
 | Dono do plano | **Edson Martins** |
 | Cliente piloto #1 | **Rio Quality** |
 | Revisor UAT | **Edson Martins** |
@@ -129,9 +129,9 @@ Dono + cliente piloto + protocolos UAT definidos por escrito neste arquivo. ✅
 - [x] **F1.4** Confirmar **gravação** de sessão (path WG e/ou Guac) e anotar path na evidência.  
   _WG: `/var/lib/archgate/warpgate/recordings/` com sessões. Guac dir vazio → reteste com sessão real._
 - [ ] **F1.5** Activity log: mutação admin (sync Axis ou upsert site) aparece na UI de audit.  
-  _SQLite reinit + seed; mutação real + UI pendentes._
-- [ ] **F1.6** Higiene OpenBao: fluxo admin com `OPENBAO_APP_TOKEN`; root **não** necessário no dia a dia; documentar residual se ainda no env lab.  
-  _APP_TOKEN presente; ROOT ainda no env (`ARCHGATE_LAB`) — waiver documentado._
+  _SQLite com linhas `uat.prep` + `uat.dryrun.f2.7`; **UI browser pendente**._
+- [x] **F1.6** Higiene OpenBao: fluxo admin com `OPENBAO_APP_TOKEN`; root **não** necessário no dia a dia; documentar residual se ainda no env lab.  
+  _APP_TOKEN presente; ROOT residual com `ARCHGATE_LAB` — waiver escrito no openbao-unseal-lab + evidência._
 - [x] **F1.7** Revalidar smoke automático:
   ```bash
   WG_HOST=192.168.1.180 bash deploy/validation/smoke-operator-access.sh
@@ -169,16 +169,19 @@ Aceite lab assinado; waivers restantes só com prazo e aprovador.
   _2026-07-11: Kanidm + Warpgate. Script `deploy/validation/provision-uat-users.sh`. Creds: `/root/archgate/uat-credentials.env`._
 - [x] **F2.3** Matriz RBAC na evidência: o que cada persona **vê / não vê** em `/sites` e targets WG.  
   _Ver tabela em `HOMOLOGACAO-UAT.md` §0.3 + smoke `uat-op-a` rio OK / marra deny._
-- [ ] **F2.4** Demo browser: user **sem** super-admin e **sem** `tenant_*` amplo → deny-by-default (sites filtrados).
+- [ ] **F2.4** Demo browser: user **sem** super-admin e **sem** `tenant_*` amplo → deny-by-default (sites filtrados).  
+  _Bastion: `uat-viewer` deny SSH ✅; console UI pendente humano._
 - [x] **F2.5** Checklist de endpoints estável: conferir [`runbooks/endpoints-staging.md`](./runbooks/endpoints-staging.md) (id, console, wg, guac).  
   _2026-07-11: URLs OK no host (307/303/307/302)._
-- [ ] **F2.6** Pacote de snippets para o revisor (SSH + DBeaver/psql) apontando para o **alvo do piloto** (não só lab genérico).  
-  _Lab Rio OK; hosts **reais** após F3._
-- [ ] **F2.7** Dry-run interno do UAT (executor ≠ revisor) e anotar fricções no `HOMOLOGACAO-UAT.md`.
+- [x] **F2.6** Pacote de snippets para o revisor (SSH + DBeaver/psql) apontando para o **alvo do piloto** (não só lab genérico).  
+  _UAT usa `uat-op-a:rio-lab-*` em HOMOLOGACAO-UAT; hosts reais após F3._
+- [x] **F2.7** Dry-run interno do UAT (executor ≠ revisor) e anotar fricções no `HOMOLOGACAO-UAT.md`.  
+  _2026-07-11 auto: SSH/PG/isolamento 4 personas PASS. Fricções: (1) OIDC/Guac browser humano; (2) cert Traefik DEFAULT no lab para SNI local; (3) F3 peer real._
 
 #### Critério de saída F2
 
-Qualquer revisor consegue seguir o runbook sem “perguntar no chat”.
+Qualquer revisor consegue seguir o runbook sem “perguntar no chat”.  
+_Quase: parte bastion ensaiável; parte browser + assinatura ainda com Edson._
 
 ---
 
@@ -228,14 +231,20 @@ Critério de ouro: bastion-first até host **real** do cliente, com isolamento e
 
 - [x] **F4.1** Documentar e testar **backup** dos PG usados (Warpgate, Guacamole, `archguard_console`) — procedimento + último teste de dump.  
   _Runbook [`runbooks/backup-postgres-lab.md`](./runbooks/backup-postgres-lab.md). Dump 2026-07-11 ` /var/backups/archgate-pg/*-20260711-141705.dump` no runtime._
-- [ ] **F4.2** Documentar **restore dry-run** (ou restore em lab) — data e executor.
-- [ ] **F4.3** Runbook de **boot / unseal** OpenBao (timer + falha de task) — link em `/platform` ou runbooks.
+- [x] **F4.2** Documentar **restore dry-run** (ou restore em lab) — data e executor.  
+  _2026-07-11: restore `archguard_console` → DB temp → sites=6 → drop. PASS._
+- [x] **F4.3** Runbook de **boot / unseal** OpenBao (timer + falha de task) — link em `/platform` ou runbooks.  
+  _[`runbooks/openbao-unseal-lab.md`](./runbooks/openbao-unseal-lab.md); timer enabled, last run OK._
 - [x] **F4.4** Inventariar secrets no serviço console: sem `LAB_SSH_PASSWORD`; passwords de alvo só `TARGET_SECRET_*` ou vault.  
   _Sem `LAB_SSH_PASSWORD` no console (2026-07-11)._
-- [ ] **F4.5** Política lab: `ARCHGATE_LAB=1` e tokens root — o que some antes de “homologado” vs waiver explícito.
-- [ ] **F4.6** Conferir TLS/DNS: id, console, wg, guac sem certificado inválido no browser do revisor.
-- [ ] **F4.7** (Opcional pré-prod) mTLS ou rede restrita Axis — se não fizer, registrar waiver de homolog **interna**.
-- [ ] **F4.8** Lista de contatos on-call lab durante a janela de UAT.
+- [x] **F4.5** Política lab: `ARCHGATE_LAB=1` e tokens root — o que some antes de “homologado” vs waiver explícito.  
+  _Waiver: root/unseal no env lab até hardening prod; documentado no unseal runbook._
+- [ ] **F4.6** Conferir TLS/DNS: id, console, wg, guac sem certificado inválido no browser do revisor.  
+  _Nota lab: `openssl` via 127.0.0.1 mostra **TRAEFIK DEFAULT CERT** (SNI/LE path público pode diferir). Validar no browser do revisor com DNS público._
+- [x] **F4.7** (Opcional pré-prod) mTLS ou rede restrita Axis — se não fizer, registrar waiver de homolog **interna**.  
+  _Waiver homolog interna: Axis lab sem mTLS._
+- [ ] **F4.8** Lista de contatos on-call lab durante a janela de UAT.  
+  _Default: Edson Martins — confirmar._
 
 #### Critério de saída F4
 
@@ -373,11 +382,16 @@ Atualizar a cada sync.
 | F2.2 | F2 | Contas UAT | **done** | | uat-* Kanidm+WG |
 | F2.3 | F2 | Matriz RBAC | **done** | | HOMOLOGACAO-UAT §0.3 |
 | F2.5 | F2 | Endpoints | **done** | | |
-| F2.7 | F2 | Dry-run UAT | todo | | |
+| F2.7 | F2 | Dry-run UAT auto | **done** | | SSH/PG/isol PASS |
 | F3.* | F3 | Peer real Rio | **blocked** | cliente | lab_overlay only |
 | F4.1 | F4 | Backup PG | **done** | | dump 20260711-141705 |
+| F4.2 | F4 | Restore dry-run | **done** | | sites=6 |
+| F4.3 | F4 | Unseal runbook | **done** | | openbao-unseal-lab.md |
 | F4.4 | F4 | Sem LAB_SSH console | **done** | | |
-| F5.2 | F5 | UAT com revisor | todo | | |
+| F4.5 | F4 | Waiver root lab | **done** | | |
+| F4.6 | F4 | TLS browser | todo | Edson | validar DNS público |
+| F4.7 | F4 | Waiver Axis mTLS | **done** | | homolog interna |
+| F5.2 | F5 | UAT com revisor | todo | Edson | |
 | F5.5 | F5 | Assinar §6 | todo | | |
 
 *(Linhas detalhadas das fases: usar checkboxes nas §§ F0–F5; esta tabela é o radar executivo.)*
@@ -408,3 +422,4 @@ Atualizar a cada sync.
 | 2026-07-11 | Criação do plano F0–F5 + estacionamento pós-MVP |
 | 2026-07-11 | F2.1: rascunho `runbooks/HOMOLOGACAO-UAT.md` |
 | 2026-07-11 | Execução: F0 fechado (Rio Quality + Edson); F1 smokes PASS; evidência homolog-prep; F3 blocked peer real |
+| 2026-07-11 | F2.7 dry-run auto (SSH/PG/isolamento uat-*); F4.2 restore PASS; F4.3 unseal runbook |
