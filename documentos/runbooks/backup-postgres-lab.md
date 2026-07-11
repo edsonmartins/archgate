@@ -48,7 +48,7 @@ done
 
 ## Checklist F4.1 / F4.2
 
-- [ ] Dump dos 3 DBs executado (data: ________)
+- [x] Dump dos 3 DBs executado (data: **2026-07-11** · stamp `20260711-141705` em `/var/backups/archgate-pg/`)
 - [ ] Arquivos em path com permissão 700
 - [ ] Restore dry-run documentado (data: ________)
 - [ ] Retenção / cópia off-host definida

@@ -224,8 +224,8 @@ Critério de ouro: bastion-first até host **real** do cliente, com isolamento e
 
 #### Tarefas
 
-- [ ] **F4.1** Documentar e testar **backup** dos PG usados (Warpgate, Guacamole, `archguard_console`) — procedimento + último teste de dump.  
-  _DBs confirmados em `.110:5434` (tamanhos ~10/9/8 MB). Runbook em andamento._
+- [x] **F4.1** Documentar e testar **backup** dos PG usados (Warpgate, Guacamole, `archguard_console`) — procedimento + último teste de dump.  
+  _Runbook [`runbooks/backup-postgres-lab.md`](./runbooks/backup-postgres-lab.md). Dump 2026-07-11 ` /var/backups/archgate-pg/*-20260711-141705.dump` no runtime._
 - [ ] **F4.2** Documentar **restore dry-run** (ou restore em lab) — data e executor.
 - [ ] **F4.3** Runbook de **boot / unseal** OpenBao (timer + falha de task) — link em `/platform` ou runbooks.
 - [x] **F4.4** Inventariar secrets no serviço console: sem `LAB_SSH_PASSWORD`; passwords de alvo só `TARGET_SECRET_*` ou vault.  
@@ -372,7 +372,7 @@ Atualizar a cada sync.
 | F2.5 | F2 | Endpoints | **done** | | |
 | F2.7 | F2 | Dry-run UAT | todo | | |
 | F3.* | F3 | Peer real Rio | **blocked** | cliente | lab_overlay only |
-| F4.1 | F4 | Backup PG | doing | | DBs mapeados |
+| F4.1 | F4 | Backup PG | **done** | | dump 20260711-141705 |
 | F4.4 | F4 | Sem LAB_SSH console | **done** | | |
 | F5.2 | F5 | UAT com revisor | todo | | |
 | F5.5 | F5 | Assinar §6 | todo | | |
