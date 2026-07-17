@@ -1,0 +1,17 @@
+server:
+  port: ${ORCH_PORT:8090}
+
+spring:
+  application:
+    name: archgate-orchestration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+archgate:
+  orchestration:
+    # mock = in-memory adapters (unit/lab); live = wire Kanidm/WG APIs (TBD)
+    mode: ${ORCH_MODE:mock}

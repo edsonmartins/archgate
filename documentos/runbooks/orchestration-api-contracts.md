@@ -62,3 +62,13 @@ Dispara sync Axis → sites SoT + `tenant_*` (já parcialmente no lab `sync-tena
 | provision user | manual / SA Kanidm | API one-shot |
 | grant access | apply targets manual | API |
 | revoke all | offboarding-e2e IdP | multi-componente API |
+
+## Scaffold (2026-07-17)
+
+Implementação mock em `services/orchestration` (Spring Boot):
+
+- `POST …/users/provision|revoke`, `…/access/grant`, `…/tenants/sync`
+- `GET …/status/last`, `…/status/users/{username}`
+- Adapters mock: kanidm, warpgate, guacamole, openbao (idempotência de revoke coberta em testes)
+
+Live: trocar `MockComponentAdapter` por clients reais; manter a mesma API.

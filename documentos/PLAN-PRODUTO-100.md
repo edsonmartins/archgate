@@ -70,7 +70,7 @@ Use este plano para **marcar tarefas**; a % é orientação, não KPI rígido.
 | **W1** | Produção endurecida (1º cliente) | M2 | `todo` | ops / identity / ephemeral |
 | **W2** | Rede multi-site + protocolos | M3 | `doing` | ADR-010 connectors default; inventário + playbook; peer real = calendário |
 | **W3** | Oracle credential proxy | M3 | `doing` | scaffold Spring mock + Go helper ADR-001 |
-| **W4** | UnifiedUI + orquestração Axis | M4 | `todo` | `add-unified-ui-and-orchestration` |
+| **W4** | UnifiedUI + orquestração Axis | M4 | `doing` | `add-unified-ui-and-orchestration` |
 | **W5** | HA + acesso agêntico | M5 | `todo` | `add-agentic-access` |
 
 ```text
@@ -324,7 +324,7 @@ E2E PASS **ou** N/A formal assinado.
 
 | Campo | Valor |
 |-------|--------|
-| Status | `doing` (scaffold UI) |
+| Status | `doing` (UI + launch; orch API TBD) |
 | Pacote | `add-unified-ui-and-orchestration` |
 | Critério de saída | Operador usa **uma** UI para catálogo + sessão; Axis provisiona/revoga pessoas |
 | App | `frontend/unified-ui` · [ADR-006](../adr/ADR-006-estrategia-frontend-unifiedui.md) |
@@ -334,26 +334,31 @@ E2E PASS **ou** N/A formal assinado.
 #### W4-UI — UnifiedUI
 
 - [x] **W4-UI01** ADR-006: admin = archguard-console; operador = Vite/React UnifiedUI.
-- [x] **W4-UI02** Esqueleto app com auth **mock** lab (OIDC real próximo).  
+- [x] **W4-UI02** Esqueleto app com auth **mock** lab + scaffold OIDC Code+PKCE (`VITE_OIDC_ENABLED`).  
   _`npm run dev` em `frontend/unified-ui`_
-- [x] **W4-UI03** Catálogo “minhas conexões” filtrado por tenant mock.
+- [x] **W4-UI03** Catálogo “minhas conexões” — BFF `GET /api/unified/v1/connections` com fallback mock tenant.  
+  _[`runbooks/unified-ui-bff-contracts.md`](./runbooks/unified-ui-bff-contracts.md)_
 - [x] **W4-UI04** Painel de sessão (chrome/stub); guacamole-common-js TBD.
 - [x] **W4-UI05** Princípio tokens admin fora do browser (doc + design).
 - [x] **W4-UI06** Caminho: UnifiedUI aposenta stock Guac no fluxo dev; stock = break-glass (ADR-007A).
-- [ ] **W4-UI07** Deep link / launch Warpgate desktop (SSH/PG) a partir do catálogo.
+- [x] **W4-UI07** Deep link / launch Warpgate desktop (SSH/PG snippets + `ssh://`) a partir do catálogo.
 - [x] **W4-UI08** UX “sem conexões” no catálogo vazio.
 - [ ] **W4-UI09** Testes E2E browser (smoke crítico).
+- [ ] **W4-UI10** OIDC real em lab (client Kanidm + BFF cookie session).
+- [ ] **W4-UI11** guacamole-common-js no painel de sessão.
 
 #### W4-ORCH — Orquestração Axis
 
 - [x] **W4-ORCH01** Contratos API rascunho.  
   _[`runbooks/orchestration-api-contracts.md`](./runbooks/orchestration-api-contracts.md)_
-- [ ] **W4-ORCH02** Provision pessoa: Axis → Kanidm group/tenant + (opcional) WG role.
-- [ ] **W4-ORCH03** Grant acesso target/site (API).
-- [ ] **W4-ORCH04** Revoke / offboarding **one-shot** multi-componente (Kanidm + WG + Guac + leases).
+- [x] **W4-ORCH02** Provision pessoa API (mock multi-adapter) — `services/orchestration`.  
+  _Live Kanidm TBD_
+- [x] **W4-ORCH03** Grant acesso target API (mock WG/OpenBao).
+- [x] **W4-ORCH04** Revoke one-shot multi-componente (mock + testes; live adapters TBD).
 - [ ] **W4-ORCH05** Webhooks ou polling Axis com idempotência e audit.
-- [ ] **W4-ORCH06** Painel admin “última orquestração” confiável em prod.
+- [x] **W4-ORCH06** Endpoint status “última orquestração” (`/status/last` + por user) — painel admin consome depois.
 - [ ] **W4-ORCH07** (Opcional) Terraform provider Warpgate SoT.
+- [ ] **W4-ORCH08** Adapters live: Kanidm REST + Warpgate + Guac provision + OpenBao revoke.
 
 ### Critério de saída W4
 
@@ -454,8 +459,9 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | W2-PROTO02 | W2 | RDP Windows real | todo | | |
 | W2-MESH01 | W2 | Decisão NetBird | todo | | |
 | W3-ORACLE01 | W3 | Proxy Java scaffold | **done** | | mock API + tests |
-| W4-UI02 | W4 | Esqueleto UnifiedUI | todo | | |
-| W4-ORCH04 | W4 | Offboarding one-shot | todo | | |
+| W4-UI02 | W4 | Esqueleto UnifiedUI | **done** | | mock + OIDC scaffold |
+| W4-UI07 | W4 | Launch Warpgate | **done** | | snippets + ssh:// |
+| W4-ORCH04 | W4 | Offboarding one-shot | **done** (mock) | | live adapters TBD |
 | W5-HA01 | W5 | OpenBao HA + auto-unseal | todo | | |
 | W5-AG05 | W5 | HITL mutante | todo | | |
 | W5-CL03 | W5 | Aceite 100% | todo | | |
@@ -504,3 +510,5 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | 2026-07-17 | W2 eng: ADR-010, inventário multi-site, matriz protocolos, segmentação, tunnel |
 | 2026-07-17 | W3 scaffold: services/oracle-proxy (mock) + openbao-oracle-plugin CLI |
 | 2026-07-17 | W4 scaffold: frontend/unified-ui + ADR-006 + orchestration contracts |
+| 2026-07-17 | W4 deepen: OIDC/PKCE scaffold, BFF catalog client, Warpgate launch (UI07), build fix |
+| 2026-07-17 | W4-ORCH scaffold: services/orchestration (mock provision/grant/revoke + tests) |

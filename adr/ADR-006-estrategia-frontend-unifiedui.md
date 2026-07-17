@@ -39,6 +39,17 @@ Motivos:
 - Design system: reutilizar tokens/cores IntegrAllTech; Mantine/shadcn opcional na UnifiedUI v0.  
 - Orquestração Axis continua server-side (API), não no SPA.
 
+## Estado de implementação (2026-07-17)
+
+| Item | Status |
+|------|--------|
+| Scaffold Vite/React em `frontend/unified-ui` | done |
+| Auth mock lab + OIDC PKCE scaffold | done (OIDC lab real TBD) |
+| Catálogo BFF contract + mock fallback | done (`unified-ui-bff-contracts.md`) |
+| Launch Warpgate SSH/PG (W4-UI07) | done |
+| guacamole-common-js embed | todo |
+| Offboarding / provision API | todo (W4-ORCH) |
+
 ## Alternativas rejeitadas
 
 - Reescrever admin em Vite agora.  
