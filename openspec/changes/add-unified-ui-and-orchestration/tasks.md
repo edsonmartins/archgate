@@ -2,9 +2,9 @@
 
 ## 1. Componente de sessão (guacamole-common-js)
 - [x] 1.1 Esqueleto React/TS com painel de sessão (chrome) — `frontend/unified-ui` 2026-07-17
-- [ ] 1.2 Instanciar `Guacamole.Client` e renderizar display em `<canvas>`
-- [x] 1.3 Ciclo de vida da sessão (connect/disconnect stub states)
-- [ ] 1.4 Injeção do token OIDC (Kanidm) no handshake do túnel
+- [x] 1.2 `Guacamole.Client` + WebSocketTunnel no `GuacamoleDisplay` (token BFF)
+- [x] 1.3 Ciclo de vida da sessão (connect/disconnect + error states)
+- [ ] 1.4 Handshake lab com BFF real (`POST /api/unified/v1/sessions`)
 - [x] 1.5 Chrome de sessão (barra connect/disconnect) — clipboard/resize/recording TBD
 - [x] 1.6 Launch Warpgate desktop (SSH/PG snippets + deep-link) — W4-UI07 2026-07-17
 
@@ -22,7 +22,8 @@
 - [x] 3.3 `revogar_tudo` one-shot mock + testes de idempotência
 - [x] 3.4 `sincronizar_tenants()` — lab CLI/UI + endpoint stub API
 - [ ] 3.5 Terraform provider do Warpgate como fonte de verdade de targets/roles
-- [ ] 3.6 Adapters live (Kanidm REST, Warpgate admin, Guac, OpenBao)
+- [x] 3.6 Adapters live HTTP dry-run (Kanidm/WG/Guac/OpenBao) — calibrar paths no lab
+- [x] 3.7 Webhook Axis + Idempotency-Key
 
 ## 4. Automação de ciclo de vida
 - [x] 4.1 Onboarding API mock (provision + grant)
@@ -33,4 +34,5 @@
 ## 5. Validação
 - [ ] 5.1 Dev abre RDP/SSH inteiramente dentro da UnifiedUI, sem UI de terceiros
 - [ ] 5.2 Onboarding/offboarding disparados pelo Mentors Axis refletem em todos os componentes
-- [ ] 5.3 Nenhum token administrativo trafega para o browser
+- [x] 5.3 Design: nenhum token administrativo no browser (contrato + SPA)
+- [x] 5.4 Smoke mock API: `deploy/validation/smoke-orchestration-mock.sh`

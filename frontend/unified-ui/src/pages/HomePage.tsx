@@ -136,9 +136,9 @@ export function HomePage() {
         <h2>Próximos passos (W4)</h2>
         <ul className="muted" style={{ margin: 0, paddingLeft: '1.2rem' }}>
           <li>Registrar OIDC client no Kanidm e BFF cookie session</li>
-          <li>API catálogo real no console / orchestration service</li>
-          <li>guacamole-common-js no painel de sessão</li>
-          <li>Offboarding one-shot multi-componente (W4-ORCH04)</li>
+          <li>API catálogo real + <code>POST /sessions</code> tunnel token</li>
+          <li>Adapters live de orquestração (Kanidm/WG/Guac/OpenBao)</li>
+          <li>E2E browser smoke (W4-UI09)</li>
         </ul>
       </div>
     </div>

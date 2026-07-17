@@ -50,6 +50,34 @@ Filtrado por sessão (RBAC / memberships Kanidm `tenant_*`). **Sem** IPs de alvo
 }
 ```
 
+## Sessão Guacamole (W4-UI11)
+
+### `POST /api/unified/v1/sessions`
+
+Emite token de túnel **opaco** (curta duração). O SPA usa `guacamole-common-js` com WebSocket.
+
+```json
+{
+  "connection_id": "3",
+  "target": "rio-lab-ssh-browser",
+  "protocol": "ssh"
+}
+```
+
+Resposta:
+
+```json
+{
+  "tunnel_url": "wss://app.archgate.com.br/api/unified/v1/tunnel",
+  "connect_data": "<opaque-or-query-string-for-Client.connect>",
+  "expires_in": 120
+}
+```
+
+- BFF monta o handshake com guacd / Guacamole auth token **server-side**.  
+- SPA nunca recebe token admin, senha de alvo ou JWT de serviço.  
+- Lab: sem BFF → erro claro; `VITE_GUAC_DEMO=1` só para chrome local.
+
 ## Princípios
 
 | Princípio | Nota |
@@ -64,4 +92,4 @@ Filtrado por sessão (RBAC / memberships Kanidm `tenant_*`). **Sem** IPs de alvo
 |----|-----|--------|
 | callback | SPA PKCE direto + mock | BFF cookie |
 | connections | mock fixture | BFF + Guac/WG RBAC |
-| guac tunnel token | — | BFF short-lived |
+| guac tunnel token | SPA client + contract | BFF short-lived |

@@ -25,4 +25,10 @@ export const config = {
     pgPort: Number(import.meta.env.VITE_WG_PG_PORT ?? 55432),
     pgDb: import.meta.env.VITE_WG_PG_DB ?? 'archgate_lab',
   },
+  guac: {
+    /** Allow demo tunnel when BFF missing (local chrome only). */
+    demo: flag(import.meta.env.VITE_GUAC_DEMO),
+    /** Optional direct WS override (normally from BFF response). */
+    tunnelWs: import.meta.env.VITE_GUAC_TUNNEL_WS ?? '',
+  },
 } as const

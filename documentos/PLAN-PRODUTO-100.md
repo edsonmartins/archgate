@@ -324,7 +324,7 @@ E2E PASS **ou** N/A formal assinado.
 
 | Campo | Valor |
 |-------|--------|
-| Status | `doing` (UI + launch; orch API TBD) |
+| Status | `doing` (UI guac embed + orch mock/live dry-run; lab OIDC/BFF TBD) |
 | Pacote | `add-unified-ui-and-orchestration` |
 | Critério de saída | Operador usa **uma** UI para catálogo + sessão; Axis provisiona/revoga pessoas |
 | App | `frontend/unified-ui` · [ADR-006](../adr/ADR-006-estrategia-frontend-unifiedui.md) |
@@ -338,14 +338,14 @@ E2E PASS **ou** N/A formal assinado.
   _`npm run dev` em `frontend/unified-ui`_
 - [x] **W4-UI03** Catálogo “minhas conexões” — BFF `GET /api/unified/v1/connections` com fallback mock tenant.  
   _[`runbooks/unified-ui-bff-contracts.md`](./runbooks/unified-ui-bff-contracts.md)_
-- [x] **W4-UI04** Painel de sessão (chrome/stub); guacamole-common-js TBD.
+- [x] **W4-UI04** Painel de sessão (chrome + estados).
 - [x] **W4-UI05** Princípio tokens admin fora do browser (doc + design).
 - [x] **W4-UI06** Caminho: UnifiedUI aposenta stock Guac no fluxo dev; stock = break-glass (ADR-007A).
 - [x] **W4-UI07** Deep link / launch Warpgate desktop (SSH/PG snippets + `ssh://`) a partir do catálogo.
 - [x] **W4-UI08** UX “sem conexões” no catálogo vazio.
 - [ ] **W4-UI09** Testes E2E browser (smoke crítico).
 - [ ] **W4-UI10** OIDC real em lab (client Kanidm + BFF cookie session).
-- [ ] **W4-UI11** guacamole-common-js no painel de sessão.
+- [x] **W4-UI11** guacamole-common-js no painel de sessão (token via BFF; demo local opcional).
 
 #### W4-ORCH — Orquestração Axis
 
@@ -355,10 +355,10 @@ E2E PASS **ou** N/A formal assinado.
   _Live Kanidm TBD_
 - [x] **W4-ORCH03** Grant acesso target API (mock WG/OpenBao).
 - [x] **W4-ORCH04** Revoke one-shot multi-componente (mock + testes; live adapters TBD).
-- [ ] **W4-ORCH05** Webhooks ou polling Axis com idempotência e audit.
+- [x] **W4-ORCH05** Webhooks Axis + `Idempotency-Key` (in-memory; HA → Redis/PG em W5).
 - [x] **W4-ORCH06** Endpoint status “última orquestração” (`/status/last` + por user) — painel admin consome depois.
 - [ ] **W4-ORCH07** (Opcional) Terraform provider Warpgate SoT.
-- [ ] **W4-ORCH08** Adapters live: Kanidm REST + Warpgate + Guac provision + OpenBao revoke.
+- [x] **W4-ORCH08** Adapters live HTTP (dry-run default) — paths a calibrar no lab com tokens reais.
 
 ### Critério de saída W4
 
@@ -512,3 +512,4 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | 2026-07-17 | W4 scaffold: frontend/unified-ui + ADR-006 + orchestration contracts |
 | 2026-07-17 | W4 deepen: OIDC/PKCE scaffold, BFF catalog client, Warpgate launch (UI07), build fix |
 | 2026-07-17 | W4-ORCH scaffold: services/orchestration (mock provision/grant/revoke + tests) |
+| 2026-07-17 | W4: guac-common-js embed, live adapters dry-run, Axis webhooks idempotentes |

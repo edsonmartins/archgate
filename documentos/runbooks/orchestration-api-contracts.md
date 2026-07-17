@@ -45,6 +45,20 @@ Efeito: **revogar_tudo** — expire Kanidm, drop leases OpenBao, remove roles WG
 
 Dispara sync Axis → sites SoT + `tenant_*` (já parcialmente no lab `sync-tenants-cli` / console).
 
+### `POST /orchestration/v1/webhooks/axis`
+
+Webhook Axis com header `Idempotency-Key` (W4-ORCH05).
+
+```json
+{
+  "event": "user.offboard",
+  "username": "dev.silva",
+  "reason": "left company"
+}
+```
+
+Eventos: `user.provision` | `access.grant` | `user.offboard` | `tenants.sync` (aliases aceitos).
+
 ## Princípios
 
 | Princípio | Nota |

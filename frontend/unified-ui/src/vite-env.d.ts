@@ -12,6 +12,8 @@ interface ImportMetaEnv {
   readonly VITE_WG_PG_HOST?: string
   readonly VITE_WG_PG_PORT?: string
   readonly VITE_WG_PG_DB?: string
+  readonly VITE_GUAC_DEMO?: string
+  readonly VITE_GUAC_TUNNEL_WS?: string
 }
 
 interface ImportMeta {
@@ -21,4 +23,10 @@ interface ImportMeta {
 declare module '*.css' {
   const css: string
   export default css
+}
+
+/** Runtime default export (namespace Guacamole); @types use named exports. */
+declare module 'guacamole-common-js' {
+  const Guacamole: unknown
+  export default Guacamole
 }

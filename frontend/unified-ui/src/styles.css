@@ -228,3 +228,33 @@ code {
   padding: 0.1em 0.35em;
   border-radius: 4px;
 }
+
+.guac-host {
+  position: relative;
+  width: 100%;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  background: #000;
+}
+
+.guac-host canvas,
+.guac-host > div {
+  max-width: 100%;
+}
+
+.guac-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+  background: rgba(10, 14, 20, 0.92);
+  color: var(--text);
+  pointer-events: none;
+}

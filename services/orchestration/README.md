@@ -8,7 +8,7 @@ Contratos: [`documentos/runbooks/orchestration-api-contracts.md`](../../document
 
 - Spring Boot 3.4 / Java 21  
 - Modo **mock** (default): adapters in-memory `kanidm`, `warpgate`, `guacamole`, `openbao`  
-- Live clients (Kanidm REST, Warpgate admin, Guac provision, OpenBao leases): TBD
+- Modo **live** (`ORCH_MODE=live`): HTTP adapters + `ORCH_DRY_RUN=true` por default (só log)
 
 ## API
 
@@ -18,10 +18,23 @@ Contratos: [`documentos/runbooks/orchestration-api-contracts.md`](../../document
 | POST | `/orchestration/v1/access/grant` | target WG (+ OpenBao) |
 | POST | `/orchestration/v1/users/revoke` | **one-shot** offboarding (idempotente) |
 | POST | `/orchestration/v1/tenants/sync` | stub sync tenants |
+| POST | `/orchestration/v1/webhooks/axis` | Axis events + `Idempotency-Key` |
 | GET | `/orchestration/v1/status/last` | última orquestração global |
 | GET | `/orchestration/v1/status/users/{username}` | última op do user |
 
 Porta default: `8090` (`ORCH_PORT`).
+
+## Live env
+
+```bash
+export ORCH_MODE=live
+export ORCH_DRY_RUN=true   # false só com tokens reais
+export ORCH_KANIDM_ENABLED=true ORCH_KANIDM_URL=… ORCH_KANIDM_TOKEN=…
+export ORCH_WG_ENABLED=true ORCH_WG_URL=… ORCH_WG_TOKEN=…
+# guacamole / openbao idem
+```
+
+Paths HTTP dos adapters são **intent** (alinhar à API real de cada versão em lab).
 
 ## Dev
 
@@ -35,6 +48,9 @@ mvn -q spring-boot:run
 ## Smoke
 
 ```bash
+# com serviço rodando:
+bash deploy/validation/smoke-orchestration-mock.sh
+
 curl -s -X POST localhost:8090/orchestration/v1/users/provision \
   -H 'Content-Type: application/json' \
   -d '{"tenant_slug":"rio_quality","username":"dev.silva","email":"a@b.c","profile":"operator"}'

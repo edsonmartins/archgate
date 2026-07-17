@@ -8,7 +8,7 @@ Scaffold W4 — catálogo de conexões + chrome de sessão + launch Warpgate (AD
 - React Router 7  
 - Auth: mock lab → OIDC Kanidm Code+PKCE (`VITE_OIDC_ENABLED=1`)  
 - Catálogo: BFF `GET /api/unified/v1/connections` com fallback mock  
-- Sessão browser: stub canvas → `guacamole-common-js` (próximo)  
+- Sessão browser: `guacamole-common-js` + token BFF (`POST /api/unified/v1/sessions`)  
 - Parte B: snippets SSH/psql/DBeaver + deep-link `ssh://` (W4-UI07)
 
 ## Dev

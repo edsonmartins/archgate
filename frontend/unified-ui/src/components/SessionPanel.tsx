@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { Connection, SessionState } from '../types'
+import { requestTunnelSession, type TunnelSession } from '../api/sessionTunnel'
 import { buildWarpgateLaunch } from '../launch/warpgate'
+import { GuacamoleDisplay } from './GuacamoleDisplay'
 import { LaunchSnippets } from './LaunchSnippets'
 
 type Props = {
@@ -10,42 +12,78 @@ type Props = {
 }
 
 /**
- * W4-UI04 chrome + W4-UI07 Warpgate launch.
- * Next: guacamole-common-js Guacamole.Client + WebSocket tunnel (via BFF).
+ * W4-UI04 chrome + W4-UI07 Warpgate launch + W4-UI11 guacamole-common-js.
  */
 export function SessionPanel({ connection, username }: Props) {
   const [state, setState] = useState<SessionState>('idle')
   const [note, setNote] = useState('Nenhuma sessão ativa')
+  const [tunnel, setTunnel] = useState<TunnelSession | null>(null)
 
   const launch = useMemo(() => {
     if (!connection || connection.engine !== 'warpgate') return null
     return buildWarpgateLaunch(connection, username ?? 'SEU_USUARIO')
   }, [connection, username])
 
-  const connect = useCallback(() => {
+  const connect = useCallback(async () => {
     if (!connection) return
     if (connection.engine === 'warpgate') {
+      setTunnel(null)
       setState('connected')
       setNote(
         `Use o cliente nativo no bastion (snippets abaixo) — target «${connection.target}».`,
       )
       return
     }
+
     setState('connecting')
-    setNote('Conectando (stub)…')
-    window.setTimeout(() => {
-      setState('connected')
+    setNote('Solicitando token de sessão ao BFF…')
+    setTunnel(null)
+    try {
+      const s = await requestTunnelSession({
+        connectionId: connection.id,
+        target: connection.target,
+        protocol: connection.protocol,
+      })
+      setTunnel(s)
       setNote(
-        `Stub canvas — integrar guacamole-common-js → guacd para «${connection.target}». ` +
-          `Token de túnel só via BFF server-side (W4-UI05).`,
+        s.source === 'bff'
+          ? `Túnel BFF · ${connection.target}`
+          : `Demo local · ${connection.target} (sem guacd real)`,
       )
-    }, 400)
+      setState('connecting')
+    } catch (e) {
+      setState('error')
+      setNote(
+        e instanceof Error
+          ? e.message
+          : 'Falha ao abrir sessão. Configure BFF /api/unified/v1/sessions.',
+      )
+    }
   }, [connection])
 
   const disconnect = useCallback(() => {
+    setTunnel(null)
     setState('disconnected')
     setNote('Sessão encerrada')
   }, [])
+
+  const onGuacState = useCallback(
+    (s: 'connecting' | 'connected' | 'error' | 'disconnected', detail?: string) => {
+      if (s === 'connected') {
+        setState('connected')
+        setNote('Sessão Guacamole ativa')
+      } else if (s === 'connecting') {
+        setState('connecting')
+      } else if (s === 'error') {
+        setState('error')
+        if (detail) setNote(detail)
+      } else if (s === 'disconnected') {
+        setState('disconnected')
+        setNote('Desconectado')
+      }
+    },
+    [],
+  )
 
   if (!connection) {
     return (
@@ -55,6 +93,11 @@ export function SessionPanel({ connection, username }: Props) {
       </div>
     )
   }
+
+  const guacActive =
+    connection.engine === 'guacamole' &&
+    tunnel != null &&
+    (state === 'connecting' || state === 'connected' || state === 'error')
 
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -66,11 +109,11 @@ export function SessionPanel({ connection, username }: Props) {
         </span>
         <span style={{ flex: 1 }} />
         {state !== 'connected' && state !== 'connecting' && (
-          <button type="button" className="btn" onClick={connect}>
+          <button type="button" className="btn" onClick={() => void connect()}>
             {connection.engine === 'warpgate' ? 'Mostrar launch' : 'Conectar'}
           </button>
         )}
-        {(state === 'connected' || state === 'connecting') && (
+        {(state === 'connected' || state === 'connecting' || state === 'error') && (
           <button type="button" className="btn" onClick={disconnect}>
             Fechar
           </button>
@@ -82,6 +125,8 @@ export function SessionPanel({ connection, username }: Props) {
             <p style={{ margin: '0 0 0.75rem', textAlign: 'center' }}>{note}</p>
             <LaunchSnippets bundle={launch} />
           </div>
+        ) : guacActive && tunnel ? (
+          <GuacamoleDisplay session={tunnel} active onState={onGuacState} />
         ) : (
           <div style={{ padding: '1.5rem', textAlign: 'center', maxWidth: 420 }}>
             <p style={{ margin: '0 0 0.5rem' }}>{note}</p>
@@ -91,6 +136,11 @@ export function SessionPanel({ connection, username }: Props) {
             {connection.engine === 'warpgate' && state === 'idle' && (
               <p className="muted" style={{ marginTop: '0.75rem', fontSize: '0.8rem' }}>
                 Clique em «Mostrar launch» para SSH/psql/DBeaver (W4-UI07).
+              </p>
+            )}
+            {connection.engine === 'guacamole' && state === 'idle' && (
+              <p className="muted" style={{ marginTop: '0.75rem', fontSize: '0.8rem' }}>
+                guacamole-common-js → túnel BFF (W4-UI11). Token admin nunca no browser.
               </p>
             )}
           </div>

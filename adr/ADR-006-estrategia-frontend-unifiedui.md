@@ -47,8 +47,8 @@ Motivos:
 | Auth mock lab + OIDC PKCE scaffold | done (OIDC lab real TBD) |
 | Catálogo BFF contract + mock fallback | done (`unified-ui-bff-contracts.md`) |
 | Launch Warpgate SSH/PG (W4-UI07) | done |
-| guacamole-common-js embed | todo |
-| Offboarding / provision API | todo (W4-ORCH) |
+| guacamole-common-js embed | done (BFF token; lab BFF TBD) |
+| Offboarding / provision API | done mock + live dry-run adapters |
 
 ## Alternativas rejeitadas
 
