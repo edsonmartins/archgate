@@ -292,22 +292,26 @@ Pelo menos dois caminhos site reais **ou** um site com matriz protocolo mínima 
 
 | Campo | Valor |
 |-------|--------|
-| Status | `todo` |
+| Status | `doing` (scaffold) |
 | Pacote | `add-oracle-credential-proxy` (ADR-001) |
 | Critério de saída | Lease Oracle dinâmico E2E + amarração identidade Kanidm |
+| Runbook | [`runbooks/oracle-credential-proxy.md`](./runbooks/oracle-credential-proxy.md) |
 
 ### Tarefas
 
-- [ ] **W3-ORACLE01** Scaffold serviço proxy Java (Spring) create/drop/rotate user ojdbc thin.  
-  _Repo `services/oracle-proxy/`_
+- [x] **W3-ORACLE01** Scaffold serviço proxy Java (Spring) create/drop/rotate (mock).  
+  _`services/oracle-proxy/` — API + mock mode + unit tests structure 2026-07-17_
 - [ ] **W3-ORACLE02** API mTLS plugin ↔ proxy.
-- [ ] **W3-ORACLE03** Plugin Go OpenBao dbplugin v5 → proxy.
+- [ ] **W3-ORACLE03** Plugin Go OpenBao dbplugin v5 → proxy.  
+  _Scaffold CLI HTTP: `services/openbao-oracle-plugin/`_
 - [ ] **W3-ORACLE04** Role dinâmica OpenBao + policies.
 - [ ] **W3-ORACLE05** Integração identidade (JWT Kanidm / policy por grupo).
-- [ ] **W3-ORACLE06** Deploy Swarm + secrets.
+- [ ] **W3-ORACLE06** Deploy Swarm + secrets.  
+  _`deploy/oracle-proxy/stack.yml` stub replicas=0_
 - [ ] **W3-ORACLE07** E2E: emitir lease → conectar SQL*Plus/cliente → revoke.
-- [ ] **W3-ORACLE08** Runbook ops + falhas comuns Oracle.
-- [ ] **W3-ORACLE09** Se não houver cliente Oracle no horizonte: **marcar N/A** com decisão escrita (não conta como gap ativo).
+- [x] **W3-ORACLE08** Runbook ops (estado scaffold).  
+  _`oracle-credential-proxy.md`_
+- [ ] **W3-ORACLE09** N/A formal se sem cliente Oracle no horizonte.
 
 ### Critério de saída W3
 

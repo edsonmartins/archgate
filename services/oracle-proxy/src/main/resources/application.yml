@@ -1,0 +1,30 @@
+server:
+  port: ${PORT:9040}
+
+spring:
+  application:
+    name: archgate-oracle-proxy
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+oracle:
+  proxy:
+    # true = in-memory mock (default CI/lab without Oracle)
+    mock: ${ORACLE_PROXY_MOCK:true}
+  # JDBC (when mock=false)
+  jdbc:
+    url: ${ORACLE_JDBC_URL:}
+    user: ${ORACLE_ADMIN_USER:}
+    password: ${ORACLE_ADMIN_PASSWORD:}
+
+logging:
+  level:
+    br.com.integralltech.archgate.oracleproxy: INFO

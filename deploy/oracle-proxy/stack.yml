@@ -1,0 +1,25 @@
+# Oracle proxy lab (mock mode). Run on Swarm when ready:
+#   docker stack deploy -c stack.yml archgate-oracle
+#
+# For now: local mvn/docker build of services/oracle-proxy is enough for unit tests.
+
+version: "3.8"
+
+services:
+  oracle-proxy:
+    image: ${ORACLE_PROXY_IMAGE:-archgate-oracle-proxy:local}
+    environment:
+      PORT: "9040"
+      ORACLE_PROXY_MOCK: "true"
+    networks:
+      - archgate-data
+    deploy:
+      replicas: 0
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=false"
+
+networks:
+  archgate-data:
+    external: true
