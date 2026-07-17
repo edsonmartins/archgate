@@ -151,9 +151,9 @@ Homologação MVP **assinada** + pelo menos um caminho bastion → **alvo real**
 
 | Campo | Valor |
 |-------|--------|
-| Status | `doing` |
+| Status | `done` (engenharia/docs) · peer real e MFA enforcement = onboarding 1º cliente |
 | Depende de | W0 lab done (peer real pode //) |
-| Critério de saída | 1 cliente em uso real diário; runbooks ops; sem root OpenBao no fluxo normal |
+| Critério de saída eng. | SEC01–03, backups, incidentes, monitor, EPH03/05 — **fechados 2026-07-17** |
 
 ### Tarefas
 

@@ -6,7 +6,17 @@
 set -euo pipefail
 
 BOOTSTRAP="${BOOTSTRAP:-/root/archgate/bootstrap.env}"
-AUDIT_SRC="${OPENBAO_AUDIT_PATH:-/var/lib/archgate/openbao/audit}"
+# Prefer directory that contains audit.log (lab layout).
+AUDIT_SRC="${OPENBAO_AUDIT_PATH:-}"
+if [[ -z "$AUDIT_SRC" ]]; then
+  if [[ -d /var/lib/archgate/openbao/audit ]]; then
+    AUDIT_SRC=/var/lib/archgate/openbao/audit
+  elif [[ -f /var/lib/archgate/openbao/audit.log ]]; then
+    AUDIT_SRC=/var/lib/archgate/openbao
+  else
+    AUDIT_SRC=/var/lib/archgate/openbao/audit
+  fi
+fi
 OUT="${BACKUP_DIR:-/var/backups/archgate-openbao-audit}"
 STAMP=$(date +%Y%m%d-%H%M%S)
 RETENTION_DAYS="${RETENTION_DAYS:-30}"
@@ -14,14 +24,9 @@ RETENTION_DAYS="${RETENTION_DAYS:-30}"
 mkdir -p "$OUT"
 chmod 700 "$OUT"
 
-if [[ ! -d "$AUDIT_SRC" ]]; then
-  # try common alternate
-  if [[ -f /var/lib/archgate/openbao/audit.log ]]; then
-    AUDIT_SRC=/var/lib/archgate/openbao
-  else
-    echo "audit path not found: $AUDIT_SRC" >&2
-    exit 1
-  fi
+if [[ ! -e "$AUDIT_SRC" ]]; then
+  echo "audit path not found: $AUDIT_SRC" >&2
+  exit 1
 fi
 
 dest="$OUT/openbao-audit-${STAMP}.tar.gz"
