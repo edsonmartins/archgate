@@ -330,7 +330,7 @@ Preencher só na execução de F5.
 - [ ] Runbook UAT executado por revisor (F5.2)
 - [ ] ≥1 E2E bastion → **host real** do cliente (F3.5)
 - [ ] Isolamento tenant demonstrado (F3.6)
-- [ ] Offboarding demonstrado (F1.2)
+- [x] Offboarding demonstrado (F1.2) — e2e auto 2026-07-17
 - [ ] Admin: sites + apply + `/platform` OK no UAT
 - [ ] P0 zerados; P1 com plano ou waiver
 - [ ] Fora de escopo comunicado (§2.2)
@@ -371,7 +371,7 @@ Atualizar a cada sync.
 | F0.4 | F0 | Protocolos UAT | **done** | | SSH+PG; Guac opcional |
 | F0.6 | F0 | Data-alvo UAT | todo | Edson | |
 | F1.1 | F1 | OIDC browser | doing | Edson | pré-check 307 OK |
-| F1.2 | F1 | Offboarding interativo | todo | Edson | |
+| F1.2 | F1 | Offboarding interativo | **done** | | e2e 2026-07-17 |
 | F1.3 | F1 | Guac sessão | doing | | portão SSO PASS |
 | F1.4 | F1 | Recording WG | **done** | | path WG OK |
 | F1.5 | F1 | Activity log UI | doing | | sqlite reinit |
