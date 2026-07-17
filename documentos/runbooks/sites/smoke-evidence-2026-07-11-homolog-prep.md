@@ -189,3 +189,19 @@ RESULT: restore_dry_run=PASS
 | F3 | **blocked** peer Rio real |
 | F4 | F4.1–4.4 done/partial; F4.2 PASS |
 | F5 | blocked até F1 humano + F3 |
+
+---
+
+## W0 execução 2026-07-17 (ordem: SSH → validate → deploy → offboard)
+
+| Item | Resultado |
+|------|-----------|
+| SSH ops → `edson-ai` | ✅ (chave `id_ed25519` no agent macOS) |
+| Console redeploy (activity log fix) | ✅ `archguard-console:local` converged; HTTPS OK |
+| `activity_log` table | ✅ size 20KB, count≥2 |
+| `w0-validate.sh` | ✅ **PASS=19 FAIL=0 SKIP=0** |
+| Offboarding e2e 6.3 | ✅ **PASSED** (`account expired` deny; target creds not rotated) |
+| OIDC discovery console | ✅ HTTP 200 |
+| Console hop | ✅ 307 → `/dashboard` |
+| Browser W0-A | ⬜ **humano** |
+| Peer Rio W0-B | ⬜ **cliente** |

@@ -9,7 +9,7 @@
 | OpenSpec | [`../openspec/changes/README.md`](../openspec/changes/README.md) |
 | Arquitetura | [`../PLATAFORMA_ACESSO_PRIVILEGIADO.md`](../PLATAFORMA_ACESSO_PRIVILEGIADO.md) |
 | Data de criação | 2026-07-11 |
-| Última atualização | 2026-07-17 (W0 em implementação: validate script + activity log fix + prep Rio) |
+| Última atualização | 2026-07-17 (W0: validate PASS=19, console redeployed, offboarding e2e PASS) |
 | Dono do plano | Edson Martins |
 | Baseline lab | Fases 1–2 + control plane lab + connector piloto **parciais**; homologação MVP **em curso** |
 
@@ -98,8 +98,8 @@ _Roteiro unificado: [`runbooks/W0-EXECUCAO.md`](./runbooks/W0-EXECUCAO.md) § Pa
   _Ref: F1.1, F2.4_
 - [ ] **W0-A02** Guac: SSO + sessão SSH browser + confirmar recording se possível.  
   _Ref: F1.3, F1.4 Guac_
-- [ ] **W0-A03** Offboarding interativo: disable user Kanidm → SSO falha.  
-  _Ref: F1.2 · script `deploy/validation/offboarding-e2e.sh` (revalidar no host)_
+- [x] **W0-A03** Offboarding interativo: disable user Kanidm → SSO falha.  
+  _2026-07-17: `offboarding-e2e.sh` PASSED (account expired). Browser opcional._
 - [ ] **W0-A04** Activity log na UI após mutação admin (sync/upsert).  
   _Ref: F1.5 · fix console: scrub sqlite vazio + `/platform` → `activity_sqlite_ok` (archguard)_
 - [ ] **W0-A05** Validar TLS no browser via DNS público (`*.archgate.com.br`).  

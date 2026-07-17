@@ -146,10 +146,12 @@ user,pw,host,port,db=m.groups(); port=port or "5432"
 env=os.environ.copy(); env["PGPASSWORD"]=pw
 out=subprocess.check_output([
   "psql","-h",host,"-p",port,"-U",user,"-d",db,"-t","-A","-c",
-  "select slug||'|'||stack||'|'||inventariado from sites where slug='rio_quality'"
+  "select slug||'|'||stack||'|'||inventariado::text from sites where slug='rio_quality'"
 ], env=env, text=True).strip()
 print(out)
-sys.exit(0 if out.startswith("rio_quality|") and out.endswith("|t") or out.endswith("|1") else 1)
+parts=out.split("|")
+ok = len(parts)>=3 and parts[0]=="rio_quality" and parts[2].lower() in ("t","true","1")
+sys.exit(0 if ok else 1)
 PY
 else
   skip "CONSOLE_DATABASE_URL not in env of this shell"

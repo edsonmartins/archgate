@@ -87,18 +87,21 @@ Até o peer existir, o dry-run lab (`rio-lab-ssh`) **não** fecha W0-B.
 
 ---
 
-## Estado conhecido (lab)
+## Estado conhecido (lab) — atualizado 2026-07-17
 
 | Item | Status |
 |------|--------|
-| Bastion SSH/PG + isolamento UAT | ✅ auto |
+| Bastion SSH/PG + isolamento UAT | ✅ auto (`w0-validate`) |
 | Personas `uat-*` | ✅ |
 | Portão Guac SSO | ✅ |
 | WG admin API console | ✅ |
 | Backup/restore PG | ✅ |
-| Browser OIDC / Guac sessão | ⬜ humano |
-| Peer Rio real | ⬜ cliente |
-| SSH ops a partir do notebook dev → `.180` | ⚠️ verificar chave autorizada no host |
+| `w0-validate.sh` | ✅ **PASS=19 FAIL=0** |
+| Console redeploy (activity log) | ✅ |
+| Offboarding e2e | ✅ **PASSED** |
+| Browser OIDC / Guac sessão / audit UI | ⬜ **humano (Parte 2)** |
+| Peer Rio real | ⬜ **cliente (Parte 3)** |
+| SSH ops notebook → `.180` | ✅ `id_ed25519` (ssh-add keychain) |
 
 ---
 
