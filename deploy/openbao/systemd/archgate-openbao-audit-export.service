@@ -1,0 +1,10 @@
+[Unit]
+Description=Export ArchGate OpenBao audit logs
+After=network-online.target
+
+[Service]
+Type=oneshot
+Environment=BACKUP_DIR=/var/backups/archgate-openbao-audit
+Environment=RETENTION_DAYS=30
+ExecStart=/usr/local/sbin/archgate-openbao-audit-export
+Nice=10

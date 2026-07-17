@@ -37,6 +37,7 @@ Ver [`endpoints-staging.md`](./endpoints-staging.md).
 | `archgate-broker-db.timer` | Broker credenciais PG → WG |
 | `archgate-pg-backup.timer` | Dump PG diário |
 | `archgate-recordings-backup.timer` | Recordings + sqlite |
+| `archgate-openbao-audit-export.timer` | Export audit OpenBao |
 
 ## Última revisão
 

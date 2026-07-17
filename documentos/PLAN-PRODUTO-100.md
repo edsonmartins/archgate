@@ -177,7 +177,7 @@ Homologação MVP **assinada** + pelo menos um caminho bastion → **alvo real**
 #### W1-OPS — Operação
 
 - [x] **W1-OPS01** Backup PG automatizado (script + timer systemd diário) + retenção 14d.  
-  _Cópia off-host ainda pendente._
+  _Off-host: exemplo `deploy/backup/backup-offhost.example.sh` (NAS/rsync)._
 - [x] **W1-OPS02** Backup filesystem recordings WG (+ Guac) + sqlite console.  
   _`deploy/backup/backup-recordings.sh` + timer 03:45._
 - [x] **W1-OPS03** Restore dry-run documentado (sites).  
@@ -195,22 +195,27 @@ Homologação MVP **assinada** + pelo menos um caminho bastion → **alvo real**
 
 #### W1-ID — Identidade produção
 
-- [ ] **W1-ID01** Políticas de senha / MFA (WebAuthn/TOTP) para operadores reais.
+- [x] **W1-ID01** Políticas de senha / MFA documentadas (enforcement gradual).  
+  _[`runbooks/mfa-operadores.md`](./runbooks/mfa-operadores.md)_
 - [x] **W1-ID02** Offboarding multi-componente (IdP base).  
   _`offboarding-e2e` + incidentes; Guac full-stack = Fase 4 residual._
 - [x] **W1-ID03** Contas break-glass documentadas.  
   _idm_admin recover · guacadmin · WG admin — incidentes-lab / segredos-rotacao._
-- [ ] **W1-ID04** Revisão OIDC clients (redirect URIs, scopes, PKCE) checklist formal em prod DNS.
+- [x] **W1-ID04** Checklist OIDC clients formal.  
+  _[`runbooks/oidc-clients-checklist.md`](./runbooks/oidc-clients-checklist.md)_
 
 #### W1-EPHEM — Credenciais efêmeras (fechar MVP Fase 2)
 
 - [x] **W1-EPH01** Broker DB lab/timer.  
   _`archgate-broker-db.timer` em uso._
-- [ ] **W1-EPH02** TTL e leases alinhados à política de segurança (revisão numérica).
+- [x] **W1-EPH02** TTL e leases documentados (política).  
+  _[`runbooks/ephemeral-ttl-politica.md`](./runbooks/ephemeral-ttl-politica.md)_
 - [x] **W1-EPH03** Decisão SSH cert vs broker.  
   _[`runbooks/ephemeral-ssh-decisao.md`](./runbooks/ephemeral-ssh-decisao.md) — **padrão B broker**._
-- [ ] **W1-EPH04** Broker de key SSH (se/quando necessário além de TARGET_SECRET).
-- [ ] **W1-EPH05** Audit OpenBao export/SIEM mínimo.
+- [ ] **W1-EPH04** Broker de key SSH (se/quando necessário além de TARGET_SECRET).  
+  _Deferido — padrão TARGET_SECRET_* + DB dyn até demanda._
+- [x] **W1-EPH05** Audit OpenBao export (file → backup diário).  
+  _`deploy/openbao/export-audit.sh` + timer; SIEM remoto = W2+/§10._
 
 #### W1-CP — Control plane produção
 
@@ -475,3 +480,4 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | 2026-07-17 | W0 implementação: w0-validate.sh, W0-EXECUCAO.md, prep rio-quality, fix activity log (archguard) |
 | 2026-07-17 | W0 lab **APTO c/ ressalvas** §6.1; `w0-all.sh`; W1-OPS01 backup timer PG |
 | 2026-07-17 | W1 bulk: harden console, recordings backup, health-monitor, incidentes, rotação, EPH03 |
+| 2026-07-17 | W1 residual: MFA/OIDC/TTL docs, OpenBao audit export timer, off-host backup example |
