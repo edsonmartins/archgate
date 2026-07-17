@@ -1,0 +1,35 @@
+# Bundled fallback if external policy path missing
+version: 1
+agent_id: sa-opensre
+defaults:
+  mode: read_first
+  max_ttl: 15m
+  rate_limit_per_minute: 30
+  require_incident_id: true
+read_actions:
+  - id: diag.read
+  - id: logs.tail
+  - id: metrics.read
+  - id: catalog.list
+mutant_actions:
+  - id: shell.write
+  - id: service.restart
+  - id: config.change
+  - id: package.install
+  - id: firewall.change
+  - id: secret.issue_write
+allowed_targets:
+  - rio-lab-ssh
+  - rio-lab-postgres
+  - rio-lab-ssh-browser
+command_denylist:
+  - "rm -rf /"
+  - "mkfs"
+  - "shutdown"
+  - "reboot"
+command_allowlist_prefixes:
+  - "systemctl status"
+  - "systemctl restart"
+  - "journalctl"
+  - "df "
+  - "uptime"

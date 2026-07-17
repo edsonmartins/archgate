@@ -46,6 +46,7 @@ ArchGate é a plataforma de acesso privilegiado (bastion/gateway) da IntegrAllTe
   /oracle-proxy/      # proxy Java (Spring Boot) + ojdbc thin
   /openbao-oracle-plugin/  # plugin Go fino (dbplugin v5)
   /orchestration/     # integração Mentors Axis (Spring Boot)
+  /agent-control/     # OpenSRE HITL / kill-switch / policy (Spring Boot) — Fase 5
 /frontend/            # UnifiedUI (React/TS) — Fase 4
 /deploy/              # Docker Swarm stacks + Traefik + secrets
 CONSTITUTION.md

@@ -22,7 +22,15 @@ Operadores e agentes acessam máquinas, bancos, Kubernetes e painéis de cliente
 Princípios: **zero-credencial-no-dev**, política no gateway, identidade como alicerce, efemeridade por padrão, API-first.
 
 Documento de arquitetura: [`PLATAFORMA_ACESSO_PRIVILEGIADO.md`](./PLATAFORMA_ACESSO_PRIVILEGIADO.md).  
-Invariantes: [`CONSTITUTION.md`](./CONSTITUTION.md).
+Invariantes: [`CONSTITUTION.md`](./CONSTITUTION.md).  
+Plano 100%: [`documentos/PLAN-PRODUTO-100.md`](./documentos/PLAN-PRODUTO-100.md).
+
+| Serviço (scaffold) | Path | Porta dev |
+|--------------------|------|-----------|
+| UnifiedUI | `frontend/unified-ui` | 5174 |
+| Orchestration (Axis) | `services/orchestration` | 8090 |
+| Agent control (OpenSRE) | `services/agent-control` | 8091 |
+| Oracle proxy | `services/oracle-proxy` | (Spring) |
 
 ---
 

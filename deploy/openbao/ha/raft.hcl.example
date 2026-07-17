@@ -1,0 +1,34 @@
+# OpenBao — exemplo Raft HA (W5-HA01)
+# NÃO usar como-is em lab single-node. Ajustar api_addr/cluster_addr por nó.
+
+ui = true
+disable_mlock = true
+
+listener "tcp" {
+  address     = "0.0.0.0:8200"
+  tls_disable = 1
+  # Produção: tls_cert_file / tls_key_file ou terminação no Traefik + mTLS interno
+}
+
+storage "raft" {
+  path    = "/vault/data"
+  node_id = "openbao-1" # openbao-2, openbao-3 em cada nó
+
+  # retry_join {
+  #   leader_api_addr = "http://openbao-1:8200"
+  # }
+  # retry_join {
+  #   leader_api_addr = "http://openbao-2:8200"
+  # }
+  # retry_join {
+  #   leader_api_addr = "http://openbao-3:8200"
+  # }
+}
+
+api_addr     = "http://openbao-1:8200"
+cluster_addr = "http://openbao-1:8201"
+
+# cluster_name = "archgate-openbao"
+
+# Ver auto-unseal-transit.example.hcl — preferir seal stanza em prod
+# seal "transit" { ... }

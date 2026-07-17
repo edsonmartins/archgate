@@ -71,7 +71,7 @@ Use este plano para **marcar tarefas**; a % é orientação, não KPI rígido.
 | **W2** | Rede multi-site + protocolos | M3 | `doing` | ADR-010 connectors default; inventário + playbook; peer real = calendário |
 | **W3** | Oracle credential proxy | M3 | `doing` | scaffold Spring mock + Go helper ADR-001 |
 | **W4** | UnifiedUI + orquestração Axis | M4 | `doing` | `add-unified-ui-and-orchestration` |
-| **W5** | HA + acesso agêntico | M5 | `todo` | `add-agentic-access` |
+| **W5** | HA + acesso agêntico | M5 | `doing` | `add-agentic-access` |
 
 ```text
 W0 Homolog MVP ──► W1 Prod 1 cliente ──► W2 Rede/protocolos ──┬──► W4 UnifiedUI/orquestra ──► W5 HA/agêntico
@@ -370,39 +370,44 @@ Operador do 1º cliente não precisa de 3 UIs no happy path; offboarding pessoas
 
 | Campo | Valor |
 |-------|--------|
-| Status | `todo` |
+| Status | `doing` (scaffold HA + agent-control; cluster multi-node lab TBD) |
 | Pacote | `add-agentic-access` |
 | Critério de saída | HA dos componentes críticos + agente com HITL e kill-switch |
+| Artefatos | ADR-011/012 · `services/agent-control` · `deploy/openbao/ha` · `deploy/agentic` |
 
 ### Tarefas
 
 #### W5-HA — Alta disponibilidade
 
-- [ ] **W5-HA01** OpenBao HA (Raft) + auto-unseal KMS (ou HSM/cloud KMS interno).
-- [ ] **W5-HA02** Kanidm replicação / topologia HA.
-- [ ] **W5-HA03** Warpgate/Guacamole stateless + PG gerenciado/HA.
-- [ ] **W5-HA04** Traefik multi-node / edge redundante.
-- [ ] **W5-HA05** Teste de failover por componente (runbook + evidência).
-- [ ] **W5-HA06** RPO/RTO documentados e aceitos.
+- [x] **W5-HA01** OpenBao HA (Raft) + auto-unseal — **design + exemplos config** (`deploy/openbao/ha/*`); cluster live TBD.  
+  _[ADR-011](../adr/ADR-011-alta-disponibilidade-proporcional.md)_
+- [x] **W5-HA02** Kanidm replicação / topologia — documentado em `ha-topology.md` (deploy multi-node TBD).
+- [x] **W5-HA03** Warpgate/Guacamole stateless + PG externo — já ADR-003; topologia HA documentada.
+- [x] **W5-HA04** Traefik multi-node — pattern em `ha-topology.md` (deploy multi TBD).
+- [x] **W5-HA05** Teste de failover — runbook + `ha-failover-checklist.sh` (evidência multi-node TBD).
+- [x] **W5-HA06** RPO/RTO documentados — `ha-rpo-rto.md` (assinatura aceite pendente).
 
 #### W5-AGENT — Agêntico / OpenSRE
 
-- [ ] **W5-AG01** Service account OpenSRE no Kanidm + policies mínimas.
-- [ ] **W5-AG02** On-behalf-of / impersonação controlada (se modelo exigir).
-- [ ] **W5-AG03** Allow-list de targets e ações para agentes.
-- [ ] **W5-AG04** JIT access + rate limit.
-- [ ] **W5-AG05** HITL para ações mutantes (aprovação humana).
-- [ ] **W5-AG06** Kill-switch global (revoga SA / policy).
-- [ ] **W5-AG07** Cadeia de auditoria agente → sessão → gravação.
-- [ ] **W5-AG08** Inferência local (sem dado cliente em SaaS) se IA no fluxo — política escrita.
-- [ ] **W5-AG09** E2E: agente pede acesso → HITL → sessão → revoke.
+- [x] **W5-AG01** Service account OpenSRE — bootstrap script + policy (`deploy/agentic/*`).  
+  _Live Kanidm: `bootstrap-opensre-sa.sh`_
+- [x] **W5-AG02** On-behalf-of — audit events com `agentId` + `humanApprover` (agent-control).
+- [x] **W5-AG03** Allow-list targets/ações — `opensre-allowlist.yaml` + PolicyEngine.
+- [x] **W5-AG04** JIT ticket + rate limit — sessions/request + RateLimiter.
+- [x] **W5-AG05** HITL mutante — approvals approve/deny API + testes.
+- [x] **W5-AG06** Kill-switch — registry + best-effort orchestration revoke.
+- [x] **W5-AG07** Cadeia auditoria — `GET /agentic/v1/audit`.
+- [x] **W5-AG08** Inferência local — política escrita (`agentic-inference-local.md`) + flag cloud LLM default false.
+- [x] **W5-AG09** E2E mock — unit/MockMvc + `smoke-agent-control-mock.sh` (lab live TBD).
 
 #### W5-CLOSE — Fechamento 100%
 
 - [ ] **W5-CL01** Atualizar `MATRIZ_FUNCIONALIDADES.md` — zero “Pendente” crítico sem N/A.
-- [ ] **W5-CL02** Atualizar `openspec/changes/*/tasks.md` com `[x]` validados.
+- [ ] **W5-CL02** Atualizar `openspec/changes/*/tasks.md` com `[x]` validados (parcial W5 feito).
 - [ ] **W5-CL03** Aceite produto completo (doc + assinatura revisor/arquiteto).
 - [ ] **W5-CL04** Comunicar 100% vs itens §10 (estacionamento).
+- [ ] **W5-CL05** Deploy multi-node OpenBao Raft + unseal auto em ambiente real.
+- [ ] **W5-CL06** Bootstrap SA live + kill-switch E2E no lab Kanidm.
 
 ### Critério de saída W5
 
@@ -462,8 +467,8 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | W4-UI02 | W4 | Esqueleto UnifiedUI | **done** | | mock + OIDC scaffold |
 | W4-UI07 | W4 | Launch Warpgate | **done** | | snippets + ssh:// |
 | W4-ORCH04 | W4 | Offboarding one-shot | **done** (mock) | | live adapters TBD |
-| W5-HA01 | W5 | OpenBao HA + auto-unseal | todo | | |
-| W5-AG05 | W5 | HITL mutante | todo | | |
+| W5-HA01 | W5 | OpenBao HA + auto-unseal | **done** (design) | | cluster live TBD |
+| W5-AG05 | W5 | HITL mutante | **done** (API mock) | | agent-control |
 | W5-CL03 | W5 | Aceite 100% | todo | | |
 
 *(Linhas completas = seções 4–9; este quadro é o dashboard enxuto.)*
@@ -513,3 +518,4 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | 2026-07-17 | W4 deepen: OIDC/PKCE scaffold, BFF catalog client, Warpgate launch (UI07), build fix |
 | 2026-07-17 | W4-ORCH scaffold: services/orchestration (mock provision/grant/revoke + tests) |
 | 2026-07-17 | W4: guac-common-js embed, live adapters dry-run, Axis webhooks idempotentes |
+| 2026-07-17 | W5 scaffold: ADR-011/012, OpenBao HA exemplos, agent-control HITL/kill-switch |

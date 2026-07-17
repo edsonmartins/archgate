@@ -1,0 +1,21 @@
+server:
+  port: ${AGENT_PORT:8091}
+
+spring:
+  application:
+    name: archgate-agent-control
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+archgate:
+  agent:
+    policy-path: ${AGENT_POLICY_PATH:../../deploy/agentic/policies/opensre-allowlist.yaml}
+    default-agent-id: ${OPENSRE_AGENT_ID:sa-opensre}
+    max-requests-per-minute: ${AGENT_RATE_LIMIT:30}
+    # When true, cloud LLM endpoints are rejected by policy gate
+    allow-cloud-llm: ${AGENT_ALLOW_CLOUD_LLM:false}
+    orchestration-url: ${ORCH_URL:http://127.0.0.1:8090}

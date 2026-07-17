@@ -1,0 +1,33 @@
+package br.com.integralltech.archgate.agentcontrol.api;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Map;
+
+@RestControllerAdvice
+public class ApiExceptionHandler {
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<Map<String, String>> validation(MethodArgumentNotValidException ex) {
+    String msg = ex.getBindingResult().getFieldErrors().stream()
+        .findFirst()
+        .map(f -> f.getField() + ": " + f.getDefaultMessage())
+        .orElse("validation failed");
+    return ResponseEntity.badRequest().body(Map.of("error", msg));
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<Map<String, String>> badReq(IllegalArgumentException ex) {
+    return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+  }
+
+  @ExceptionHandler(IllegalStateException.class)
+  public ResponseEntity<Map<String, String>> conflict(IllegalStateException ex) {
+    return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+        .body(Map.of("error", ex.getMessage()));
+  }
+}

@@ -1,6 +1,6 @@
 # ArchGate — Matriz de funcionalidades
 
-**Data de referência:** 2026-07-11  
+**Data de referência:** 2026-07-17  
 **Ambiente validado:** lab/staging (`192.168.1.180`, Swarm)  
 **Fonte de verdade por pacote:** `openspec/changes/*/tasks.md`  
 **Plano do que falta até 100%:** [`PLAN-PRODUTO-100.md`](./PLAN-PRODUTO-100.md) · Homologação MVP: [`PLAN-HOMOLOGACAO-MVP.md`](./PLAN-HOMOLOGACAO-MVP.md)
@@ -23,10 +23,10 @@ Legenda de status:
 | 1 | `add-identity-axis` | 1 — Identidade | **Lab complete** | Kanidm, Warpgate SSO, Guac portão SSO, console, multi-tenant, offboarding, audit | Guac 1:1 nativo OIDC; RDP Windows host; UnifiedUI |
 | 1b | `add-operator-client-access-standard` | 1 — Padrão operador | **Lab-ready** | ADR-008, runbooks, smoke L+macOS, DB proxy, connector piloto, sites | Windows nativo; VPN cliente real; catálogo UnifiedUI |
 | 2 | `add-ephemeral-credentials` | 2 — Credenciais | **MVP lab** | OpenBao, SSH CA, DB dinâmico, broker Warpgate DB, JWT←Kanidm, unseal timer | SSH cert nativo no Warpgate; HA/auto-unseal |
-| 3a | `add-oracle-credential-proxy` | 3 — Pré-req Oracle | **Não iniciado** | — | Proxy Java + plugin OpenBao + E2E Oracle |
+| 3a | `add-oracle-credential-proxy` | 3 — Pré-req Oracle | **Scaffold** | oracle-proxy mock + plugin CLI + mTLS skeleton | JDBC Oracle real + plugin gRPC catalog |
 | 3 | `add-network-mesh` | 3 — Rede | **Lab piloto WG** | Dual-network + **WireGuard real** (agent+connector), smoke PASS, checklist 0.5 | NetBird, cliente real, RDP/K8s/Oracle E2E |
-| 4 | `add-unified-ui-and-orchestration` | 4 — UI + orquestração | **Não iniciado** | — | UnifiedUI React, catálogo, automação Axis |
-| 5 | `add-agentic-access` | 5 — HA + agêntico | **Não iniciado** | Postgres externo já usado (pré-req parcial) | HA OpenBao/Kanidm, OpenSRE, HITL, kill-switch |
+| 4 | `add-unified-ui-and-orchestration` | 4 — UI + orquestração | **Scaffold lab** | UnifiedUI + launch WG + guac-common-js + orchestration mock/live dry-run | OIDC/BFF lab, adapters live calibrados, E2E browser |
+| 5 | `add-agentic-access` | 5 — HA + agêntico | **Scaffold** | ADR-011/012, HA runbooks, agent-control HITL/kill-switch, OpenBao Raft exemplos | Cluster multi-node, SA live, aceite RPO/RTO |
 
 ---
 
@@ -139,22 +139,22 @@ Legenda de status:
 | Funcionalidade | Status | Evidência / nota |
 |----------------|--------|------------------|
 | ADR-001 aceito (proxy Java ojdbc) | **Feito** (decisão) | sem Instant Client no OpenBao |
-| Serviço proxy create/drop/rotate user | **Pendente** | `add-oracle-credential-proxy` |
-| Plugin Go OpenBao → proxy | **Pendente** | |
-| mTLS plugin↔proxy | **Pendente** | |
-| Role dinâmica Oracle + E2E lease | **Pendente** | |
+| Serviço proxy create/drop/rotate user | **Parcial** | `services/oracle-proxy` mock + tests |
+| Plugin Go OpenBao → proxy | **Parcial** | CLI client + mTLS skeleton |
+| mTLS plugin↔proxy | **Parcial** | certs lab + profile |
+| Role dinâmica Oracle + E2E lease | **Pendente** | Oracle real |
 | Amarração a identidade Kanidm | **Pendente** | |
 
 ### 2.7 UnifiedUI e orquestração
 
 | Funcionalidade | Status | Evidência / nota |
 |----------------|--------|------------------|
-| UI React + guacamole-common-js | **Pendente** | Fase 4 |
-| Sessão RDP/SSH embutida no console | **Pendente** | aposenta UI stock Guac no fluxo dev |
-| Catálogo “minhas conexões” + RBAC tenant | **Pendente** | |
-| Token sensível só server-side | **Parcial** | já no console ArchGuard; falta unificar sessões gateway |
-| Orquestração Mentors Axis (provision/grant/revoke) | **Parcial (lab)** | sync: site + Kanidm tenant_* + Warpgate role; pessoas/offboarding = Fase 4 |
-| Onboarding/offboarding one-shot multi-componente | **Parcial** | offboarding IdP feito; orquestração full pendente |
+| UI React + guacamole-common-js | **Parcial** | `frontend/unified-ui` + embed; BFF token lab TBD |
+| Sessão RDP/SSH embutida no console | **Parcial** | chrome + guac client; stock Guac ainda break-glass |
+| Catálogo “minhas conexões” + RBAC tenant | **Parcial** | mock + client BFF |
+| Token sensível só server-side | **Parcial** | contrato BFF + design W4-UI05 |
+| Orquestração Mentors Axis (provision/grant/revoke) | **Parcial** | `services/orchestration` mock + live dry-run + webhooks |
+| Onboarding/offboarding one-shot multi-componente | **Parcial** | API mock; adapters live a calibrar |
 | Terraform provider Warpgate SoT | **Pendente** | |
 
 ### 2.8 HA e acesso agêntico (Fase 5)
@@ -162,14 +162,15 @@ Legenda de status:
 | Funcionalidade | Status | Evidência / nota |
 |----------------|--------|------------------|
 | Postgres externo (Warpgate/Guac) | **Feito** | base para stateless gateway |
-| OpenBao HA / Raft | **Pendente** | |
-| Kanidm replicação | **Pendente** | |
-| Failover por componente | **Pendente** | |
-| Service account OpenSRE + on-behalf-of | **Pendente** | SA exemplo pode existir no IdP |
-| Allow-list / JIT / rate limit agente | **Pendente** | |
-| HITL para ações mutantes | **Pendente** | |
-| Kill-switch + auditoria cadeia | **Pendente** | |
-| Inferência local (sem dado prod em SaaS) | **Pendente** | |
+| OpenBao HA / Raft | **Parcial** | exemplos + ADR-011; cluster live TBD |
+| Kanidm replicação | **Parcial** | topologia doc; deploy TBD |
+| Failover por componente | **Parcial** | runbook + checklist docs |
+| RPO/RTO documentados | **Parcial** | `ha-rpo-rto.md` (assinatura pendente) |
+| Service account OpenSRE + on-behalf-of | **Parcial** | bootstrap script + audit fields |
+| Allow-list / JIT / rate limit agente | **Parcial** | policy YAML + agent-control |
+| HITL para ações mutantes | **Parcial** | API mock + testes |
+| Kill-switch + auditoria cadeia | **Parcial** | kill-switch + GET audit |
+| Inferência local (sem dado prod em SaaS) | **Parcial** | política escrita; flag cloud=false |
 
 ---
 
@@ -181,10 +182,9 @@ Legenda de status:
 | Bootstrap secrets fora do git | **Feito** | `/root/archgate/bootstrap.env` |
 | Domínios id / console / guac / warpgate | **Feito** | lab |
 | Scripts deploy + validation E2E | **Feito** | `deploy/**`, `deploy/validation/**` |
-| ADRs 001, 005, 007, 007A, 008 | **Feito** (aceitos) | |
-| ADR-002 step-ca | **Pendente** | em aberto |
-| ADR-004 fronteira ArchGuard × Mentors Axis | **Aceito (lab parcial)** | Spring sync site+Kanidm+WG role; pessoas = Fase 4 |
-| ADR-006 estratégia frontend | **Pendente** | |
+| ADRs 001, 005, 006, 007, 007A, 008, 010, 011, 012 | **Feito** (aceitos) | |
+| ADR-002 step-ca | **Pendente** | estacionamento / OpenBao SSH CA |
+| ADR-004 fronteira ArchGuard × Mentors Axis | **Aceito (lab parcial)** | Spring sync + orchestration scaffold |
 
 ---
 

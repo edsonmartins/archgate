@@ -1,0 +1,33 @@
+# Sketch — OpenBao Raft × 3 no Swarm (W5-HA01)
+# Exemplo ilustrativo; validar networks/volumes/secrets no ambiente real.
+version: "3.8"
+
+services:
+  openbao:
+    image: openbao/openbao:2.2.0
+    command: server -config=/bao/config
+    configs:
+      - source: openbao_raft_hcl
+        target: /bao/config/raft.hcl
+    volumes:
+      - openbao_data:/vault/data
+    networks:
+      - archgate_overlay
+    deploy:
+      mode: replicated
+      replicas: 3
+      endpoint_mode: dnsrr
+      # placement constraints por node_id reais
+    environment:
+      - VAULT_ADDR=http://127.0.0.1:8200
+
+configs:
+  openbao_raft_hcl:
+    external: true
+
+volumes:
+  openbao_data:
+
+networks:
+  archgate_overlay:
+    external: true

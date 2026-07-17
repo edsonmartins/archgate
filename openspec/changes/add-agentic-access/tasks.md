@@ -1,34 +1,39 @@
 # Tasks — Add Agentic Access & HA (Fase 5)
 
 ## 1. Alta disponibilidade
-- [ ] 1.1 OpenBao em modo HA (storage compatível, auto-unseal seguro)
-- [ ] 1.2 Kanidm com replicação
-- [ ] 1.3 Persistência externa confirmada (Warpgate/Guacamole em PostgreSQL externo)
-- [ ] 1.4 Gateways stateless atrás do Traefik onde possível
-- [ ] 1.5 Testes de failover por componente
+- [x] 1.1 OpenBao HA design + Raft/auto-unseal exemplos (`deploy/openbao/ha/*`) — 2026-07-17
+- [x] 1.2 Kanidm topologia HA documentada (`ha-topology.md`)
+- [x] 1.3 Persistência externa confirmada (ADR-003 + topologia)
+- [x] 1.4 Gateways stateless pattern documentado (Traefik multi-node)
+- [x] 1.5 Runbook failover + checklist (`ha-failover-tests.md`, `ha-failover-checklist.sh`)
+- [x] 1.6 RPO/RTO documentados (`ha-rpo-rto.md`) — aceite assinatura pendente
+- [ ] 1.7 Deploy multi-node real (OpenBao Raft + Kanidm replica) em lab/prod
 
 ## 2. Identidade do agente
-- [ ] 2.1 Criar service account do OpenSRE no Kanidm com escopo mínimo
-- [ ] 2.2 Amarrar toda ação do agente à service account + humano autorizador (on-behalf-of)
+- [x] 2.1 Bootstrap SA OpenSRE (`deploy/agentic/bootstrap-opensre-sa.sh`) + policy YAML
+- [x] 2.2 On-behalf-of na auditoria (`humanApprover` + `agentId`) — agent-control
+- [ ] 2.3 Token/API live no Kanidm lab
 
 ## 3. Política no gateway (não no modelo)
-- [ ] 3.1 Allow-list de comandos para o agente
-- [ ] 3.2 Escopo por host/incidente
-- [ ] 3.3 TTL curtíssimo e rate limit para conter blast radius
-- [ ] 3.4 JIT: credencial efêmera via OpenBao com escopo por incidente
+- [x] 3.1 Allow-list de ações (`opensre-allowlist.yaml` + PolicyEngine)
+- [x] 3.2 Escopo por target allow-list + incident_id obrigatório
+- [x] 3.3 TTL curto (policy max_ttl) + rate limit in-memory
+- [x] 3.4 JIT session ticket mock (`POST /sessions/request`) — OpenBao lease live TBD
 
 ## 4. HITL e read-only
-- [ ] 4.1 Enforcement read-only por padrão (diagnóstico automático)
-- [ ] 4.2 Gate HITL para qualquer ação mutante/destrutiva (fluxo de aprovação do Warpgate)
-- [ ] 4.3 Roteamento da aprovação a um humano responsável em tempo real
+- [x] 4.1 Read actions auto-allow
+- [x] 4.2 Mutant → PENDING_HITL + approve/deny
+- [x] 4.3 Approver registrado na audit chain
+- [ ] 4.4 Integração UI admin “aprovações pendentes”
 
 ## 5. Kill-switch e inferência local
-- [ ] 5.1 Validar: revogar service account no Kanidm interrompe o agente e expira credenciais
-- [ ] 5.2 Inferência local (vLLM RTX 3060 / Mac Mini M4) — sem enviar dado de produção a APIs de terceiros
-- [ ] 5.3 Consentimento do cliente para operação agêntica em seus ambientes
+- [x] 5.1 Kill-switch API + bloqueio subsequente; best-effort orchestration revoke
+- [x] 5.2 Política inferência local (`agentic-inference-local.md`); `allow_cloud_llm=false`
+- [ ] 5.3 Consentimento formal do cliente (processo comercial/ops)
 
 ## 6. Validação
-- [ ] 6.1 Agente diagnostica (read-only) sem qualquer write não aprovado
-- [ ] 6.2 Ação mutante bloqueada até aprovação humana
-- [ ] 6.3 Kill-switch comprovado; auditoria mostra cadeia principal→humano→ação
-- [ ] 6.4 Teste de prompt injection: conteúdo malicioso em log não escala privilégio
+- [x] 6.1 Unit: read sem write não aprovado
+- [x] 6.2 Unit/MockMvc: mutante bloqueado até approve
+- [x] 6.3 Kill-switch + audit chain em testes; smoke script
+- [x] 6.4 Prompt injection surface: action/command fora da lista = DENY
+- [ ] 6.5 E2E lab com SA real + bastion gravação

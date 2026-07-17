@@ -1,0 +1,65 @@
+# Allow-list de ações do agente OpenSRE (W5-AG03)
+# Política no gateway/agent-control — NÃO confiar no modelo.
+version: 1
+agent_id: sa-opensre
+
+defaults:
+  mode: read_first
+  max_ttl: 15m
+  rate_limit_per_minute: 30
+  require_incident_id: true
+
+# Ações automáticas (sem HITL)
+read_actions:
+  - id: diag.read
+    description: Ler status/diagnóstico não-destrutivo
+  - id: logs.tail
+    description: Tail de logs (sem exfil em massa)
+  - id: metrics.read
+    description: Consultar métricas/health
+  - id: catalog.list
+    description: Listar targets autorizados ao SA
+
+# Ações que exigem HITL (W5-AG05)
+mutant_actions:
+  - id: shell.write
+    description: Comando com side-effect no alvo
+  - id: service.restart
+    description: Restart de serviço
+  - id: config.change
+    description: Alterar configuração
+  - id: package.install
+    description: Instalar/remover pacotes
+  - id: firewall.change
+    description: Alterar regras de rede
+  - id: secret.issue_write
+    description: Credencial com capability de escrita ampla
+
+# Targets permitidos (lab). Produção: preencher por tenant/incidente via API.
+allowed_targets:
+  - rio-lab-ssh
+  - rio-lab-postgres
+  - rio-lab-ssh-browser
+
+# Comandos shell (se shell.write aprovado) — denylist sempre vence
+command_denylist:
+  - "rm -rf /"
+  - "mkfs"
+  - "dd if="
+  - ":(){ :|:& };:"
+  - "shutdown"
+  - "reboot"
+  - "userdel"
+  - "passwd "
+
+command_allowlist_prefixes:
+  - "systemctl status"
+  - "systemctl restart"
+  - "journalctl"
+  - "df "
+  - "free "
+  - "uptime"
+  - "curl -sf "
+  - "dig "
+  - "ss "
+  - "ip "
