@@ -324,27 +324,30 @@ E2E PASS **ou** N/A formal assinado.
 
 | Campo | Valor |
 |-------|--------|
-| Status | `todo` |
+| Status | `doing` (scaffold UI) |
 | Pacote | `add-unified-ui-and-orchestration` |
 | Critério de saída | Operador usa **uma** UI para catálogo + sessão; Axis provisiona/revoga pessoas |
+| App | `frontend/unified-ui` · [ADR-006](../adr/ADR-006-estrategia-frontend-unifiedui.md) |
 
 ### Tarefas
 
 #### W4-UI — UnifiedUI
 
-- [ ] **W4-UI01** ADR-006 estratégia frontend (ou confirmar stack TanStack/Mantine no monorepo).
-- [ ] **W4-UI02** Esqueleto app UnifiedUI (`frontend/`) com auth OIDC.
-- [ ] **W4-UI03** Catálogo “minhas conexões” filtrado por tenant/RBAC.
-- [ ] **W4-UI04** Sessão SSH/RDP embutida (`guacamole-common-js` ou proxy).
-- [ ] **W4-UI05** Tokens/credenciais só server-side.
-- [ ] **W4-UI06** Decisão ADR-007: Guac 1.7 OIDC nativo **ou** aposentar UI stock no fluxo dev.
+- [x] **W4-UI01** ADR-006: admin = archguard-console; operador = Vite/React UnifiedUI.
+- [x] **W4-UI02** Esqueleto app com auth **mock** lab (OIDC real próximo).  
+  _`npm run dev` em `frontend/unified-ui`_
+- [x] **W4-UI03** Catálogo “minhas conexões” filtrado por tenant mock.
+- [x] **W4-UI04** Painel de sessão (chrome/stub); guacamole-common-js TBD.
+- [x] **W4-UI05** Princípio tokens admin fora do browser (doc + design).
+- [x] **W4-UI06** Caminho: UnifiedUI aposenta stock Guac no fluxo dev; stock = break-glass (ADR-007A).
 - [ ] **W4-UI07** Deep link / launch Warpgate desktop (SSH/PG) a partir do catálogo.
-- [ ] **W4-UI08** UX offboarding / “sem acesso” clara.
+- [x] **W4-UI08** UX “sem conexões” no catálogo vazio.
 - [ ] **W4-UI09** Testes E2E browser (smoke crítico).
 
 #### W4-ORCH — Orquestração Axis
 
-- [ ] **W4-ORCH01** Fechar ADR-004 fronteira ArchGuard × Axis (contratos API).
+- [x] **W4-ORCH01** Contratos API rascunho.  
+  _[`runbooks/orchestration-api-contracts.md`](./runbooks/orchestration-api-contracts.md)_
 - [ ] **W4-ORCH02** Provision pessoa: Axis → Kanidm group/tenant + (opcional) WG role.
 - [ ] **W4-ORCH03** Grant acesso target/site (API).
 - [ ] **W4-ORCH04** Revoke / offboarding **one-shot** multi-componente (Kanidm + WG + Guac + leases).
@@ -500,3 +503,4 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | 2026-07-17 | W1 residual: MFA/OIDC/TTL docs, OpenBao audit export timer, off-host backup example |
 | 2026-07-17 | W2 eng: ADR-010, inventário multi-site, matriz protocolos, segmentação, tunnel |
 | 2026-07-17 | W3 scaffold: services/oracle-proxy (mock) + openbao-oracle-plugin CLI |
+| 2026-07-17 | W4 scaffold: frontend/unified-ui + ADR-006 + orchestration contracts |
