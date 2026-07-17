@@ -9,7 +9,7 @@
 | OpenSpec | [`../openspec/changes/README.md`](../openspec/changes/README.md) |
 | Arquitetura | [`../PLATAFORMA_ACESSO_PRIVILEGIADO.md`](../PLATAFORMA_ACESSO_PRIVILEGIADO.md) |
 | Data de criação | 2026-07-11 |
-| Última atualização | 2026-07-11 |
+| Última atualização | 2026-07-17 (W0 em implementação: validate script + activity log fix + prep Rio) |
 | Dono do plano | Edson Martins |
 | Baseline lab | Fases 1–2 + control plane lab + connector piloto **parciais**; homologação MVP **em curso** |
 
@@ -65,7 +65,7 @@ Use este plano para **marcar tarefas**; a % é orientação, não KPI rígido.
 
 | Onda | Nome | Marco | Status | Pacotes OpenSpec |
 |------|------|-------|--------|------------------|
-| **W0** | Fechar lab → homologação MVP | M1 | `doing` | transversal + network 0.5 |
+| **W0** | Fechar lab → homologação MVP | M1 | `doing` | transversal + network 0.5 · runbook [`runbooks/W0-EXECUCAO.md`](./runbooks/W0-EXECUCAO.md) |
 | **W1** | Produção endurecida (1º cliente) | M2 | `todo` | ops / identity / ephemeral |
 | **W2** | Rede multi-site + protocolos | M3 | `todo` | `add-network-mesh`, operator-client |
 | **W3** | Oracle credential proxy | M3 | `todo` | `add-oracle-credential-proxy` |
@@ -92,20 +92,24 @@ W0 Homolog MVP ──► W1 Prod 1 cliente ──► W2 Rede/protocolos ──�
 
 #### W0-A — Humano / browser (barato)
 
+_Roteiro unificado: [`runbooks/W0-EXECUCAO.md`](./runbooks/W0-EXECUCAO.md) § Parte 2._
+
 - [ ] **W0-A01** Login OIDC console com `uat-admin` e `uat-op-a` (print).  
   _Ref: F1.1, F2.4_
 - [ ] **W0-A02** Guac: SSO + sessão SSH browser + confirmar recording se possível.  
   _Ref: F1.3, F1.4 Guac_
 - [ ] **W0-A03** Offboarding interativo: disable user Kanidm → SSO falha.  
-  _Ref: F1.2_
+  _Ref: F1.2 · script `deploy/validation/offboarding-e2e.sh` (revalidar no host)_
 - [ ] **W0-A04** Activity log na UI após mutação admin (sync/upsert).  
-  _Ref: F1.5_
+  _Ref: F1.5 · fix console: scrub sqlite vazio + `/platform` → `activity_sqlite_ok` (archguard)_
 - [ ] **W0-A05** Validar TLS no browser via DNS público (`*.archgate.com.br`).  
   _Ref: F4.6_
 - [ ] **W0-A06** Definir data-alvo UAT e assinar aceite lab (F0.6, F1.9).
 - [ ] **W0-A07** Executar UAT formal (`HOMOLOGACAO-UAT.md`) e preencher §6 do plano MVP (F5).
 
 #### W0-B — Cliente real (crítico de calendário)
+
+_Prep ficha: [`runbooks/sites/reais/rio-quality.yaml`](./runbooks/sites/reais/rio-quality.yaml)._
 
 - [ ] **W0-B01** Contato Rio Quality: stack VPN, hosts SSH/PG, janela peer.
 - [ ] **W0-B02** Ficha site real no SoT (`rio_quality` ≠ só `lab_overlay`).  
@@ -121,7 +125,7 @@ W0 Homolog MVP ──► W1 Prod 1 cliente ──► W2 Rede/protocolos ──�
 - [ ] **W0-B07** Evidência `smoke-evidence-YYYY-MM-DD-cliente-piloto.md`.  
   _Ref: F3.9_
 
-#### W0-C — Já feito (não reabrir sem regressão)
+#### W0-C — Já feito / tooling (não reabrir sem regressão)
 
 - [x] Contas UAT Kanidm+WG (`provision-uat-users.sh`)
 - [x] Dry-run bastion SSH/PG/isolamento lab
@@ -130,6 +134,9 @@ W0 Homolog MVP ──► W1 Prod 1 cliente ──► W2 Rede/protocolos ──�
 - [x] Warpgate admin API do console (CONNECT_HOST + SNI)
 - [x] JWT Kanidm → OpenBao
 - [x] Control plane sites SoT Postgres + Axis sync lab
+- [x] **W0-TOOL01** `deploy/validation/w0-validate.sh` — baseline auto W0
+- [x] **W0-TOOL02** Runbook `runbooks/W0-EXECUCAO.md`
+- [x] **W0-TOOL03** Activity log: scrub sqlite 0-byte + recordActivity fail-soft + `activity_sqlite_ok` em `/platform` (repo **archguard**)
 
 ### Critério de saída W0
 
@@ -391,6 +398,9 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | W0-A01 | W0 | OIDC console browser | todo | Edson | |
 | W0-A07 | W0 | UAT formal + §6 MVP | todo | Edson | |
 | W0-B05 | W0 | E2E host **real** | blocked | + Rio | |
+| W0-TOOL01 | W0 | w0-validate.sh | **done** | | deploy/validation |
+| W0-TOOL02 | W0 | W0-EXECUCAO.md | **done** | | runbooks/ |
+| W0-TOOL03 | W0 | activity log fix console | **done** | | archguard (deploy pendente) |
 | W1-SEC01 | W1 | Sem root OpenBao no app | todo | | |
 | W1-OPS01 | W1 | Backup PG automático | todo | | |
 | W1-EPH03 | W1 | Decisão SSH cert vs broker | todo | | |
@@ -441,3 +451,4 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | Data | Mudança |
 |------|---------|
 | 2026-07-11 | Criação: ondas W0–W5 cobrindo gap lab → 100% produto |
+| 2026-07-17 | W0 implementação: w0-validate.sh, W0-EXECUCAO.md, prep rio-quality, fix activity log (archguard) |
