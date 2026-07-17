@@ -1,5 +1,7 @@
 # Ficha — Grupo Marra PRODUÇÃO (conectividade real a confirmar)
 # Lab: ver ../lab-grupo-marra.yaml
+# W2-SITE02: segundo site real após Rio Quality
+# Playbook: W2-ONBOARDING-MULTI-SITE.md
 
 cliente: Grupo Marra
 slug: grupo_marra
@@ -9,11 +11,12 @@ warpgate_roles:
   - tenant-grupo-marra
 
 conectividade:
-  tipo: a_confirmar
+  tipo: a_confirmar            # connector_peer | tunnel_agent
   stack: a_confirmar           # openvpn | wireguard | openfortivpn | mixed
   wireguard:
     endpoint: ""
     allowed_ips: []
+    platform_pubkey_ref: ""
   openvpn:
     profile_ref: ""
     conta_servico: ""
@@ -29,21 +32,27 @@ conectividade:
   subnets_alvo: []
   connector_id: connector-grupo-marra
   ip_saida_visto_pelo_cliente: ""
+  contato_ops_cliente: ""
+  janela_peer: ""
   notas: >
-    Tenant já modelado no lab Kanidm. Confirmar com o time qual VPN
-    o cliente usa hoje (OpenVPN / WG / Forti) e se aceita conta de serviço.
+    Tenant já modelado no lab Kanidm (isolação uat-op-b). Confirmar VPN
+    com o time (OpenVPN / WG / Forti) e conta de serviço institucional.
 
 targets: []
+  # Preencher hosts reais (IPs só no connector, não no notebook do ops)
 
 identidade:
   operadores: []
   tenant_admins: []
+  uat_lab:
+    - uat-op-b                 # tenant_grupo_marra
 
 estado:
   inventariado: false
   connector_deployed: false
   smoke_operador: false
-  data_revisao: "2026-07-11"
+  data_revisao: "2026-07-17"
+  w2_site_status: pending_stack   # pending_stack | in_progress | done
 
 credenciais_alvo: warpgate_and_guacamole_only
 anti_padrao: never_document_direct_ip_or_target_password_to_operators

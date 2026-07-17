@@ -4,8 +4,8 @@
 > (OpenVPN · WireGuard · openfortivpn) e o estado de migração para o modelo ArchGate.  
 > **Não** listar senhas, `.ovpn` nem chaves aqui — só metadados.
 
-| Atualizado | 2026-07-11 |
-|------------|------------|
+| Atualizado | 2026-07-17 (W2 inventário) |
+|------------|---------------------------|
 | **Admin visual** | [admin-clientes-sites.md](../admin-clientes-sites.md) → `console…/sites` |
 | Guia técnico | [conectividade-vpn-clientes.md](./conectividade-vpn-clientes.md) |
 | Lab vs real | Lab = [INVENTARIO.md](./INVENTARIO.md) § sites staging |
@@ -33,11 +33,16 @@ Preencher `stack` e `tipo` com o time comercial/ops. Valores iniciais = o que o 
 
 | # | Cliente | Slug / tenant | Site | stack | tipo ADR-008 | estado | Prioridade | Ficha | Notas |
 |---|---------|---------------|------|-------|--------------|--------|------------|-------|-------|
-| 1 | **Rio Quality** | `tenant_rio_quality` | lab IntegrAllTech | *(lab overlay)* | `tunnel_agent` | connector_lab | ok (lab) | [lab-rio-quality.yaml](./lab-rio-quality.yaml) | Não é VPN de produção |
-| 2 | **Rio Quality** | `tenant_rio_quality` | **produção** | **`a_confirmar`** | **`a_confirmar`** | não_iniciado | **P1** | [reais/rio-quality.yaml](./reais/rio-quality.yaml) | Arquitetura cita **Cloudflare Tunnel** existente; Oracle/Consinco |
-| 3 | **Grupo Marra** | `tenant_grupo_marra` | lab IntegrAllTech | *(lab overlay)* | `tunnel_agent` | connector_lab | ok (lab) | [lab-grupo-marra.yaml](./lab-grupo-marra.yaml) | Lab |
-| 4 | **Grupo Marra** | `tenant_grupo_marra` | **produção** | **`a_confirmar`** | **`a_confirmar`** | não_iniciado | **P1** | [reais/grupo-marra.yaml](./reais/grupo-marra.yaml) | Confirmar VPN com o time |
-| 5 | *(próximo cliente)* | `tenant_…` | … | … | … | não_iniciado | — | copiar template | — |
+| 1 | **Rio Quality** | `rio_quality` / `tenant_rio_quality` | lab IntegrAllTech | `lab_overlay` | `tunnel_agent` | connector_lab | ok (lab) | [lab-rio-quality.yaml](./lab-rio-quality.yaml) | SoT inventariado; não é VPN prod |
+| 2 | **Rio Quality** | `rio_quality` / `tenant_rio_quality` | **produção** | **`a_confirmar`** | **`a_confirmar`** | não_iniciado | **P0** | [reais/rio-quality.yaml](./reais/rio-quality.yaml) | W0-B / homolog; CF Tunnel candidato |
+| 3 | **Grupo Marra** | `grupo_marra` / `tenant_grupo_marra` | lab IntegrAllTech | lab overlay | `tunnel_agent` | connector_lab | ok (lab) | [lab-grupo-marra.yaml](./lab-grupo-marra.yaml) | Isolação uat-op-b |
+| 4 | **Grupo Marra** | `grupo_marra` / `tenant_grupo_marra` | **produção** | **`a_confirmar`** | **`a_confirmar`** | não_iniciado | **P1** | [reais/grupo-marra.yaml](./reais/grupo-marra.yaml) | W2-SITE02 2º site real |
+| 5 | AJ Rorato | `aj_rorato` | produção | `a_confirmar` | a_confirmar | não_iniciado | P2 | template | Axis SoT |
+| 6 | Credicoamo | `credicoamo` | produção | `a_confirmar` | a_confirmar | não_iniciado | P2 | template | Axis SoT |
+| 7 | Fiomar | `fiomar` | produção | `a_confirmar` | a_confirmar | não_iniciado | P2 | template | Axis SoT |
+| 8 | Mentors Informática | `mentors_informatica_ltda` | produção | `a_confirmar` | a_confirmar | não_iniciado | P2 | template | Axis SoT |
+| 9 | TAF | `taf` | produção | `a_confirmar` | a_confirmar | não_iniciado | P2 | template | Axis SoT |
+| 10 | Piloto connector | lab | lab | `wireguard` (lab) | `tunnel_agent` | connector_lab | ok (lab) | [lab-piloto-connector.yaml](./lab-piloto-connector.yaml) | Path WG isolado |
 
 ### Contagem por stack (produção — atualizar ao preencher)
 
@@ -48,7 +53,7 @@ Preencher `stack` e `tipo` com o time comercial/ops. Valores iniciais = o que o 
 | `openfortivpn` | 0 confirmados | — |
 | `cloudflare_tunnel` | 0 confirmados (Rio Quality **candidato**) | Rio Quality? |
 | `mixed` | 0 | — |
-| `a_confirmar` | **2** | Rio Quality prod, Grupo Marra prod |
+| `a_confirmar` | **7+** | Rio, Marra + Axis (aj_rorato, credicoamo, fiomar, mentors, taf) |
 
 > O time usa hoje **OpenVPN, WireGuard e openfortivpn** no parque de clientes — esta tabela existe para **atribuir cada cliente a uma linha**, não para inventar stack.
 

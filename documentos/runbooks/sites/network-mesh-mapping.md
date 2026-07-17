@@ -1,6 +1,7 @@
 # Mapeamento conectividade ADR-008 → malha
 
-> Contrato de conectividade de **site**. Stacks reais dos clientes hoje: **OpenVPN**, **WireGuard**, **openfortivpn** — ver `conectividade-vpn-clientes.md`.
+> Contrato de conectividade de **site**. Stacks reais dos clientes hoje: **OpenVPN**, **WireGuard**, **openfortivpn** — ver `conectividade-vpn-clientes.md`.  
+> **Decisão W2:** connectors por site default; NetBird opcional — [ADR-010](../../../adr/ADR-010-conectividade-site-connectors-vs-netbird.md).
 
 | `conectividade.tipo` (ADR-008) | Stack típica do cliente | Implementação ArchGate | Notas |
 |--------------------------------|-------------------------|------------------------|--------|

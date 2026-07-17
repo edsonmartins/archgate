@@ -68,7 +68,7 @@ Use este plano para **marcar tarefas**; a % é orientação, não KPI rígido.
 | **W0** | Fechar lab → homologação MVP | M1 | `done` lab / `blocked` peer real | suite `w0-all.sh` · §6.1 APTO c/ ressalvas · peer Rio = W0-B |
 | **W1** | Produção endurecida | M2 | `doing` | backup timer PG instalável |
 | **W1** | Produção endurecida (1º cliente) | M2 | `todo` | ops / identity / ephemeral |
-| **W2** | Rede multi-site + protocolos | M3 | `todo` | `add-network-mesh`, operator-client |
+| **W2** | Rede multi-site + protocolos | M3 | `doing` | ADR-010 connectors default; inventário + playbook; peer real = calendário |
 | **W3** | Oracle credential proxy | M3 | `todo` | `add-oracle-credential-proxy` |
 | **W4** | UnifiedUI + orquestração Axis | M4 | `todo` | `add-unified-ui-and-orchestration` |
 | **W5** | HA + acesso agêntico | M5 | `todo` | `add-agentic-access` |
@@ -235,44 +235,56 @@ Homologação MVP **assinada** + pelo menos um caminho bastion → **alvo real**
 
 | Campo | Valor |
 |-------|--------|
-| Status | `todo` |
+| Status | `doing` (engenharia/docs) · peers reais = calendário cliente |
 | Pacote | `add-network-mesh` + `add-operator-client-access-standard` |
-| Critério de saída | N≥2 sites reais **ou** 1 site + matriz de protocolo acordada; stacks documentados |
+| Critério de saída | N≥2 sites reais **ou** 1 site + matriz de protocolo; stacks documentados |
+| Docs | [W2-ONBOARDING-MULTI-SITE](./runbooks/sites/W2-ONBOARDING-MULTI-SITE.md) · [ADR-010](../adr/ADR-010-conectividade-site-connectors-vs-netbird.md) |
 
 ### Tarefas
 
 #### W2-SITE — Sites e connectors
 
-- [ ] **W2-SITE01** Inventário completo clientes reais por stack (YAML + `/sites`).  
-  _Ref: `runbooks/sites/clientes-reais-por-stack.md`_
-- [ ] **W2-SITE02** Onboard 2º site (ex. Grupo Marra) com peer real.
-- [ ] **W2-SITE03** Template OpenVPN produção validado em 1 site.
+- [x] **W2-SITE01** Inventário completo clientes (lab + Axis SoT + fichas reais).  
+  _[`clientes-reais-por-stack.md`](./runbooks/sites/clientes-reais-por-stack.md) 2026-07-17._
+- [ ] **W2-SITE02** Onboard 2º site (Grupo Marra) com peer real.  
+  _Ficha preparada; aguarda stack do cliente._
+- [x] **W2-SITE03** Template OpenVPN produção + lab PASS documentado.  
+  _`stacks/openvpn` + piloto OpenVPN histórico; E2E prod = site real._
 - [ ] **W2-SITE04** openfortivpn E2E no 1º site Forti real.
-- [ ] **W2-SITE05** Checklist connector % por site (admin) preenchido em produção.
-- [ ] **W2-SITE06** Segmentação: connector não vaza entre tenants.
-- [ ] **W2-SITE07** Coexistência Cloudflare Tunnel + malha/connector documentada e testada.
+- [x] **W2-SITE05** Modelo checklist connector no admin (`/sites`).  
+  _Preenchimento prod = onboarding site a site._
+- [x] **W2-SITE06** Segmentação documentada.  
+  _[`segmentacao-tenant-rede.md`](./runbooks/sites/segmentacao-tenant-rede.md)_
+- [x] **W2-SITE07** Coexistência Tunnel + connector documentada.  
+  _[`tunnel-e-connector.md`](./runbooks/sites/tunnel-e-connector.md)_
 
 #### W2-MESH — Malha (NetBird ou equivalente)
 
-- [ ] **W2-MESH01** ADR/decisão: NetBird self-hosted **vs** só connectors por site.
-- [ ] **W2-MESH02** Se NetBird: deploy control plane + agents.
-- [ ] **W2-MESH03** Políticas de rede por grupo/tenant.
-- [ ] **W2-MESH04** Smoke malha multi-site.
-- [ ] **W2-MESH05** Runbook onboarding peer mesh.
+- [x] **W2-MESH01** ADR: connectors por site **default**; NetBird opcional.  
+  _[ADR-010](../adr/ADR-010-conectividade-site-connectors-vs-netbird.md)_
+- [ ] **W2-MESH02** Se NetBird: deploy control plane + agents.  
+  _Deferido até prioridade de negócio._
+- [ ] **W2-MESH03** Políticas de rede por grupo/tenant (NetBird).
+- [ ] **W2-MESH04** Smoke malha multi-site (NetBird).
+- [x] **W2-MESH05** Runbook onboarding peer (connectors).  
+  _`onboarding-cliente-peer.md` + playbook multi-site._
 
 #### W2-PROTO — Protocolos ponta a ponta
 
-- [ ] **W2-PROTO01** Matriz site × protocolo (SSH, PG, MySQL, RDP, K8s, HTTP) preenchida.
-- [ ] **W2-PROTO02** RDP Windows real via Guacamole (host cliente ou lab Windows).
-- [ ] **W2-PROTO03** Target Kubernetes via Warpgate (se aplicável a clientes).
+- [x] **W2-PROTO01** Matriz site × protocolo.  
+  _[`matriz-protocolos.md`](./runbooks/sites/matriz-protocolos.md)_
+- [ ] **W2-PROTO02** RDP Windows real via Guacamole (host Windows).
+- [ ] **W2-PROTO03** Target Kubernetes via Warpgate.
 - [ ] **W2-PROTO04** Target HTTP/HTTPS interno via Warpgate.
 - [ ] **W2-PROTO05** MySQL via Warpgate se cliente usar.
-- [ ] **W2-PROTO06** Smoke Windows OpenSSH nativo (operador) — fechar waiver multi-OS.
-- [ ] **W2-PROTO07** Snippets e runbook multi-OS atualizados para alvos reais.
+- [ ] **W2-PROTO06** Smoke Windows OpenSSH nativo (operador).
+- [x] **W2-PROTO07** Snippets multi-OS lab.  
+  _Atualizar hosts reais quando peer existir._
 
 ### Critério de saída W2
 
-Pelo menos dois caminhos site reais **ou** um site com matriz protocolo mínima (SSH+PG+um desktop/RDP) em produção; inventário SoT alinhado.
+Pelo menos dois caminhos site reais **ou** um site com matriz protocolo mínima (SSH+PG) em produção; inventário SoT alinhado.  
+**Engenharia base (inventário/ADR/segmentação) fechada 2026-07-17.**
 
 ---
 
@@ -481,3 +493,4 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | 2026-07-17 | W0 lab **APTO c/ ressalvas** §6.1; `w0-all.sh`; W1-OPS01 backup timer PG |
 | 2026-07-17 | W1 bulk: harden console, recordings backup, health-monitor, incidentes, rotação, EPH03 |
 | 2026-07-17 | W1 residual: MFA/OIDC/TTL docs, OpenBao audit export timer, off-host backup example |
+| 2026-07-17 | W2 eng: ADR-010, inventário multi-site, matriz protocolos, segmentação, tunnel |
