@@ -23,7 +23,8 @@ Princípios: **zero-credencial-no-dev**, política no gateway, identidade como a
 
 Documento de arquitetura: [`PLATAFORMA_ACESSO_PRIVILEGIADO.md`](./PLATAFORMA_ACESSO_PRIVILEGIADO.md).  
 Invariantes: [`CONSTITUTION.md`](./CONSTITUTION.md).  
-Plano 100%: [`documentos/PLAN-PRODUTO-100.md`](./documentos/PLAN-PRODUTO-100.md).
+Plano 100%: [`documentos/PLAN-PRODUTO-100.md`](./documentos/PLAN-PRODUTO-100.md).  
+Ops / VPS / Cloudflare: repositório irmão **`archgate-devops`** (`../archgate-devops`).
 
 | Serviço (scaffold) | Path | Porta dev |
 |--------------------|------|-----------|
