@@ -123,8 +123,8 @@ Dono + cliente piloto + protocolos UAT definidos por escrito neste arquivo. ✅
 
 - [ ] **F1.1** Login **OIDC** no console no browser → dashboard (print ou sessão gravada).  
   _2026-07-11: pré-check 307→/dashboard + OIDC discovery 200. **Falta print humano.**_
-- [ ] **F1.2** Reteste **offboarding** interativo: disable user no Kanidm → próximo SSO falha (console e/ou WG).  
-  _Pendente humano / janela controlada._
+- [x] **F1.2** Reteste **offboarding** interativo: disable user no Kanidm → próximo SSO falha (console e/ou WG).  
+  _2026-07-17: `offboarding-e2e.sh` **PASSED** (account expired). Browser opcional._
 - [ ] **F1.3** Guacamole: login via portão SSO + **sessão SSH browser** lab (ou cliente) OK.  
   _Portão SSO e2e **PASS**; sessão gráfica pendente humano._
 - [x] **F1.4** Confirmar **gravação** de sessão (path WG e/ou Guac) e anotar path na evidência.  
