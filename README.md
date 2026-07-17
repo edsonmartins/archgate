@@ -133,7 +133,8 @@ Segredos: `bootstrap.env` e chaves age **fora do git** (ver [`.gitignore`](./.gi
 | 6 | [`deploy/README.md`](./deploy/README.md) | Swarm, redes, stacks |
 | 7 | [`documentos/runbooks/`](./documentos/runbooks/) | Operação, operador multi-OS, aceite |
 | 8 | [`documentos/PLAN-HOMOLOGACAO-MVP.md`](./documentos/PLAN-HOMOLOGACAO-MVP.md) | **Plano de tarefas** até homologação MVP |
-| 9 | [`documentos/runbooks/HOMOLOGACAO-UAT.md`](./documentos/runbooks/HOMOLOGACAO-UAT.md) | Roteiro UAT (revisor, ≤30 min) |
+| 9 | [`documentos/PLAN-PRODUTO-100.md`](./documentos/PLAN-PRODUTO-100.md) | **Plano até 100% do produto** (W0–W5) |
+| 10 | [`documentos/runbooks/HOMOLOGACAO-UAT.md`](./documentos/runbooks/HOMOLOGACAO-UAT.md) | Roteiro UAT (revisor, ≤30 min) |
 
 ### ADRs relevantes
 

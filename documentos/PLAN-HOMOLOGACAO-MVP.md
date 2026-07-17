@@ -4,6 +4,7 @@
 |-------|--------|
 | Status do plano | **Ativo** |
 | Objetivo | Produto **homologável** (UAT interno / cliente piloto), sem confundir com lab nem com produção multi-cliente |
+| Plano 100% produto | [`PLAN-PRODUTO-100.md`](./PLAN-PRODUTO-100.md) (ondas W0–W5 — o que falta além deste MVP) |
 | Baseline lab | Aceite piloto **PASS com waiver** (2026-07-11) — [`runbooks/ACEITE-PILOTO-LAB.md`](./runbooks/ACEITE-PILOTO-LAB.md) |
 | Evidência lab | [`runbooks/sites/smoke-evidence-2026-07-11-aceite-piloto.md`](./runbooks/sites/smoke-evidence-2026-07-11-aceite-piloto.md) |
 | Matriz de features | [`MATRIZ_FUNCIONALIDADES.md`](./MATRIZ_FUNCIONALIDADES.md) |

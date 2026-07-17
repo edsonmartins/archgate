@@ -2,7 +2,8 @@
 
 **Data de referência:** 2026-07-11  
 **Ambiente validado:** lab/staging (`192.168.1.180`, Swarm)  
-**Fonte de verdade por pacote:** `openspec/changes/*/tasks.md`
+**Fonte de verdade por pacote:** `openspec/changes/*/tasks.md`  
+**Plano do que falta até 100%:** [`PLAN-PRODUTO-100.md`](./PLAN-PRODUTO-100.md) · Homologação MVP: [`PLAN-HOMOLOGACAO-MVP.md`](./PLAN-HOMOLOGACAO-MVP.md)
 
 Legenda de status:
 

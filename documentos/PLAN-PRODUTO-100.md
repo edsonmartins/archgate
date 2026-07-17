@@ -1,0 +1,443 @@
+# Plano — ArchGate até 100% do produto
+
+| Campo | Valor |
+|-------|--------|
+| Status | **Ativo** |
+| Objetivo | Checklist de **tudo o que falta** para o produto completo (visão arquitetura + OpenSpec), sem perder o fio |
+| Complementa | [`PLAN-HOMOLOGACAO-MVP.md`](./PLAN-HOMOLOGACAO-MVP.md) (só gate UAT/lab) |
+| Matriz | [`MATRIZ_FUNCIONALIDADES.md`](./MATRIZ_FUNCIONALIDADES.md) |
+| OpenSpec | [`../openspec/changes/README.md`](../openspec/changes/README.md) |
+| Arquitetura | [`../PLATAFORMA_ACESSO_PRIVILEGIADO.md`](../PLATAFORMA_ACESSO_PRIVILEGIADO.md) |
+| Data de criação | 2026-07-11 |
+| Última atualização | 2026-07-11 |
+| Dono do plano | Edson Martins |
+| Baseline lab | Fases 1–2 + control plane lab + connector piloto **parciais**; homologação MVP **em curso** |
+
+---
+
+## 1. O que é “100%”
+
+**100% do projeto** = plataforma de acesso privilegiado **operável em multi-cliente real**, com:
+
+1. Identidade, bastion, segredos efêmeros e control plane **em produção** (não só lab).
+2. Conectividade a **sites de clientes reais** (multi-stack) + cobertura de protocolos (SSH, PG, RDP, K8s, Oracle onde aplicável).
+3. **Uma superfície** de operador (UnifiedUI) + orquestração Axis de pessoas/acessos.
+4. **HA**, auditoria exportável, higiene de segredos de produção.
+5. Capacidade **agêntica** (OpenSRE / HITL / kill-switch) conforme Fase 5.
+
+**Não** é 100% cada idea futura adjacente (SIEM enterprise, NetBird se substituído por outro mesh, etc.) — ver §9 (estacionamento explícito).
+
+### Marcos de progresso (estimativa de valor)
+
+| Marco | % produto (visão) | Critério |
+|-------|------------------:|----------|
+| **M0** Lab usável | ~35% | Já atingido (piloto PASS com waiver) |
+| **M1** Homologação MVP | ~45% | [`PLAN-HOMOLOGACAO-MVP.md`](./PLAN-HOMOLOGACAO-MVP.md) §6 assinado + peer real |
+| **M2** Produção 1º cliente | ~55% | Peer prod, backups, sem root no fluxo diário, runbooks ops |
+| **M3** Rede + protocolos reais | ~70% | Multi-site, RDP/K8s, Oracle se necessário |
+| **M4** UnifiedUI + orquestração | ~85% | Catálogo + provision/revoke pessoas |
+| **M5** HA + agêntico | **100%** | OpenBao/Kanidm HA + OpenSRE HITL |
+
+Use este plano para **marcar tarefas**; a % é orientação, não KPI rígido.
+
+---
+
+## 2. Como usar
+
+1. Trabalhar por **onda (W0→W5)**; dentro da onda, IDs de tarefa são estáveis (`W3-ORACLE-02`).
+2. Marcar `- [x]` só com evidência (path, PR, smoke, print).
+3. Ao fechar uma onda, atualizar a tabela §3 e a [`MATRIZ_FUNCIONALIDADES.md`](./MATRIZ_FUNCIONALIDADES.md).
+4. Detalhe fino de implementação: `openspec/changes/<pacote>/tasks.md` (este plano é o **radar executivo**).
+5. Homologação MVP **não some**: continue o plano MVP em paralelo até M1.
+
+**Legenda de status de onda**
+
+| Status | Significado |
+|--------|-------------|
+| `todo` | Não iniciado |
+| `doing` | Em curso |
+| `blocked` | Dependência externa |
+| `done` | Critério de saída da onda OK |
+
+---
+
+## 3. Radar executivo
+
+| Onda | Nome | Marco | Status | Pacotes OpenSpec |
+|------|------|-------|--------|------------------|
+| **W0** | Fechar lab → homologação MVP | M1 | `doing` | transversal + network 0.5 |
+| **W1** | Produção endurecida (1º cliente) | M2 | `todo` | ops / identity / ephemeral |
+| **W2** | Rede multi-site + protocolos | M3 | `todo` | `add-network-mesh`, operator-client |
+| **W3** | Oracle credential proxy | M3 | `todo` | `add-oracle-credential-proxy` |
+| **W4** | UnifiedUI + orquestração Axis | M4 | `todo` | `add-unified-ui-and-orchestration` |
+| **W5** | HA + acesso agêntico | M5 | `todo` | `add-agentic-access` |
+
+```text
+W0 Homolog MVP ──► W1 Prod 1 cliente ──► W2 Rede/protocolos ──┬──► W4 UnifiedUI/orquestra ──► W5 HA/agêntico
+                                              │
+                                              └──► W3 Oracle (// se cliente precisa)
+```
+
+---
+
+## 4. Onda W0 — Fechar lab e homologação MVP (→ M1)
+
+| Campo | Valor |
+|-------|--------|
+| Status | `doing` |
+| Plano detalhado | [`PLAN-HOMOLOGACAO-MVP.md`](./PLAN-HOMOLOGACAO-MVP.md) |
+| Critério de saída | §6 do plano MVP assinado (**APTO** ou **APTO com ressalvas**) |
+
+### Tarefas
+
+#### W0-A — Humano / browser (barato)
+
+- [ ] **W0-A01** Login OIDC console com `uat-admin` e `uat-op-a` (print).  
+  _Ref: F1.1, F2.4_
+- [ ] **W0-A02** Guac: SSO + sessão SSH browser + confirmar recording se possível.  
+  _Ref: F1.3, F1.4 Guac_
+- [ ] **W0-A03** Offboarding interativo: disable user Kanidm → SSO falha.  
+  _Ref: F1.2_
+- [ ] **W0-A04** Activity log na UI após mutação admin (sync/upsert).  
+  _Ref: F1.5_
+- [ ] **W0-A05** Validar TLS no browser via DNS público (`*.archgate.com.br`).  
+  _Ref: F4.6_
+- [ ] **W0-A06** Definir data-alvo UAT e assinar aceite lab (F0.6, F1.9).
+- [ ] **W0-A07** Executar UAT formal (`HOMOLOGACAO-UAT.md`) e preencher §6 do plano MVP (F5).
+
+#### W0-B — Cliente real (crítico de calendário)
+
+- [ ] **W0-B01** Contato Rio Quality: stack VPN, hosts SSH/PG, janela peer.
+- [ ] **W0-B02** Ficha site real no SoT (`rio_quality` ≠ só `lab_overlay`).  
+  _Ref: F3.1, `runbooks/onboarding-cliente-site.md`_
+- [ ] **W0-B03** Onboard peer/connector real.  
+  _Ref: F3.2, `deploy/connector/onboarding-cliente-peer.md`_
+- [ ] **W0-B04** Apply targets Warpgate (secrets via `TARGET_SECRET_*`).  
+  _Ref: F3.4_
+- [ ] **W0-B05** E2E operador → host **real** (SSH e/ou PG) + gravação.  
+  _Ref: F3.5, F3.7_
+- [ ] **W0-B06** Isolamento tenant revalidado com targets reais.  
+  _Ref: F3.6_
+- [ ] **W0-B07** Evidência `smoke-evidence-YYYY-MM-DD-cliente-piloto.md`.  
+  _Ref: F3.9_
+
+#### W0-C — Já feito (não reabrir sem regressão)
+
+- [x] Contas UAT Kanidm+WG (`provision-uat-users.sh`)
+- [x] Dry-run bastion SSH/PG/isolamento lab
+- [x] Backup PG + restore dry-run
+- [x] Runbook unseal OpenBao
+- [x] Warpgate admin API do console (CONNECT_HOST + SNI)
+- [x] JWT Kanidm → OpenBao
+- [x] Control plane sites SoT Postgres + Axis sync lab
+
+### Critério de saída W0
+
+Homologação MVP **assinada** + pelo menos um caminho bastion → **alvo real** documentado (ou waiver escrito se negócio aceitar só lab).
+
+---
+
+## 5. Onda W1 — Produção endurecida / 1º cliente (→ M2)
+
+| Campo | Valor |
+|-------|--------|
+| Status | `todo` |
+| Depende de | W0 (ou overlap controlado) |
+| Critério de saída | 1 cliente em uso real diário; runbooks ops; sem root OpenBao no fluxo normal |
+
+### Tarefas
+
+#### W1-SEC — Segurança e segredos
+
+- [ ] **W1-SEC01** Remover `OPENBAO_ROOT_TOKEN` do serviço console em não-lab.
+- [ ] **W1-SEC02** Unseal só via timer/ops; unseal key fora do env do app.
+- [ ] **W1-SEC03** `ARCHGATE_LAB=0` (ou ausente) em staging “homologado” / pré-prod.
+- [ ] **W1-SEC04** Rotação documentada: `SESSION_SECRET`, SA Kanidm, admin WG, APP_TOKEN.
+- [ ] **W1-SEC05** mTLS ou rede privada Axis ↔ console (fechar waiver homolog interna).
+- [ ] **W1-SEC06** Política de `NODE_TLS_REJECT_UNAUTHORIZED` (lab only; prod com CA válida).
+- [ ] **W1-SEC07** Secrets de alvo só OpenBao / `TARGET_SECRET_*` / SOPS — auditoria de env.
+
+#### W1-OPS — Operação
+
+- [ ] **W1-OPS01** Backup PG automatizado (cron/timer) + retenção + cópia off-host.
+- [ ] **W1-OPS02** Backup filesystem recordings WG (+ Guac se usado).
+- [ ] **W1-OPS03** Restore testado em janela (não só dry-run de sites).
+- [ ] **W1-OPS04** Runbook incidente: bastion down, OpenBao sealed, Kanidm down.
+- [ ] **W1-OPS05** Monitoramento mínimo (health Traefik/services, sealed, disco recordings).
+- [ ] **W1-OPS06** On-call / contatos durante operação 1º cliente.
+- [ ] **W1-OPS07** Pin de versões revisado (`deploy/versions.env`) + changelog de upgrade.
+- [ ] **W1-OPS08** Inventário live de serviços e endpoints em produção (doc).
+
+#### W1-ID — Identidade produção
+
+- [ ] **W1-ID01** Políticas de senha / MFA (WebAuthn/TOTP) para operadores reais.
+- [ ] **W1-ID02** Offboarding runbook oficial multi-componente (IdP → SSO cai; checklist WG/Guac).
+- [ ] **W1-ID03** Contas break-glass documentadas e testadas.
+- [ ] **W1-ID04** Revisão OIDC clients (redirect URIs, scopes, PKCE) em DNS prod.
+
+#### W1-EPHEM — Credenciais efêmeras (fechar MVP Fase 2)
+
+- [ ] **W1-EPH01** Broker DB em produção (timer/role por tenant/site).
+- [ ] **W1-EPH02** TTL e leases alinhados à política de segurança.
+- [ ] **W1-EPH03** Decisão: Warpgate SSH **cert nativo** (upstream #2105) **ou** broker de key documentado como padrão.
+- [ ] **W1-EPH04** Se broker de key: implementação + smoke E2E.
+- [ ] **W1-EPH05** Audit OpenBao (file → export ou SIEM mínimo).  
+  _Ref: `add-ephemeral-credentials`_
+
+#### W1-CP — Control plane produção
+
+- [ ] **W1-CP01** SoT sites só Postgres (sem depender de SQLite activity frágil).
+- [ ] **W1-CP02** Activity log durável (PG ou volume com backup) + UI validada.
+- [ ] **W1-CP03** Sync Axis em job/cron ou botão com audit (sem token residual stub).
+- [ ] **W1-CP04** RBAC tenant revalidado com users reais (não só uat-*).
+- [ ] **W1-CP05** Apply gateways idempotente documentado para ops.
+
+### Critério de saída W1
+
+1º cliente em uso operacional; checklist W1-SEC01–03 feitos; backups automáticos; runbooks de incidente existentes.
+
+---
+
+## 6. Onda W2 — Rede multi-site e protocolos (→ M3)
+
+| Campo | Valor |
+|-------|--------|
+| Status | `todo` |
+| Pacote | `add-network-mesh` + `add-operator-client-access-standard` |
+| Critério de saída | N≥2 sites reais **ou** 1 site + matriz de protocolo acordada; stacks documentados |
+
+### Tarefas
+
+#### W2-SITE — Sites e connectors
+
+- [ ] **W2-SITE01** Inventário completo clientes reais por stack (YAML + `/sites`).  
+  _Ref: `runbooks/sites/clientes-reais-por-stack.md`_
+- [ ] **W2-SITE02** Onboard 2º site (ex. Grupo Marra) com peer real.
+- [ ] **W2-SITE03** Template OpenVPN produção validado em 1 site.
+- [ ] **W2-SITE04** openfortivpn E2E no 1º site Forti real.
+- [ ] **W2-SITE05** Checklist connector % por site (admin) preenchido em produção.
+- [ ] **W2-SITE06** Segmentação: connector não vaza entre tenants.
+- [ ] **W2-SITE07** Coexistência Cloudflare Tunnel + malha/connector documentada e testada.
+
+#### W2-MESH — Malha (NetBird ou equivalente)
+
+- [ ] **W2-MESH01** ADR/decisão: NetBird self-hosted **vs** só connectors por site.
+- [ ] **W2-MESH02** Se NetBird: deploy control plane + agents.
+- [ ] **W2-MESH03** Políticas de rede por grupo/tenant.
+- [ ] **W2-MESH04** Smoke malha multi-site.
+- [ ] **W2-MESH05** Runbook onboarding peer mesh.
+
+#### W2-PROTO — Protocolos ponta a ponta
+
+- [ ] **W2-PROTO01** Matriz site × protocolo (SSH, PG, MySQL, RDP, K8s, HTTP) preenchida.
+- [ ] **W2-PROTO02** RDP Windows real via Guacamole (host cliente ou lab Windows).
+- [ ] **W2-PROTO03** Target Kubernetes via Warpgate (se aplicável a clientes).
+- [ ] **W2-PROTO04** Target HTTP/HTTPS interno via Warpgate.
+- [ ] **W2-PROTO05** MySQL via Warpgate se cliente usar.
+- [ ] **W2-PROTO06** Smoke Windows OpenSSH nativo (operador) — fechar waiver multi-OS.
+- [ ] **W2-PROTO07** Snippets e runbook multi-OS atualizados para alvos reais.
+
+### Critério de saída W2
+
+Pelo menos dois caminhos site reais **ou** um site com matriz protocolo mínima (SSH+PG+um desktop/RDP) em produção; inventário SoT alinhado.
+
+---
+
+## 7. Onda W3 — Oracle credential proxy (→ M3, se demanda)
+
+| Campo | Valor |
+|-------|--------|
+| Status | `todo` |
+| Pacote | `add-oracle-credential-proxy` (ADR-001) |
+| Critério de saída | Lease Oracle dinâmico E2E + amarração identidade Kanidm |
+
+### Tarefas
+
+- [ ] **W3-ORACLE01** Scaffold serviço proxy Java (Spring) create/drop/rotate user ojdbc thin.  
+  _Repo `services/oracle-proxy/`_
+- [ ] **W3-ORACLE02** API mTLS plugin ↔ proxy.
+- [ ] **W3-ORACLE03** Plugin Go OpenBao dbplugin v5 → proxy.
+- [ ] **W3-ORACLE04** Role dinâmica OpenBao + policies.
+- [ ] **W3-ORACLE05** Integração identidade (JWT Kanidm / policy por grupo).
+- [ ] **W3-ORACLE06** Deploy Swarm + secrets.
+- [ ] **W3-ORACLE07** E2E: emitir lease → conectar SQL*Plus/cliente → revoke.
+- [ ] **W3-ORACLE08** Runbook ops + falhas comuns Oracle.
+- [ ] **W3-ORACLE09** Se não houver cliente Oracle no horizonte: **marcar N/A** com decisão escrita (não conta como gap ativo).
+
+### Critério de saída W3
+
+E2E PASS **ou** N/A formal assinado.
+
+---
+
+## 8. Onda W4 — UnifiedUI e orquestração (→ M4)
+
+| Campo | Valor |
+|-------|--------|
+| Status | `todo` |
+| Pacote | `add-unified-ui-and-orchestration` |
+| Critério de saída | Operador usa **uma** UI para catálogo + sessão; Axis provisiona/revoga pessoas |
+
+### Tarefas
+
+#### W4-UI — UnifiedUI
+
+- [ ] **W4-UI01** ADR-006 estratégia frontend (ou confirmar stack TanStack/Mantine no monorepo).
+- [ ] **W4-UI02** Esqueleto app UnifiedUI (`frontend/`) com auth OIDC.
+- [ ] **W4-UI03** Catálogo “minhas conexões” filtrado por tenant/RBAC.
+- [ ] **W4-UI04** Sessão SSH/RDP embutida (`guacamole-common-js` ou proxy).
+- [ ] **W4-UI05** Tokens/credenciais só server-side.
+- [ ] **W4-UI06** Decisão ADR-007: Guac 1.7 OIDC nativo **ou** aposentar UI stock no fluxo dev.
+- [ ] **W4-UI07** Deep link / launch Warpgate desktop (SSH/PG) a partir do catálogo.
+- [ ] **W4-UI08** UX offboarding / “sem acesso” clara.
+- [ ] **W4-UI09** Testes E2E browser (smoke crítico).
+
+#### W4-ORCH — Orquestração Axis
+
+- [ ] **W4-ORCH01** Fechar ADR-004 fronteira ArchGuard × Axis (contratos API).
+- [ ] **W4-ORCH02** Provision pessoa: Axis → Kanidm group/tenant + (opcional) WG role.
+- [ ] **W4-ORCH03** Grant acesso target/site (API).
+- [ ] **W4-ORCH04** Revoke / offboarding **one-shot** multi-componente (Kanidm + WG + Guac + leases).
+- [ ] **W4-ORCH05** Webhooks ou polling Axis com idempotência e audit.
+- [ ] **W4-ORCH06** Painel admin “última orquestração” confiável em prod.
+- [ ] **W4-ORCH07** (Opcional) Terraform provider Warpgate SoT.
+
+### Critério de saída W4
+
+Operador do 1º cliente não precisa de 3 UIs no happy path; offboarding pessoas é API/runbook único testado.
+
+---
+
+## 9. Onda W5 — HA e acesso agêntico (→ M5 = 100%)
+
+| Campo | Valor |
+|-------|--------|
+| Status | `todo` |
+| Pacote | `add-agentic-access` |
+| Critério de saída | HA dos componentes críticos + agente com HITL e kill-switch |
+
+### Tarefas
+
+#### W5-HA — Alta disponibilidade
+
+- [ ] **W5-HA01** OpenBao HA (Raft) + auto-unseal KMS (ou HSM/cloud KMS interno).
+- [ ] **W5-HA02** Kanidm replicação / topologia HA.
+- [ ] **W5-HA03** Warpgate/Guacamole stateless + PG gerenciado/HA.
+- [ ] **W5-HA04** Traefik multi-node / edge redundante.
+- [ ] **W5-HA05** Teste de failover por componente (runbook + evidência).
+- [ ] **W5-HA06** RPO/RTO documentados e aceitos.
+
+#### W5-AGENT — Agêntico / OpenSRE
+
+- [ ] **W5-AG01** Service account OpenSRE no Kanidm + policies mínimas.
+- [ ] **W5-AG02** On-behalf-of / impersonação controlada (se modelo exigir).
+- [ ] **W5-AG03** Allow-list de targets e ações para agentes.
+- [ ] **W5-AG04** JIT access + rate limit.
+- [ ] **W5-AG05** HITL para ações mutantes (aprovação humana).
+- [ ] **W5-AG06** Kill-switch global (revoga SA / policy).
+- [ ] **W5-AG07** Cadeia de auditoria agente → sessão → gravação.
+- [ ] **W5-AG08** Inferência local (sem dado cliente em SaaS) se IA no fluxo — política escrita.
+- [ ] **W5-AG09** E2E: agente pede acesso → HITL → sessão → revoke.
+
+#### W5-CLOSE — Fechamento 100%
+
+- [ ] **W5-CL01** Atualizar `MATRIZ_FUNCIONALIDADES.md` — zero “Pendente” crítico sem N/A.
+- [ ] **W5-CL02** Atualizar `openspec/changes/*/tasks.md` com `[x]` validados.
+- [ ] **W5-CL03** Aceite produto completo (doc + assinatura revisor/arquiteto).
+- [ ] **W5-CL04** Comunicar 100% vs itens §10 (estacionamento).
+
+### Critério de saída W5
+
+**100% do produto** conforme §1; itens §10 explicitamente fora ou N/A.
+
+---
+
+## 10. Estacionamento (não conta como gap de 100% a menos que promovido)
+
+Itens que **não** bloqueiam o marco M5 salvo decisão de negócio:
+
+| ID | Item | Motivo |
+|----|------|--------|
+| P-OUT-01 | SIEM enterprise comercial | Export audit mínimo basta; SIEM é integração |
+| P-OUT-02 | Marca/domínio legal ArchGate vs AppGate | Jurídico, não engenharia core |
+| P-OUT-03 | ADR-002 step-ca | Substituível por OpenBao SSH CA |
+| P-OUT-04 | UnifiedUI pixel-perfect / multi-idioma | Pós-MVP UX |
+| P-OUT-05 | Suporte PuTTY/clientes não oficiais | Best-effort ADR-008 |
+| P-OUT-06 | Multi-cloud / multi-região global | Fora do self-host IntegrAllTech atual |
+| P-OUT-07 | Feature flags UseDevKit | Produto irmão, não ArchGate |
+
+Para **promover** um item daqui para o plano: criar tarefa na onda adequada e remover da tabela.
+
+---
+
+## 11. Dependências externas (risco de calendário)
+
+| Dependência | Afeta | Mitigação |
+|-------------|-------|-----------|
+| Janela peer **cliente** (Rio, Marra, …) | W0-B, W2 | Lab overlay só para dev; não chama de 100% |
+| Host **Windows** lab/cliente | W2-PROTO02/06 | Waiver até existir host |
+| Upstream Warpgate Vault/SSH cert (#2105) | W1-EPH03 | Broker de key |
+| Mentors Axis API estável | W4-ORCH | Contrato ADR-004 |
+| Orçamento HA / KMS | W5-HA | Adiar M5 com % < 100 explícito |
+
+---
+
+## 12. Quadro radar (copiar em sync)
+
+Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
+
+| ID | Onda | Resumo | Status | Dono | Evidência |
+|----|------|--------|--------|------|-----------|
+| W0-A01 | W0 | OIDC console browser | todo | Edson | |
+| W0-A07 | W0 | UAT formal + §6 MVP | todo | Edson | |
+| W0-B05 | W0 | E2E host **real** | blocked | + Rio | |
+| W1-SEC01 | W1 | Sem root OpenBao no app | todo | | |
+| W1-OPS01 | W1 | Backup PG automático | todo | | |
+| W1-EPH03 | W1 | Decisão SSH cert vs broker | todo | | |
+| W2-SITE02 | W2 | 2º site real | todo | | |
+| W2-PROTO02 | W2 | RDP Windows real | todo | | |
+| W2-MESH01 | W2 | Decisão NetBird | todo | | |
+| W3-ORACLE01 | W3 | Proxy Java scaffold | todo | | |
+| W4-UI02 | W4 | Esqueleto UnifiedUI | todo | | |
+| W4-ORCH04 | W4 | Offboarding one-shot | todo | | |
+| W5-HA01 | W5 | OpenBao HA + auto-unseal | todo | | |
+| W5-AG05 | W5 | HITL mutante | todo | | |
+| W5-CL03 | W5 | Aceite 100% | todo | | |
+
+*(Linhas completas = seções 4–9; este quadro é o dashboard enxuto.)*
+
+---
+
+## 13. Relação com outros documentos
+
+| Documento | Papel |
+|-----------|--------|
+| [`PLAN-HOMOLOGACAO-MVP.md`](./PLAN-HOMOLOGACAO-MVP.md) | Detalhe **só** M1 / W0 |
+| [`runbooks/HOMOLOGACAO-UAT.md`](./runbooks/HOMOLOGACAO-UAT.md) | Roteiro do revisor UAT |
+| [`MATRIZ_FUNCIONALIDADES.md`](./MATRIZ_FUNCIONALIDADES.md) | Feito × falta por capability |
+| `openspec/changes/*/tasks.md` | Checklist de implementação por pacote |
+| `adr/*` | Decisões que travam desenho |
+| [`../deploy/README.md`](../deploy/README.md) | Como subir stacks |
+
+---
+
+## 14. Ordem de trabalho sugerida (próximos 90 dias)
+
+| Prioridade | Foco | IDs |
+|------------|------|-----|
+| **P0** | Fechar W0 (browser + peer Rio) | W0-A*, W0-B* |
+| **P1** | W1 segurança + backup auto | W1-SEC*, W1-OPS01–03 |
+| **P1** | 2º site / stack real | W2-SITE02–04 |
+| **P2** | Decisão SSH cert + Guac path | W1-EPH03, W4-UI06 |
+| **P2** | UnifiedUI esqueleto | W4-UI01–03 |
+| **P3** | Oracle se cliente Consinco | W3-* |
+| **P3** | NetBird se multi-site exigir | W2-MESH* |
+| **P4** | HA + agêntico | W5-* |
+
+---
+
+## 15. Changelog do plano
+
+| Data | Mudança |
+|------|---------|
+| 2026-07-11 | Criação: ondas W0–W5 cobrindo gap lab → 100% produto |
