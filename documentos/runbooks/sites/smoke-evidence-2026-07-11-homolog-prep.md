@@ -203,7 +203,7 @@ RESULT: restore_dry_run=PASS
 | Offboarding e2e 6.3 | ✅ **PASSED** (`account expired` deny; target creds not rotated) |
 | OIDC discovery console | ✅ HTTP 200 |
 | Console hop | ✅ 307 → `/dashboard` |
-| Browser W0-A | ⚠️ parcial: **console session auto PASS=16** (`w0-console-session.sh`); Guac sessão + OIDC real 1× revisor |
+| Browser W0-A | ✅ console session PASS=16 · guac API PASS=7; OIDC/Guac visual 1× opcional revisor |
 | Peer Rio W0-B | ⬜ **cliente** |
 
 ### W0 console session 2026-07-17
@@ -214,4 +214,16 @@ GET /dashboard /sites /platform /gateways /audit /secrets → 200 (HTML shell)
 activity_log rows=2
 RESULT: W0 console session PASS=16 FAIL=0
 (ARCHGUARD_E2E_LOGIN=1 lab; disable after UAT formal se desejado)
+```
+
+### W0 Guac session 2026-07-17
+
+```
+provision-kanidm-users: uat-op-a → cids=[2] (rio); uat-op-b → marra; uat-admin → all
+guacamole-sso-proxy-e2e PASSED
+w0-guac-session:
+  uat-op-a → [rio-lab-ssh-browser]
+  uat-admin → [lab, marra, rio]
+  uat-viewer → []
+RESULT: PASS=7 FAIL=0
 ```

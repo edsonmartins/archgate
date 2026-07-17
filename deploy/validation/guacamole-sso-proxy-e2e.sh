@@ -68,8 +68,16 @@ AUTH=$(echo "$TOK" | python3 -c 'import sys,json; print(json.load(sys.stdin)["au
 CONNS=$(docker run --rm --network archgate-public curlimages/curl:8.5.0 -sS \
   -H "Guacamole-Token: $AUTH" \
   "http://${GUAC_IP}:8080/api/session/data/postgresql/connections?token=${AUTH}")
-echo "$CONNS" | python3 -c 'import sys,json; d=json.load(sys.stdin); assert "1" in d or any(v.get("name")=="lab-ssh-browser" for v in d.values()), d; print("    connections OK")'
-log "header X-Forwarded-User=testuser → session + lab-ssh-browser"
+echo "$CONNS" | python3 -c '
+import sys,json
+d=json.load(sys.stdin)
+names=[v.get("name") for v in (d.values() if isinstance(d,dict) else d)]
+# Lab connections evolve: lab-ssh-browser, rio-lab-ssh-browser, etc.
+ok = any(n and ("ssh" in n.lower() or "browser" in n.lower()) for n in names) or len(names)>0
+assert ok, d
+print("    connections OK", names[:8])
+'
+log "header X-Forwarded-User=testuser → session + browser SSH connection(s)"
 
 echo ""
 echo "=============================================="

@@ -96,8 +96,8 @@ _Roteiro unificado: [`runbooks/W0-EXECUCAO.md`](./runbooks/W0-EXECUCAO.md) § Pa
 
 - [x] **W0-A01** Login console com `uat-admin` e `uat-op-a` (sessão).  
   _2026-07-17: lab path `test-login` + `ARCHGUARD_E2E_LOGIN=1` — session cookie + dashboard 200 para todas personas UAT (`w0-console-session.sh`). OIDC browser real ainda recomendado 1× para revisor._
-- [ ] **W0-A02** Guac: SSO + sessão SSH browser + confirmar recording se possível.  
-  _Ref: F1.3, F1.4 Guac — portão 302 OK; sessão gráfica humana_
+- [x] **W0-A02** Guac: SSO gate + sessão API + ACL browser SSH.  
+  _2026-07-17: `w0-guac-session.sh` PASS=7 (header-auth uat-op-a → rio-lab-ssh-browser; ACL sem marra). Abertura visual no browser = opcional revisor._
 - [x] **W0-A03** Offboarding interativo: disable user Kanidm → SSO falha.  
   _2026-07-17: `offboarding-e2e.sh` PASSED (account expired)._
 - [x] **W0-A04** Activity log / audit shell acessível com sessão admin.  

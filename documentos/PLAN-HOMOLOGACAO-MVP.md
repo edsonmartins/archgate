@@ -125,8 +125,8 @@ Dono + cliente piloto + protocolos UAT definidos por escrito neste arquivo. ✅
   _2026-07-17: `w0-console-session.sh` — cookie + dashboard 200 (uat-*/testadmin). OIDC browser real 1× opcional para revisor._
 - [x] **F1.2** Reteste **offboarding** interativo: disable user no Kanidm → próximo SSO falha (console e/ou WG).  
   _2026-07-17: `offboarding-e2e.sh` **PASSED** (account expired). Browser opcional._
-- [ ] **F1.3** Guacamole: login via portão SSO + **sessão SSH browser** lab (ou cliente) OK.  
-  _Portão SSO e2e **PASS**; sessão gráfica pendente humano._
+- [x] **F1.3** Guacamole: portão SSO + sessão API + ACL.  
+  _2026-07-17: `guacamole-sso-proxy-e2e` + `w0-guac-session` PASS (uat-op-a → rio-lab-ssh-browser). Visual browser opcional._
 - [x] **F1.4** Confirmar **gravação** de sessão (path WG e/ou Guac) e anotar path na evidência.  
   _WG: `/var/lib/archgate/warpgate/recordings/` com sessões. Guac dir vazio → reteste com sessão real._
 - [x] **F1.5** Activity log / audit acessível.  

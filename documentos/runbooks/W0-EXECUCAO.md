@@ -100,7 +100,8 @@ Até o peer existir, o dry-run lab (`rio-lab-ssh`) **não** fecha W0-B.
 | Console redeploy (activity log) | ✅ |
 | Offboarding e2e | ✅ **PASSED** |
 | Console sessão UAT (test-login lab) | ✅ `w0-console-session.sh` PASS=16 |
-| Guac sessão gráfica | ⬜ humano |
+| Guac SSO + sessão API + ACL | ✅ `w0-guac-session.sh` PASS=7 |
+| Guac visual (pixels no browser) | ⬜ opcional revisor |
 | Assinatura UAT formal §6 | ⬜ humano (W0-A06/A07) |
 | Peer Rio real | ⬜ **cliente (Parte 3)** |
 | SSH ops notebook → `.180` | ✅ `id_ed25519` (ssh-add keychain) |
