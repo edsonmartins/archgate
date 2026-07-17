@@ -1,0 +1,10 @@
+[Unit]
+Description=ArchGate session recordings + console sqlite backup
+After=network-online.target
+
+[Service]
+Type=oneshot
+Environment=BACKUP_DIR=/var/backups/archgate-recordings
+Environment=RETENTION_DAYS=30
+ExecStart=/usr/local/sbin/archgate-recordings-backup
+Nice=10

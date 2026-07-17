@@ -77,19 +77,36 @@ if docker service ls --format '{{.Name}}' | grep -qx 'archgate-id_archguard-cons
     CONSOLE_PG_DB="${CONSOLE_PG_DB:-archguard_console}"
     WG_ENV+=(--env-add "CONSOLE_DATABASE_URL=postgresql://${CONSOLE_PG_USER}:${CONSOLE_PG_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT:-5432}/${CONSOLE_PG_DB}")
   fi
-  # OpenBao control plane (CP-4) — prefer APP_TOKEN; root only with ARCHGATE_LAB=1
+  # OpenBao control plane (CP-4) — prefer APP_TOKEN.
+  # W1: root/unseal never on console unless ARCHGATE_LAB=1 (ops unseal via systemd).
+  ARCHGATE_LAB="${ARCHGATE_LAB:-0}"
   WG_ENV+=(--env-add "OPENBAO_ADDR=${OPENBAO_INTERNAL_ADDR:-http://archgate-secrets_openbao:8200}")
-  WG_ENV+=(--env-add "ARCHGATE_LAB=${ARCHGATE_LAB:-1}")
+  WG_ENV+=(--env-add "ARCHGATE_LAB=${ARCHGATE_LAB}")
   if [[ -n "${OPENBAO_APP_TOKEN:-}" ]]; then
     WG_ENV+=(--env-add "OPENBAO_APP_TOKEN=${OPENBAO_APP_TOKEN}")
   elif [[ -n "${OPENBAO_TOKEN:-}" ]]; then
     WG_ENV+=(--env-add "OPENBAO_APP_TOKEN=${OPENBAO_TOKEN}")
   fi
-  if [[ -n "${OPENBAO_ROOT_TOKEN:-}" ]]; then
-    WG_ENV+=(--env-add "OPENBAO_ROOT_TOKEN=${OPENBAO_ROOT_TOKEN}")
+  if [[ "${ARCHGATE_LAB}" == "1" ]]; then
+    if [[ -n "${OPENBAO_ROOT_TOKEN:-}" ]]; then
+      WG_ENV+=(--env-add "OPENBAO_ROOT_TOKEN=${OPENBAO_ROOT_TOKEN}")
+    fi
+    if [[ -n "${OPENBAO_UNSEAL_KEY:-}" ]]; then
+      WG_ENV+=(--env-add "OPENBAO_UNSEAL_KEY=${OPENBAO_UNSEAL_KEY}")
+    fi
+  else
+    docker service update \
+      --env-rm OPENBAO_ROOT_TOKEN \
+      --env-rm OPENBAO_UNSEAL_KEY \
+      --env-rm ARCHGUARD_E2E_LOGIN \
+      archgate-id_archguard-console 2>/dev/null || true
   fi
-  if [[ -n "${OPENBAO_UNSEAL_KEY:-}" ]]; then
-    WG_ENV+=(--env-add "OPENBAO_UNSEAL_KEY=${OPENBAO_UNSEAL_KEY}")
+  # TLS: lab may set NODE_TLS_REJECT_UNAUTHORIZED=0; prod leave unset (default verify)
+  if [[ "${ARCHGATE_LAB}" == "1" && "${NODE_TLS_REJECT_UNAUTHORIZED:-}" == "0" ]]; then
+    WG_ENV+=(--env-add "NODE_TLS_REJECT_UNAUTHORIZED=0")
+  elif [[ "${ARCHGATE_LAB}" != "1" ]]; then
+    docker service update --env-rm NODE_TLS_REJECT_UNAUTHORIZED \
+      archgate-id_archguard-console 2>/dev/null || true
   fi
   # Mentors Axis (CP-7) — prefer bootstrap; else keep existing service URL
   if [[ -z "${MENTORS_AXIS_URL:-}" ]]; then
@@ -159,10 +176,10 @@ else
     --env "GUACAMOLE_ADMIN_USER=${GUACAMOLE_ADMIN_USER:-guacadmin}" \
     --env "GUACAMOLE_ADMIN_PASSWORD=${GUACAMOLE_ADMIN_PASSWORD:-${GUACADMIN_PASSWORD:-}}" \
     --env "OPENBAO_ADDR=${OPENBAO_INTERNAL_ADDR:-http://archgate-secrets_openbao:8200}" \
-    --env "ARCHGATE_LAB=${ARCHGATE_LAB:-1}" \
+    --env "ARCHGATE_LAB=${ARCHGATE_LAB:-0}" \
     --env "OPENBAO_APP_TOKEN=${OPENBAO_APP_TOKEN:-${OPENBAO_TOKEN:-}}" \
-    --env "OPENBAO_ROOT_TOKEN=${OPENBAO_ROOT_TOKEN:-}" \
-    --env "OPENBAO_UNSEAL_KEY=${OPENBAO_UNSEAL_KEY:-}" \
+    --env "OPENBAO_ROOT_TOKEN=$( [[ "${ARCHGATE_LAB:-0}" == "1" ]] && echo "${OPENBAO_ROOT_TOKEN:-}" || echo "" )" \
+    --env "OPENBAO_UNSEAL_KEY=$( [[ "${ARCHGATE_LAB:-0}" == "1" ]] && echo "${OPENBAO_UNSEAL_KEY:-}" || echo "" )" \
     --env "MENTORS_AXIS_URL=${MENTORS_AXIS_URL:-}" \
     --env "MENTORS_AXIS_TOKEN=${MENTORS_AXIS_TOKEN:-}" \
     --env "MENTORS_AXIS_EMAIL=${MENTORS_AXIS_EMAIL:-}" \

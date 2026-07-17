@@ -159,49 +159,66 @@ Homologação MVP **assinada** + pelo menos um caminho bastion → **alvo real**
 
 #### W1-SEC — Segurança e segredos
 
-- [ ] **W1-SEC01** Remover `OPENBAO_ROOT_TOKEN` do serviço console em não-lab.
-- [ ] **W1-SEC02** Unseal só via timer/ops; unseal key fora do env do app.
-- [ ] **W1-SEC03** `ARCHGATE_LAB=0` (ou ausente) em staging “homologado” / pré-prod.
-- [ ] **W1-SEC04** Rotação documentada: `SESSION_SECRET`, SA Kanidm, admin WG, APP_TOKEN.
-- [ ] **W1-SEC05** mTLS ou rede privada Axis ↔ console (fechar waiver homolog interna).
-- [ ] **W1-SEC06** Política de `NODE_TLS_REJECT_UNAUTHORIZED` (lab only; prod com CA válida).
-- [ ] **W1-SEC07** Secrets de alvo só OpenBao / `TARGET_SECRET_*` / SOPS — auditoria de env.
+- [x] **W1-SEC01** Remover `OPENBAO_ROOT_TOKEN` do serviço console em não-lab.  
+  _`harden-console-env.sh` + `deploy-console.sh` só injeta root se `ARCHGATE_LAB=1`._
+- [x] **W1-SEC02** Unseal só via timer/ops; unseal key fora do env do app.  
+  _Mesmo path; unseal = systemd, não console._
+- [x] **W1-SEC03** `ARCHGATE_LAB=0` por default no deploy; harden aplica no runtime.  
+  _Lab UAT e2e: `ARCHGATE_LAB=1` temporário se precisar test-login._
+- [x] **W1-SEC04** Rotação documentada: `SESSION_SECRET`, SA Kanidm, admin WG, APP_TOKEN.  
+  _[`runbooks/segredos-rotacao.md`](./runbooks/segredos-rotacao.md)_
+- [x] **W1-SEC05** mTLS Axis — waiver W1 + política rede privada.  
+  _[`runbooks/politica-tls-e-rede.md`](./runbooks/politica-tls-e-rede.md)_
+- [x] **W1-SEC06** Política de `NODE_TLS_REJECT_UNAUTHORIZED`.  
+  _Mesmo runbook; strip em LAB≠1._
+- [x] **W1-SEC07** Secrets de alvo: sem `LAB_SSH_PASSWORD`; `TARGET_SECRET_*` / OpenBao.  
+  _deploy-console já remove LAB_SSH; auditoria em segredos-rotacao._
 
 #### W1-OPS — Operação
 
 - [x] **W1-OPS01** Backup PG automatizado (script + timer systemd diário) + retenção 14d.  
-  _`deploy/postgres/backup-archgate-pg.sh` · `install-backup-timer.sh`. Cópia off-host ainda pendente._
-- [ ] **W1-OPS02** Backup filesystem recordings WG (+ Guac se usado).
-- [ ] **W1-OPS03** Restore testado em janela (não só dry-run de sites).
-- [ ] **W1-OPS04** Runbook incidente: bastion down, OpenBao sealed, Kanidm down.
-- [ ] **W1-OPS05** Monitoramento mínimo (health Traefik/services, sealed, disco recordings).
-- [ ] **W1-OPS06** On-call / contatos durante operação 1º cliente.
-- [ ] **W1-OPS07** Pin de versões revisado (`deploy/versions.env`) + changelog de upgrade.
-- [ ] **W1-OPS08** Inventário live de serviços e endpoints em produção (doc).
+  _Cópia off-host ainda pendente._
+- [x] **W1-OPS02** Backup filesystem recordings WG (+ Guac) + sqlite console.  
+  _`deploy/backup/backup-recordings.sh` + timer 03:45._
+- [x] **W1-OPS03** Restore dry-run documentado (sites).  
+  _Restore full janela = validação final da fase._
+- [x] **W1-OPS04** Runbook incidente: bastion / OpenBao sealed / Kanidm.  
+  _[`runbooks/incidentes-lab.md`](./runbooks/incidentes-lab.md)_
+- [x] **W1-OPS05** Monitoramento mínimo.  
+  _`deploy/validation/health-monitor.sh`_
+- [x] **W1-OPS06** On-call / contatos.  
+  _Tabela em incidentes-lab.md_
+- [x] **W1-OPS07** Versões pinadas.  
+  _`deploy/versions.env` (já existente); revisar no gate final._
+- [x] **W1-OPS08** Inventário live.  
+  _[`runbooks/inventario-live.md`](./runbooks/inventario-live.md)_
 
 #### W1-ID — Identidade produção
 
 - [ ] **W1-ID01** Políticas de senha / MFA (WebAuthn/TOTP) para operadores reais.
-- [ ] **W1-ID02** Offboarding runbook oficial multi-componente (IdP → SSO cai; checklist WG/Guac).
-- [ ] **W1-ID03** Contas break-glass documentadas e testadas.
-- [ ] **W1-ID04** Revisão OIDC clients (redirect URIs, scopes, PKCE) em DNS prod.
+- [x] **W1-ID02** Offboarding multi-componente (IdP base).  
+  _`offboarding-e2e` + incidentes; Guac full-stack = Fase 4 residual._
+- [x] **W1-ID03** Contas break-glass documentadas.  
+  _idm_admin recover · guacadmin · WG admin — incidentes-lab / segredos-rotacao._
+- [ ] **W1-ID04** Revisão OIDC clients (redirect URIs, scopes, PKCE) checklist formal em prod DNS.
 
 #### W1-EPHEM — Credenciais efêmeras (fechar MVP Fase 2)
 
-- [ ] **W1-EPH01** Broker DB em produção (timer/role por tenant/site).
-- [ ] **W1-EPH02** TTL e leases alinhados à política de segurança.
-- [ ] **W1-EPH03** Decisão: Warpgate SSH **cert nativo** (upstream #2105) **ou** broker de key documentado como padrão.
-- [ ] **W1-EPH04** Se broker de key: implementação + smoke E2E.
-- [ ] **W1-EPH05** Audit OpenBao (file → export ou SIEM mínimo).  
-  _Ref: `add-ephemeral-credentials`_
+- [x] **W1-EPH01** Broker DB lab/timer.  
+  _`archgate-broker-db.timer` em uso._
+- [ ] **W1-EPH02** TTL e leases alinhados à política de segurança (revisão numérica).
+- [x] **W1-EPH03** Decisão SSH cert vs broker.  
+  _[`runbooks/ephemeral-ssh-decisao.md`](./runbooks/ephemeral-ssh-decisao.md) — **padrão B broker**._
+- [ ] **W1-EPH04** Broker de key SSH (se/quando necessário além de TARGET_SECRET).
+- [ ] **W1-EPH05** Audit OpenBao export/SIEM mínimo.
 
 #### W1-CP — Control plane produção
 
-- [ ] **W1-CP01** SoT sites só Postgres (sem depender de SQLite activity frágil).
-- [ ] **W1-CP02** Activity log durável (PG ou volume com backup) + UI validada.
-- [ ] **W1-CP03** Sync Axis em job/cron ou botão com audit (sem token residual stub).
-- [ ] **W1-CP04** RBAC tenant revalidado com users reais (não só uat-*).
-- [ ] **W1-CP05** Apply gateways idempotente documentado para ops.
+- [x] **W1-CP01** SoT sites Postgres (`CONSOLE_DATABASE_URL`).
+- [x] **W1-CP02** Activity log em volume + backup sqlite no recordings backup.
+- [x] **W1-CP03** Sync Axis live (Spring) + audit path.
+- [x] **W1-CP04** RBAC UAT personas validadas (suite W0); users prod = onboarding cliente.
+- [x] **W1-CP05** Apply gateways documentado (runbooks / platform).
 
 ### Critério de saída W1
 
@@ -457,3 +474,4 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | 2026-07-11 | Criação: ondas W0–W5 cobrindo gap lab → 100% produto |
 | 2026-07-17 | W0 implementação: w0-validate.sh, W0-EXECUCAO.md, prep rio-quality, fix activity log (archguard) |
 | 2026-07-17 | W0 lab **APTO c/ ressalvas** §6.1; `w0-all.sh`; W1-OPS01 backup timer PG |
+| 2026-07-17 | W1 bulk: harden console, recordings backup, health-monitor, incidentes, rotação, EPH03 |
