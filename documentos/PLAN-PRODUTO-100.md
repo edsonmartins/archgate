@@ -69,7 +69,7 @@ Use este plano para **marcar tarefas**; a % é orientação, não KPI rígido.
 | **W1** | Produção endurecida | M2 | `doing` | backup timer PG instalável |
 | **W1** | Produção endurecida (1º cliente) | M2 | `todo` | ops / identity / ephemeral |
 | **W2** | Rede multi-site + protocolos | M3 | `doing` | ADR-010 connectors default; inventário + playbook; peer real = calendário |
-| **W3** | Oracle credential proxy | M3 | `todo` | `add-oracle-credential-proxy` |
+| **W3** | Oracle credential proxy | M3 | `doing` | scaffold Spring mock + Go helper ADR-001 |
 | **W4** | UnifiedUI + orquestração Axis | M4 | `todo` | `add-unified-ui-and-orchestration` |
 | **W5** | HA + acesso agêntico | M5 | `todo` | `add-agentic-access` |
 
@@ -449,7 +449,7 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | W2-SITE02 | W2 | 2º site real | todo | | |
 | W2-PROTO02 | W2 | RDP Windows real | todo | | |
 | W2-MESH01 | W2 | Decisão NetBird | todo | | |
-| W3-ORACLE01 | W3 | Proxy Java scaffold | todo | | |
+| W3-ORACLE01 | W3 | Proxy Java scaffold | **done** | | mock API + tests |
 | W4-UI02 | W4 | Esqueleto UnifiedUI | todo | | |
 | W4-ORCH04 | W4 | Offboarding one-shot | todo | | |
 | W5-HA01 | W5 | OpenBao HA + auto-unseal | todo | | |
@@ -498,3 +498,4 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | 2026-07-17 | W1 bulk: harden console, recordings backup, health-monitor, incidentes, rotação, EPH03 |
 | 2026-07-17 | W1 residual: MFA/OIDC/TTL docs, OpenBao audit export timer, off-host backup example |
 | 2026-07-17 | W2 eng: ADR-010, inventário multi-site, matriz protocolos, segmentação, tunnel |
+| 2026-07-17 | W3 scaffold: services/oracle-proxy (mock) + openbao-oracle-plugin CLI |
