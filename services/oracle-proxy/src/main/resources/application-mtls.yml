@@ -1,0 +1,21 @@
+# Profile: spring.profiles.active=mtls
+# Requires server cert + truststore for plugin client certs (W3-ORACLE02).
+#
+# Generate lab certs (example):
+#   bash deploy/oracle-proxy/gen-mtls-lab-certs.sh
+
+server:
+  port: ${PORT:9040}
+  ssl:
+    enabled: true
+    key-store: ${ORACLE_PROXY_KEYSTORE:file:/certs/server-keystore.p12}
+    key-store-password: ${ORACLE_PROXY_KEYSTORE_PASSWORD:changeit}
+    key-store-type: PKCS12
+    client-auth: need
+    trust-store: ${ORACLE_PROXY_TRUSTSTORE:file:/certs/truststore.p12}
+    trust-store-password: ${ORACLE_PROXY_TRUSTSTORE_PASSWORD:changeit}
+    trust-store-type: PKCS12
+
+oracle:
+  proxy:
+    mock: ${ORACLE_PROXY_MOCK:true}

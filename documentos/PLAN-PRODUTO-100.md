@@ -301,7 +301,8 @@ Pelo menos dois caminhos site reais **ou** um site com matriz protocolo mínima 
 
 - [x] **W3-ORACLE01** Proxy Java create/drop/rotate + statement renderer + JDBC executor.  
   _`services/oracle-proxy/` mock+JDBC path; tests PASS 2026-07-17_
-- [ ] **W3-ORACLE02** API mTLS plugin ↔ proxy.
+- [ ] **W3-ORACLE02** mTLS skeleton (profile + certs lab + Go TLS client).  
+  _Production CA + enforce pending._
 - [ ] **W3-ORACLE03** Plugin Go dbplugin gRPC (HTTP client package done).  
   _`services/openbao-oracle-plugin/client`__
 - [ ] **W3-ORACLE04** Role dinâmica OpenBao + policies.

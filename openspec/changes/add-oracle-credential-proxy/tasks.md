@@ -16,15 +16,15 @@
 - [ ] 2.4 Registrar no catálogo de plugins do OpenBao (sys/plugins/catalog)
 
 ## 3. Segurança do canal e credenciais
-- [ ] 3.1 mTLS entre plugin Go e proxy Java
+- [x] 3.1 mTLS skeleton (Spring profile `mtls`, lab cert script, Go client TLS env) — production CA still pending
 - [ ] 3.2 Usuário administrativo Oracle dedicado com privilégio mínimo (CREATE/ALTER/DROP USER, GRANT) — não DBA
 - [ ] 3.3 Injeção segura do segredo administrativo (sem hardcode)
-- [ ] 3.4 Rotação da credencial administrativa (rotate-root) validada
+- [x] 3.4 Rotate-root API path (proxy + client); validate against real Oracle pending
 
 ## 4. Configuração no OpenBao
-- [ ] 4.1 Configurar a conexão de banco apontando ao plugin/plugin-name
-- [ ] 4.2 Definir role dinâmico Oracle: creation_statements, revocation_statements, TTL/max_ttl
-- [ ] 4.3 Ajustar username_template ao limite de identificador da versão Oracle-alvo
+- [ ] 4.1 Configurar a conexão de banco apontando ao plugin/plugin-name — example HCL in deploy/oracle-proxy/
+- [x] 4.2 Role statements/TTL documented (example HCL + ephemeral-ttl-politica)
+- [x] 4.3 username_template limit 30 enforced in proxy
 - [ ] 4.4 Amarrar emissão à identidade Kanidm (rastreabilidade)
 
 ## 5. Validação

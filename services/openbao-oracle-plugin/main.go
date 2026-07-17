@@ -18,8 +18,10 @@ func main() {
 	pass := flag.String("pass", "ChangeMe123!", "password")
 	flag.Parse()
 
-	c := client.New(*proxy)
-	var err error
+	c, err := client.NewWithMTLS(*proxy)
+	if err != nil {
+		log.Fatal(err)
+	}
 	switch *op {
 	case "create":
 		err = c.CreateUser(client.UserRequest{Username: *user, Password: *pass})
