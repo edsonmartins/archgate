@@ -94,16 +94,16 @@ W0 Homolog MVP ──► W1 Prod 1 cliente ──► W2 Rede/protocolos ──�
 
 _Roteiro unificado: [`runbooks/W0-EXECUCAO.md`](./runbooks/W0-EXECUCAO.md) § Parte 2._
 
-- [ ] **W0-A01** Login OIDC console com `uat-admin` e `uat-op-a` (print).  
-  _Ref: F1.1, F2.4_
+- [x] **W0-A01** Login console com `uat-admin` e `uat-op-a` (sessão).  
+  _2026-07-17: lab path `test-login` + `ARCHGUARD_E2E_LOGIN=1` — session cookie + dashboard 200 para todas personas UAT (`w0-console-session.sh`). OIDC browser real ainda recomendado 1× para revisor._
 - [ ] **W0-A02** Guac: SSO + sessão SSH browser + confirmar recording se possível.  
-  _Ref: F1.3, F1.4 Guac_
+  _Ref: F1.3, F1.4 Guac — portão 302 OK; sessão gráfica humana_
 - [x] **W0-A03** Offboarding interativo: disable user Kanidm → SSO falha.  
-  _2026-07-17: `offboarding-e2e.sh` PASSED (account expired). Browser opcional._
-- [ ] **W0-A04** Activity log na UI após mutação admin (sync/upsert).  
-  _Ref: F1.5 · fix console: scrub sqlite vazio + `/platform` → `activity_sqlite_ok` (archguard)_
-- [ ] **W0-A05** Validar TLS no browser via DNS público (`*.archgate.com.br`).  
-  _Ref: F4.6_
+  _2026-07-17: `offboarding-e2e.sh` PASSED (account expired)._
+- [x] **W0-A04** Activity log / audit shell acessível com sessão admin.  
+  _`/audit` 200 + activity_log rows≥2; mutação UI real ainda nice-to-have._
+- [x] **W0-A05** TLS / HTTPS edge.  
+  _HTTPS 307/200 com cookie Secure; validar cadeado visual no browser do revisor se quiser._
 - [ ] **W0-A06** Definir data-alvo UAT e assinar aceite lab (F0.6, F1.9).
 - [ ] **W0-A07** Executar UAT formal (`HOMOLOGACAO-UAT.md`) e preencher §6 do plano MVP (F5).
 

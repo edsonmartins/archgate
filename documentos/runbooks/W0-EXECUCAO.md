@@ -99,9 +99,20 @@ Até o peer existir, o dry-run lab (`rio-lab-ssh`) **não** fecha W0-B.
 | `w0-validate.sh` | ✅ **PASS=19 FAIL=0** |
 | Console redeploy (activity log) | ✅ |
 | Offboarding e2e | ✅ **PASSED** |
-| Browser OIDC / Guac sessão / audit UI | ⬜ **humano (Parte 2)** |
+| Console sessão UAT (test-login lab) | ✅ `w0-console-session.sh` PASS=16 |
+| Guac sessão gráfica | ⬜ humano |
+| Assinatura UAT formal §6 | ⬜ humano (W0-A06/A07) |
 | Peer Rio real | ⬜ **cliente (Parte 3)** |
 | SSH ops notebook → `.180` | ✅ `id_ed25519` (ssh-add keychain) |
+
+### Console session (lab)
+
+```bash
+# no runtime (E2E login lab — já costuma estar ligado após w0-console-session)
+bash deploy/validation/w0-console-session.sh
+# Desligar após UAT formal se quiser:
+# docker service update --env-rm ARCHGUARD_E2E_LOGIN archgate-id_archguard-console
+```
 
 ---
 

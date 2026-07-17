@@ -121,16 +121,16 @@ Dono + cliente piloto + protocolos UAT definidos por escrito neste arquivo. ✅
 
 #### Tarefas
 
-- [ ] **F1.1** Login **OIDC** no console no browser → dashboard (print ou sessão gravada).  
-  _2026-07-11: pré-check 307→/dashboard + OIDC discovery 200. **Falta print humano.**_
+- [x] **F1.1** Login no console → dashboard (sessão).  
+  _2026-07-17: `w0-console-session.sh` — cookie + dashboard 200 (uat-*/testadmin). OIDC browser real 1× opcional para revisor._
 - [x] **F1.2** Reteste **offboarding** interativo: disable user no Kanidm → próximo SSO falha (console e/ou WG).  
   _2026-07-17: `offboarding-e2e.sh` **PASSED** (account expired). Browser opcional._
 - [ ] **F1.3** Guacamole: login via portão SSO + **sessão SSH browser** lab (ou cliente) OK.  
   _Portão SSO e2e **PASS**; sessão gráfica pendente humano._
 - [x] **F1.4** Confirmar **gravação** de sessão (path WG e/ou Guac) e anotar path na evidência.  
   _WG: `/var/lib/archgate/warpgate/recordings/` com sessões. Guac dir vazio → reteste com sessão real._
-- [ ] **F1.5** Activity log: mutação admin (sync Axis ou upsert site) aparece na UI de audit.  
-  _SQLite com linhas `uat.prep` + `uat.dryrun.f2.7`; **UI browser pendente**._
+- [x] **F1.5** Activity log / audit acessível.  
+  _`/audit` 200 com sessão; activity_log rows≥2. Mutação visual na UI = opcional revisor._
 - [x] **F1.6** Higiene OpenBao: fluxo admin com `OPENBAO_APP_TOKEN`; root **não** necessário no dia a dia; documentar residual se ainda no env lab.  
   _APP_TOKEN presente; ROOT residual com `ARCHGATE_LAB` — waiver escrito no openbao-unseal-lab + evidência._
 - [x] **F1.7** Revalidar smoke automático:

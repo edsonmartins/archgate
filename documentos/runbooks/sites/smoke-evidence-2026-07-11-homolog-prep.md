@@ -203,5 +203,15 @@ RESULT: restore_dry_run=PASS
 | Offboarding e2e 6.3 | ✅ **PASSED** (`account expired` deny; target creds not rotated) |
 | OIDC discovery console | ✅ HTTP 200 |
 | Console hop | ✅ 307 → `/dashboard` |
-| Browser W0-A | ⬜ **humano** |
+| Browser W0-A | ⚠️ parcial: **console session auto PASS=16** (`w0-console-session.sh`); Guac sessão + OIDC real 1× revisor |
 | Peer Rio W0-B | ⬜ **cliente** |
+
+### W0 console session 2026-07-17
+
+```
+login testadmin / uat-admin / uat-op-a / uat-op-b / uat-viewer → session + dashboard 200
+GET /dashboard /sites /platform /gateways /audit /secrets → 200 (HTML shell)
+activity_log rows=2
+RESULT: W0 console session PASS=16 FAIL=0
+(ARCHGUARD_E2E_LOGIN=1 lab; disable after UAT formal se desejado)
+```
