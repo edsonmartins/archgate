@@ -227,3 +227,13 @@ w0-guac-session:
   uat-viewer → []
 RESULT: PASS=7 FAIL=0
 ```
+
+### W0-ALL + backup timer 2026-07-17
+
+```
+archgate-pg-backup.timer enabled — next ~03:15 daily
+dump stamp 20260717-090855 (warpgate 244K, guacamole 75K, console 4.6K)
+w0-all (SKIP_OFFBOARD=1): failures=0
+  w0-validate + w0-console-session + w0-guac-session OK
+Gate §6.1: APTO com ressalvas (peer real + assinatura humana §6.2)
+```

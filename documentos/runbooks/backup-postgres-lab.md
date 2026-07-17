@@ -15,27 +15,23 @@
 | guacamole | ~9 MB |
 | archguard_console | ~8 MB |
 
-## Dump (no host com rede ao PG)
+## Dump automático (recomendado — W1-OPS01)
+
+No runtime:
 
 ```bash
-set -a
-source /root/archgate/bootstrap.env   # ou export manual
-set +a
+# instalar timer diário 03:15
+bash deploy/postgres/systemd/install-backup-timer.sh
+# ou uma vez:
+bash deploy/postgres/backup-archgate-pg.sh
+# dumps em /var/backups/archgate-pg/  RETENTION_DAYS=14 (default)
+```
 
-STAMP=$(date +%Y%m%d-%H%M%S)
-OUT=/var/backups/archgate-pg
-mkdir -p "$OUT"
-chmod 700 "$OUT"
+## Dump manual (no host com rede ao PG)
 
-export PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD"
-HOST="${POSTGRES_HOST:-192.168.1.110}"
-PORT="${POSTGRES_PORT:-5434}"
-USER="${POSTGRES_SUPERUSER:-postgres}"
-
-for db in warpgate guacamole archguard_console; do
-  pg_dump -h "$HOST" -p "$PORT" -U "$USER" -Fc -f "$OUT/${db}-${STAMP}.dump" "$db"
-  ls -lh "$OUT/${db}-${STAMP}.dump"
-done
+```bash
+bash deploy/postgres/backup-archgate-pg.sh
+# ou equivalente legado com pg_dump (ver script)
 ```
 
 ## Restore dry-run (lab only — DB de teste)
@@ -63,7 +59,8 @@ psql -h "$HOST" -p "$PORT" -U "$USER" -d postgres -c "DROP DATABASE ${TESTDB};"
 - [x] Dump dos 3 DBs executado (data: **2026-07-11** · stamp `20260711-141705` em `/var/backups/archgate-pg/`)
 - [x] Arquivos em path `/var/backups/archgate-pg` (dir 700 recomendado no host)
 - [x] Restore dry-run documentado (data: **2026-07-11** · sites=6)
-- [ ] Retenção / cópia off-host definida
+- [x] Retenção local **14 dias** via `RETENTION_DAYS` no script/timer
+- [ ] Cópia off-host (S3/NAS) — W1 follow-up
 
 ## Notas
 

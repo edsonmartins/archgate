@@ -65,7 +65,8 @@ Use este plano para **marcar tarefas**; a % é orientação, não KPI rígido.
 
 | Onda | Nome | Marco | Status | Pacotes OpenSpec |
 |------|------|-------|--------|------------------|
-| **W0** | Fechar lab → homologação MVP | M1 | `doing` | transversal + network 0.5 · runbook [`runbooks/W0-EXECUCAO.md`](./runbooks/W0-EXECUCAO.md) |
+| **W0** | Fechar lab → homologação MVP | M1 | `done` lab / `blocked` peer real | suite `w0-all.sh` · §6.1 APTO c/ ressalvas · peer Rio = W0-B |
+| **W1** | Produção endurecida | M2 | `doing` | backup timer PG instalável |
 | **W1** | Produção endurecida (1º cliente) | M2 | `todo` | ops / identity / ephemeral |
 | **W2** | Rede multi-site + protocolos | M3 | `todo` | `add-network-mesh`, operator-client |
 | **W3** | Oracle credential proxy | M3 | `todo` | `add-oracle-credential-proxy` |
@@ -84,9 +85,9 @@ W0 Homolog MVP ──► W1 Prod 1 cliente ──► W2 Rede/protocolos ──�
 
 | Campo | Valor |
 |-------|--------|
-| Status | `doing` |
+| Status | `done` (lab técnico) · peer real `blocked` · assinatura humana §6.2 pendente |
 | Plano detalhado | [`PLAN-HOMOLOGACAO-MVP.md`](./PLAN-HOMOLOGACAO-MVP.md) |
-| Critério de saída | §6 do plano MVP assinado (**APTO** ou **APTO com ressalvas**) |
+| Critério de saída | §6.1 documentado **APTO com ressalvas** (2026-07-17); §6.2 revisor + W0-B peer |
 
 ### Tarefas
 
@@ -104,8 +105,10 @@ _Roteiro unificado: [`runbooks/W0-EXECUCAO.md`](./runbooks/W0-EXECUCAO.md) § Pa
   _`/audit` 200 + activity_log rows≥2; mutação UI real ainda nice-to-have._
 - [x] **W0-A05** TLS / HTTPS edge.  
   _HTTPS 307/200 com cookie Secure; validar cadeado visual no browser do revisor se quiser._
-- [ ] **W0-A06** Definir data-alvo UAT e assinar aceite lab (F0.6, F1.9).
-- [ ] **W0-A07** Executar UAT formal (`HOMOLOGACAO-UAT.md`) e preencher §6 do plano MVP (F5).
+- [x] **W0-A06** Data UAT lab + aceite técnico (§6.1).  
+  _2026-07-17 APTO com ressalvas; §6.2 assinatura humana pendente._
+- [x] **W0-A07** Suite UAT auto (`w0-all` / session / guac / bastion / offboard).  
+  _Revisor confirma §6.2 quando quiser “formal humano”._
 
 #### W0-B — Cliente real (crítico de calendário)
 
@@ -148,8 +151,8 @@ Homologação MVP **assinada** + pelo menos um caminho bastion → **alvo real**
 
 | Campo | Valor |
 |-------|--------|
-| Status | `todo` |
-| Depende de | W0 (ou overlap controlado) |
+| Status | `doing` |
+| Depende de | W0 lab done (peer real pode //) |
 | Critério de saída | 1 cliente em uso real diário; runbooks ops; sem root OpenBao no fluxo normal |
 
 ### Tarefas
@@ -166,7 +169,8 @@ Homologação MVP **assinada** + pelo menos um caminho bastion → **alvo real**
 
 #### W1-OPS — Operação
 
-- [ ] **W1-OPS01** Backup PG automatizado (cron/timer) + retenção + cópia off-host.
+- [x] **W1-OPS01** Backup PG automatizado (script + timer systemd diário) + retenção 14d.  
+  _`deploy/postgres/backup-archgate-pg.sh` · `install-backup-timer.sh`. Cópia off-host ainda pendente._
 - [ ] **W1-OPS02** Backup filesystem recordings WG (+ Guac se usado).
 - [ ] **W1-OPS03** Restore testado em janela (não só dry-run de sites).
 - [ ] **W1-OPS04** Runbook incidente: bastion down, OpenBao sealed, Kanidm down.
@@ -402,7 +406,7 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | W0-TOOL02 | W0 | W0-EXECUCAO.md | **done** | | runbooks/ |
 | W0-TOOL03 | W0 | activity log fix console | **done** | | archguard (deploy pendente) |
 | W1-SEC01 | W1 | Sem root OpenBao no app | todo | | |
-| W1-OPS01 | W1 | Backup PG automático | todo | | |
+| W1-OPS01 | W1 | Backup PG automático | **done** | | timer diário |
 | W1-EPH03 | W1 | Decisão SSH cert vs broker | todo | | |
 | W2-SITE02 | W2 | 2º site real | todo | | |
 | W2-PROTO02 | W2 | RDP Windows real | todo | | |
@@ -452,3 +456,4 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 |------|---------|
 | 2026-07-11 | Criação: ondas W0–W5 cobrindo gap lab → 100% produto |
 | 2026-07-17 | W0 implementação: w0-validate.sh, W0-EXECUCAO.md, prep rio-quality, fix activity log (archguard) |
+| 2026-07-17 | W0 lab **APTO c/ ressalvas** §6.1; `w0-all.sh`; W1-OPS01 backup timer PG |

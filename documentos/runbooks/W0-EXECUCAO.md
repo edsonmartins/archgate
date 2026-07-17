@@ -12,10 +12,17 @@
 ## Ordem de trabalho
 
 ```text
-1. w0-validate.sh          (auto — baseline verde)
-2. W0-A browser humano     (você — ~30 min)
-3. W0-B peer Rio real      (você + cliente — calendário)
-4. UAT formal + assinatura (§6 MVP)
+1. bash deploy/validation/w0-all.sh   (suite completa auto)
+2. Confirmar §6.2 no PLAN-HOMOLOGACAO-MVP (assinatura humana)
+3. W0-B peer Rio real (W0-B-RIO-CHECKLIST.md)
+```
+
+Suite individual (se precisar):
+
+```bash
+bash deploy/validation/w0-validate.sh
+bash deploy/validation/w0-console-session.sh
+bash deploy/validation/w0-guac-session.sh
 ```
 
 ---

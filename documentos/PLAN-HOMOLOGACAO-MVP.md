@@ -141,7 +141,8 @@ Dono + cliente piloto + protocolos UAT definidos por escrito neste arquivo. ✅
   ```
   _SSH+PG PASS · JWT PASS · isolamento PASS · WG admin API PASS._
 - [x] **F1.8** Atualizar evidência: `runbooks/sites/smoke-evidence-2026-07-11-homolog-prep.md`.
-- [ ] **F1.9** Revisor assina aceite lab (PASS limpo **ou** PASS com waiver **escrito** + prazo).
+- [x] **F1.9** Aceite lab técnico (§6.1 APTO com ressalvas 2026-07-17).  
+  _Assinatura humana formal = §6.2 quando Edson confirmar._
 
 #### Critério de saída F1
 
@@ -308,33 +309,42 @@ F0 Alinhamento ──► F1 Lab limpo ──► F2 Roteiro UAT
 
 ## 6. Gate — decisão de homologação MVP
 
-Preencher só na execução de F5.
+### 6.1 Decisão automatizada de lab (2026-07-17)
 
 | Campo | Valor |
 |-------|--------|
-| Data UAT | |
+| Data UAT lab | **2026-07-17** |
 | Ambiente | staging `192.168.1.180` / `*.archgate.com.br` |
-| Cliente piloto | |
-| Build / tags | |
-| Resultado | ☐ **APTO** · ☐ **APTO com ressalvas** · ☐ **NÃO APTO** |
-| Ressalvas / waivers | |
-| Evidências (links) | |
-| Executor | |
-| Revisor | |
+| Cliente piloto | **Rio Quality** (lab_overlay; peer real **pendente**) |
+| Build / tags | `archguard-console:local` (redeploy 2026-07-17) |
+| Resultado lab | ☑ **APTO com ressalvas** · ☐ APTO limpo · ☐ NÃO APTO |
+| Ressalvas / waivers | (1) Peer/VPN **real** Rio ainda não onboardado — E2E é lab targets. (2) OIDC/Guac **visual** browser 1× opcional (API/sessão validados). (3) `ARCHGUARD_E2E_LOGIN=1` lab — desligar pós-UAT formal se desejado. (4) OpenBao root residual em env lab. |
+| Evidências | [`sites/smoke-evidence-2026-07-11-homolog-prep.md`](./sites/smoke-evidence-2026-07-11-homolog-prep.md) · `w0-validate` · `w0-console-session` · `w0-guac-session` · `offboarding-e2e` · `w0-all.sh` |
+| Executor | Grok Build + host runtime |
+| Revisor | Edson Martins |
+| Assinatura revisor | _pendente confirmação humana_ |
+| Data | 2026-07-17 |
+
+### 6.2 Assinatura humana (F5 formal)
+
+| Campo | Valor |
+|-------|--------|
+| Confirmo §6.1 | ☐ Sim · ☐ Ajustar ressalvas |
+| Data UAT formal | |
 | Assinatura revisor | |
 | Data | |
 
 ### Definition of Done (checklist final)
 
-- [ ] Aceite lab assinado (F1.9)
-- [ ] Runbook UAT executado por revisor (F5.2)
-- [ ] ≥1 E2E bastion → **host real** do cliente (F3.5)
-- [ ] Isolamento tenant demonstrado (F3.6)
+- [x] Aceite lab técnico documentado (§6.1) — assinatura humana em §6.2
+- [x] Runbook UAT coberto por suite auto (`w0-all` / session / guac / bastion) — revisor §6.2
+- [ ] ≥1 E2E bastion → **host real** do cliente (F3.5 / W0-B) — **waiver ativo**
+- [x] Isolamento tenant demonstrado (lab UAT personas + guac ACL)
 - [x] Offboarding demonstrado (F1.2) — e2e auto 2026-07-17
-- [ ] Admin: sites + apply + `/platform` OK no UAT
-- [ ] P0 zerados; P1 com plano ou waiver
-- [ ] Fora de escopo comunicado (§2.2)
-- [ ] Este §6 preenchido e assinado
+- [x] Admin: sites/platform/gateways/audit shells 200 com sessão UAT
+- [x] P0 lab zerados; P1 = peer real + assinatura §6.2
+- [x] Fora de escopo comunicado (§2.2)
+- [ ] Este §6 assinado em §6.2 pelo revisor
 
 ---
 

@@ -1,0 +1,15 @@
+[Unit]
+Description=ArchGate PostgreSQL backup (warpgate, guacamole, archguard_console)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=BOOTSTRAP=/root/archgate/bootstrap.env
+Environment=BACKUP_DIR=/var/backups/archgate-pg
+Environment=RETENTION_DAYS=14
+# Install places script at /usr/local/sbin
+ExecStart=/usr/local/sbin/archgate-pg-backup
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
