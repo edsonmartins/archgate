@@ -19,11 +19,12 @@ Emissão dinâmica de usuário; **transporte** até o banco (VPN/connector) é W
 
 | Peça | Status |
 |------|--------|
-| Proxy Spring esqueleto + mock API | **scaffold** |
-| Testes mock create/delete | unitários no módulo |
-| ojdbc real | pendente (pom comentado) |
-| Plugin gRPC OpenBao | pendente (CLI HTTP helper only) |
-| mTLS | pendente |
+| Proxy Spring + statement renderer ({{username}}) | **done** (mock executor) |
+| Testes mock create/delete + SQL history | unitários |
+| JDBC executor | **done** (profile `-Pojdbc`, `oracle.proxy.mock=false`) |
+| ojdbc dependency | profile Maven `ojdbc` |
+| Plugin gRPC OpenBao | pendente; CLI + `client` package HTTP |
+| mTLS | pendente (config next) |
 | E2E Oracle Rio/Consinco | pendente ambiente |
 
 ## Local mock

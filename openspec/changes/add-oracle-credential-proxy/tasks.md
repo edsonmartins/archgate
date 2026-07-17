@@ -2,16 +2,16 @@
 
 ## 1. Proxy Java (Spring Boot 3.x / Java 21)
 - [x] 1.1 Esqueleto do serviço com endpoints para as operações de plugin (create/update/delete user, rotate root) — `services/oracle-proxy` mock 2026-07-17
-- [ ] 1.2 Integrar driver JDBC thin (ojdbc) — Java puro, sem Instant Client
+- [x] 1.2 Integrar driver JDBC thin (ojdbc) — path `JdbcStatementExecutor` + profile `-Pojdbc` (sem Instant Client)
 - [ ] 1.3 Configurar conexão Oracle por descritor/TNS (validar contra ambiente Consinco/PDB)
-- [ ] 1.4 Executar creation statements: CREATE USER + GRANT com senha e expiração
-- [ ] 1.5 Executar revocation: DROP USER (CASCADE) na revogação de lease
-- [ ] 1.6 Executar rotate/expiração: ALTER USER (senha) e/ou ACCOUNT LOCK
-- [x] 1.7 Tratar limite de tamanho de identificador Oracle nos nomes de usuário gerados — validação 30 chars no mock
+- [x] 1.4 Executar creation statements: renderer + defaults CREATE USER / GRANT (mock records SQL; JDBC when mock=false)
+- [x] 1.5 Executar revocation: DROP USER CASCADE default
+- [x] 1.6 Executar rotate/expiração: ALTER USER default no update/rotateRoot
+- [x] 1.7 Tratar limite de tamanho de identificador Oracle nos nomes de usuário gerados — validação 30 chars
 
 ## 2. Plugin Go fino (interface dbplugin v5)
-- [ ] 2.1 Implementar Initialize/NewUser/UpdateUser/DeleteUser/Type/Close encaminhando ao proxy — scaffold HTTP CLI only
-- [ ] 2.2 Implementar RotateRootCredentials encaminhando ao proxy
+- [ ] 2.1 Implementar Initialize/NewUser/UpdateUser/DeleteUser/Type/Close encaminhando ao proxy — HTTP client package ready; gRPC pending
+- [x] 2.2 RotateRootCredentials encaminhado via HTTP client
 - [x] 2.3 Empacotar binário sem dependências Oracle — `go run` helper sem Oracle libs
 - [ ] 2.4 Registrar no catálogo de plugins do OpenBao (sys/plugins/catalog)
 

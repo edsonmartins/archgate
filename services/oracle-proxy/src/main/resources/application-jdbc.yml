@@ -1,0 +1,9 @@
+# Activate: spring.profiles.active=jdbc and oracle.proxy.mock=false
+# Requires: mvn -Pojdbc package
+oracle:
+  proxy:
+    mock: false
+  jdbc:
+    url: ${ORACLE_JDBC_URL}
+    user: ${ORACLE_ADMIN_USER}
+    password: ${ORACLE_ADMIN_PASSWORD}

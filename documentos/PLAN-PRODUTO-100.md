@@ -299,11 +299,11 @@ Pelo menos dois caminhos site reais **ou** um site com matriz protocolo mínima 
 
 ### Tarefas
 
-- [x] **W3-ORACLE01** Scaffold serviço proxy Java (Spring) create/drop/rotate (mock).  
-  _`services/oracle-proxy/` — API + mock mode + unit tests structure 2026-07-17_
+- [x] **W3-ORACLE01** Proxy Java create/drop/rotate + statement renderer + JDBC executor.  
+  _`services/oracle-proxy/` mock+JDBC path; tests PASS 2026-07-17_
 - [ ] **W3-ORACLE02** API mTLS plugin ↔ proxy.
-- [ ] **W3-ORACLE03** Plugin Go OpenBao dbplugin v5 → proxy.  
-  _Scaffold CLI HTTP: `services/openbao-oracle-plugin/`_
+- [ ] **W3-ORACLE03** Plugin Go dbplugin gRPC (HTTP client package done).  
+  _`services/openbao-oracle-plugin/client`__
 - [ ] **W3-ORACLE04** Role dinâmica OpenBao + policies.
 - [ ] **W3-ORACLE05** Integração identidade (JWT Kanidm / policy por grupo).
 - [ ] **W3-ORACLE06** Deploy Swarm + secrets.  

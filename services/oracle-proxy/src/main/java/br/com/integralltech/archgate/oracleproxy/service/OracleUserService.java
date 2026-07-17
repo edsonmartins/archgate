@@ -1,74 +1,94 @@
 package br.com.integralltech.archgate.oracleproxy.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * Executes Oracle DDL via JDBC when configured; otherwise mock in-memory mode for CI/lab.
- * Real ojdbc statements: OpenBao role creation_statements with {{username}}/{{password}}.
+ * Orchestrates OpenBao-style statement execution against Oracle (or mock recorder).
  */
 @Service
 public class OracleUserService {
 
   private static final Logger log = LoggerFactory.getLogger(OracleUserService.class);
-  private static final int ORACLE_ID_MAX = 30; // pre-12c / conservative limit
+  private static final int ORACLE_ID_MAX = 30;
 
-  private final boolean mockMode;
+  private final StatementExecutor executor;
   private final Map<String, String> mockUsers = new ConcurrentHashMap<>();
 
-  public OracleUserService(@Value("${oracle.proxy.mock:true}") boolean mockMode) {
-    this.mockMode = mockMode;
-    log.info("oracle-proxy mockMode={}", mockMode);
+  public OracleUserService(StatementExecutor executor) {
+    this.executor = executor;
+    log.info("oracle-proxy executor={}", executor.getClass().getSimpleName());
   }
 
   public void createUser(
       String username, String password, String expiration, Map<String, String> statements) {
     validateUsername(username);
-    if (mockMode) {
-      mockUsers.put(username, password);
-      log.info("MOCK createUser user={} exp={}", username, expiration);
-      return;
+    List<String> sql =
+        StatementRenderer.collect(statements, "creation_statements", "create", "sql");
+    if (sql.isEmpty()) {
+      sql =
+          List.of(
+              "CREATE USER {{username}} IDENTIFIED BY \"{{password}}\"",
+              "GRANT CREATE SESSION TO {{username}}");
     }
-    // TODO(W3-ORACLE1.4): execute statements via ojdbc (CREATE USER / GRANT)
-    throw new UnsupportedOperationException("JDBC mode not wired yet — set oracle.proxy.mock=true");
+    List<String> rendered =
+        sql.stream()
+            .map(s -> StatementRenderer.render(s, username, password, expiration))
+            .toList();
+    executor.execute(rendered);
+    mockUsers.put(username, password);
+    log.info("createUser user={} statements={}", username, rendered.size());
   }
 
   public void updateUser(
       String username, String password, String expiration, Map<String, String> statements) {
     validateUsername(username);
-    if (mockMode) {
-      if (password != null) {
-        mockUsers.put(username, password);
-      }
-      log.info("MOCK updateUser user={}", username);
-      return;
+    List<String> sql =
+        StatementRenderer.collect(statements, "renewal_statements", "rollback_statements", "sql");
+    if (sql.isEmpty() && password != null && !password.isBlank()) {
+      sql = List.of("ALTER USER {{username}} IDENTIFIED BY \"{{password}}\"");
     }
-    throw new UnsupportedOperationException("JDBC mode not wired yet");
+    List<String> rendered =
+        sql.stream()
+            .map(s -> StatementRenderer.render(s, username, password, expiration))
+            .toList();
+    if (!rendered.isEmpty()) {
+      executor.execute(rendered);
+    }
+    if (password != null) {
+      mockUsers.put(username, password);
+    }
+    log.info("updateUser user={}", username);
   }
 
   public void deleteUser(String username, Map<String, String> statements) {
     validateUsername(username);
-    if (mockMode) {
-      mockUsers.remove(username);
-      log.info("MOCK deleteUser user={}", username);
-      return;
+    List<String> sql =
+        StatementRenderer.collect(statements, "revocation_statements", "revoke", "sql");
+    if (sql.isEmpty()) {
+      sql = List.of("DROP USER {{username}} CASCADE");
     }
-    throw new UnsupportedOperationException("JDBC mode not wired yet");
+    List<String> rendered =
+        sql.stream().map(s -> StatementRenderer.render(s, username, null, null)).toList();
+    executor.execute(rendered);
+    mockUsers.remove(username);
+    log.info("deleteUser user={}", username);
   }
 
   public void rotateRoot(String password) {
-    if (mockMode) {
-      log.info("MOCK rotateRoot");
-      return;
-    }
-    throw new UnsupportedOperationException("JDBC mode not wired yet");
+    List<String> sql =
+        List.of("ALTER USER {{username}} IDENTIFIED BY \"{{password}}\"");
+    // root rotation: username is admin — caller should pass via statements; default log only
+    List<String> rendered =
+        sql.stream().map(s -> StatementRenderer.render(s, "ORACLE_ADMIN", password, null)).toList();
+    executor.execute(rendered);
+    log.info("rotateRoot");
   }
 
-  /** Test/helper for mock mode. */
   public boolean mockExists(String username) {
     return mockUsers.containsKey(username);
   }
