@@ -29,4 +29,14 @@ public record OrchestrationResult(
   ) {
     return new OrchestrationResult(operationId, operation, "noop", Instant.now(), steps, details);
   }
+
+  /** Some adapters succeeded, others failed (best-effort revoke / multi-component). */
+  public static OrchestrationResult partial(
+      String operationId,
+      String operation,
+      List<String> steps,
+      Map<String, String> details
+  ) {
+    return new OrchestrationResult(operationId, operation, "partial", Instant.now(), steps, details);
+  }
 }

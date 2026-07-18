@@ -24,6 +24,11 @@ export const config = {
     pgHost: import.meta.env.VITE_WG_PG_HOST ?? 'wg.archgate.com.br',
     pgPort: Number(import.meta.env.VITE_WG_PG_PORT ?? 55432),
     pgDb: import.meta.env.VITE_WG_PG_DB ?? 'archgate_lab',
+    /** Public HTTPS base for HTTP targets (observability / apps). */
+    httpBase:
+      import.meta.env.VITE_WG_HTTP_BASE ??
+      import.meta.env.VITE_WG_PUBLIC_URL ??
+      'https://wg.archgate.com.br',
   },
   guac: {
     /** Allow demo tunnel when BFF missing (local chrome only). */

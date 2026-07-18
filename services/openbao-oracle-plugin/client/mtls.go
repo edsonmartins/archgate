@@ -44,6 +44,12 @@ func TLSConfigFromEnv() (*tls.Config, error) {
 	return cfg, nil
 }
 
+// HasMTLSEnv reports whether client cert/key paths are configured.
+func HasMTLSEnv() bool {
+	return os.Getenv("ORACLE_PROXY_CLIENT_CERT") != "" &&
+		os.Getenv("ORACLE_PROXY_CLIENT_KEY") != ""
+}
+
 // NewWithMTLS returns a client; if mTLS env not set, behaves like New().
 func NewWithMTLS(baseURL string) (*ProxyClient, error) {
 	c := New(baseURL)

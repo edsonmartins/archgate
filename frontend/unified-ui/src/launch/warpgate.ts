@@ -88,6 +88,40 @@ export function buildWarpgateLaunch(
     }
   }
 
+  if (connection.protocol === 'http') {
+    // Warpgate HTTPS proxy: public bastion URL + target name (no internal IP).
+    const base = (config.warpgate.httpBase || `https://${config.warpgate.sshHost}`).replace(
+      /\/$/,
+      '',
+    )
+    const url = `${base}/?warpgate-target=${encodeURIComponent(target)}`
+    const alt = `${base}/@warpgate#/login?target=${encodeURIComponent(target)}`
+    return {
+      protocol: 'http',
+      target,
+      username: user,
+      snippets: [
+        {
+          id: 'http-browser',
+          label: 'Browser (Warpgate HTTPS)',
+          body: url,
+          uri: url,
+        },
+        {
+          id: 'http-login',
+          label: 'Warpgate login + target',
+          body: alt,
+          uri: alt,
+        },
+        {
+          id: 'http-note',
+          label: 'Nota',
+          body: `Target HTTP «${target}» via bastion. Autentique como ${user} no Warpgate (SSO). Sem IP interno.`,
+        },
+      ],
+    }
+  }
+
   // Other protocols via Warpgate: generic note
   return {
     protocol: connection.protocol,

@@ -42,9 +42,15 @@ public class LifecycleService {
       effectiveGroups.add("archguard_users");
     }
 
+    List<String> errors = new ArrayList<>();
     for (ComponentAdapter a : adapters) {
-      a.ensurePerson(username, email, effectiveGroups);
-      steps.add(a.name() + ":ensurePerson");
+      try {
+        a.ensurePerson(username, email, effectiveGroups);
+        steps.add(a.name() + ":ensurePerson");
+      } catch (RuntimeException e) {
+        steps.add(a.name() + ":ensurePerson:FAIL");
+        errors.add(a.name() + ": " + e.getMessage());
+      }
     }
 
     Map<String, String> details = new LinkedHashMap<>();
@@ -53,8 +59,13 @@ public class LifecycleService {
     details.put("profile", profile != null ? profile : "operator");
     details.put("tenant", tenantSlug);
     details.put("groups", String.join(",", effectiveGroups));
+    if (!errors.isEmpty()) {
+      details.put("errors", String.join(" | ", errors));
+    }
 
-    OrchestrationResult r = OrchestrationResult.ok(opId, "users.provision", steps, details);
+    OrchestrationResult r = errors.isEmpty()
+        ? OrchestrationResult.ok(opId, "users.provision", steps, details)
+        : OrchestrationResult.partial(opId, "users.provision", steps, details);
     lastByUser.put(username, r);
     lastGlobal = r;
     return r;
@@ -63,19 +74,29 @@ public class LifecycleService {
   public OrchestrationResult grant(String username, String target, String ttl) {
     String opId = UUID.randomUUID().toString();
     List<String> steps = new ArrayList<>();
+    List<String> errors = new ArrayList<>();
     for (ComponentAdapter a : adapters) {
       // Only warpgate (+ openbao policy) typically grant target; mock all for visibility
       if ("warpgate".equals(a.name()) || "openbao".equals(a.name()) || "mock-all".equals(a.name())) {
-        a.grantAccess(username, target, ttl != null ? ttl : "8h");
-        steps.add(a.name() + ":grantAccess");
+        try {
+          a.grantAccess(username, target, ttl != null ? ttl : "8h");
+          steps.add(a.name() + ":grantAccess");
+        } catch (RuntimeException e) {
+          steps.add(a.name() + ":grantAccess:FAIL");
+          errors.add(a.name() + ": " + e.getMessage());
+        }
       }
     }
-    Map<String, String> details = Map.of(
-        "username", username,
-        "target", target,
-        "ttl", ttl != null ? ttl : "8h"
-    );
-    OrchestrationResult r = OrchestrationResult.ok(opId, "access.grant", steps, details);
+    Map<String, String> details = new LinkedHashMap<>();
+    details.put("username", username);
+    details.put("target", target);
+    details.put("ttl", ttl != null ? ttl : "8h");
+    if (!errors.isEmpty()) {
+      details.put("errors", String.join(" | ", errors));
+    }
+    OrchestrationResult r = errors.isEmpty()
+        ? OrchestrationResult.ok(opId, "access.grant", steps, details)
+        : OrchestrationResult.partial(opId, "access.grant", steps, details);
     lastByUser.put(username, r);
     lastGlobal = r;
     return r;
@@ -84,19 +105,31 @@ public class LifecycleService {
   /**
    * Offboarding one-shot: expire IdP, drop grants, revoke leases (W4-ORCH04).
    * Idempotent — second call returns noop if already clean in mock, still ok in live.
+   * Continues across adapters even if one fails (best-effort revoke).
    */
   public OrchestrationResult revoke(String username, String reason) {
     String opId = UUID.randomUUID().toString();
     List<String> steps = new ArrayList<>();
+    List<String> errors = new ArrayList<>();
     for (ComponentAdapter a : adapters) {
-      a.revokeAll(username);
-      steps.add(a.name() + ":revokeAll");
+      try {
+        a.revokeAll(username);
+        steps.add(a.name() + ":revokeAll");
+      } catch (RuntimeException e) {
+        steps.add(a.name() + ":revokeAll:FAIL");
+        errors.add(a.name() + ": " + e.getMessage());
+      }
     }
     Map<String, String> details = new LinkedHashMap<>();
     details.put("username", username);
     details.put("reason", reason != null ? reason : "offboarding");
+    if (!errors.isEmpty()) {
+      details.put("errors", String.join(" | ", errors));
+    }
 
-    OrchestrationResult r = OrchestrationResult.ok(opId, "users.revoke", steps, details);
+    OrchestrationResult r = errors.isEmpty()
+        ? OrchestrationResult.ok(opId, "users.revoke", steps, details)
+        : OrchestrationResult.partial(opId, "users.revoke", steps, details);
     lastByUser.put(username, r);
     lastGlobal = r;
     return r;

@@ -9,13 +9,61 @@
 | Evidência lab | [`runbooks/sites/smoke-evidence-2026-07-11-aceite-piloto.md`](./runbooks/sites/smoke-evidence-2026-07-11-aceite-piloto.md) |
 | Matriz de features | [`MATRIZ_FUNCIONALIDADES.md`](./MATRIZ_FUNCIONALIDADES.md) |
 | Data de criação | 2026-07-11 |
-| Última atualização | 2026-07-11 (F2.7 dry-run auto PASS · F4.2 restore PASS) |
+| Última atualização | **2026-07-17** — Hostinger staging + Sprint H1 (ensaiável) |
 | Dono do plano | **Edson Martins** |
 | Cliente piloto #1 | **Rio Quality** |
 | Revisor UAT | **Edson Martins** |
 | Protocolos UAT | SSH + Postgres **obrigatórios**; Guac browser **desejável**; Windows **fora do MVP** |
-| Data-alvo UAT | _a definir (F0.6)_ |
-| Evidência execução | [`runbooks/sites/smoke-evidence-2026-07-11-homolog-prep.md`](./runbooks/sites/smoke-evidence-2026-07-11-homolog-prep.md) |
+| Data-alvo UAT | **2026-07-24** (H1 ensaiável; peer real = H2 / waiver se bloqueado) |
+| Staging atual | **Hostinger VPS** `217.196.60.108` · `*.archgate.com.br` (CF) · stack Compose colocada c/ Linktor |
+| Evidência execução | [`runbooks/sites/smoke-evidence-2026-07-11-homolog-prep.md`](./runbooks/sites/smoke-evidence-2026-07-11-homolog-prep.md) · H1 Hostinger (este ciclo) |
+
+---
+
+## 0. Staging Hostinger + sprints H1–H3 (2026-07-17)
+
+| Sprint | Objetivo | Status |
+|--------|----------|--------|
+| **H1** | Staging ensaiável neste VPS (UAT personas, targets lab, suite, higiene OpenBao, browser/TLS) | **`done` 2026-07-17** |
+| **H2** | Peer real Rio Quality + E2E bastion (F3) | `blocked` calendário |
+| **H3** | Gate F5 + assinatura §6.2 | `todo` (após H1; H2 ou waiver peer) |
+
+### H1 checklist
+
+| ID | Entrega | Status | Evidência |
+|----|---------|--------|-----------|
+| H1.1 | Contas UAT Kanidm+WG | ✅ | `/root/archgate/uat-credentials.env`; REST auth 4 personas OK; groups bound |
+| H1.2 | Targets lab WG + roles tenant | ✅ | SSH/PG E2E lab PASS 2026-07-17; isolamento op-a↛marra; ver `LAB-BASTION-TARGETS.md` |
+| H1.3 | Smokes no Hostinger | ✅ | Kanidm `/status=true`; WG admin login 201; console healthy; inventory roles/targets |
+| H1.4 | OpenBao APP_TOKEN | ✅ | policy `archgate-console` + token em `bootstrap.env` + console env |
+| H1.5 | TLS endpoints públicos | ✅ | console 307 · id 303 · wg 307 · guac 200 · secrets 307 |
+| H1.6 | Viewer deny-by-default | ⏳ revisor | personas OK; UI deny = revisor; **WG:** `uat-op-a` só vê `rio-lab-*` (não marra) ✅ |
+| H1.7 | Data-alvo UAT + on-call | ✅ | **2026-07-24** · Edson Martins |
+| H1.8 | Kanidm health | ✅ | Recreate compose: HC `kanidmd version` → **healthy**; `/status=true` |
+
+**Evidência H1:** `/root/archgate/H1-HOSTINGER-2026-07-17.md`  
+**Freeze H3 prep:** `/root/archgate/H3-FREEZE-2026-07-17.md`  
+
+### H3 prep (sem peer real)
+
+| Item | Status |
+|------|--------|
+| Freeze digests/imagens | ✅ `H3-FREEZE-2026-07-17.md` |
+| Isolamento role matrix WG | ✅ op-a → só targets Rio |
+| UAT formal revisor browser | ⏳ Edson até **2026-07-24** |
+| Peer real / waiver §6.2 | ⏳ H2 ou assinatura c/ ressalva |
+
+**Admin unificado:** console = única UI diária; stock WG/Guac/OpenBao/Kanidm = break-glass (`archgate-devops/docs/ADMIN-UNIFICADO.md`).
+
+### W1 Ops Hostinger (paralelo a H3)
+
+| Item | Status | Nota |
+|------|--------|------|
+| PG backup timer 03:15 | ✅ | `/var/backups/archgate-pg` |
+| Recordings + sqlite timer 03:45 | ✅ | `/var/backups/archgate-recordings` |
+| Health monitor 15 min | ✅ | fail=0 |
+| Restore dry-run | ✅ | temp DB drop |
+| Doc | ✅ | `archgate-devops/docs/W1-OPS-HOSTINGER.md` |
 
 ---
 
@@ -101,8 +149,8 @@ Um revisor (humano) consegue, em **≤ 30 minutos** com o runbook de UAT:
 - [x] **F0.4** Decidir protocolos obrigatórios no UAT: `SSH` · `Postgres` · `Guac browser` (sim/não) · `Windows` (sim/não).  
   _SSH+PG obrigatórios; Guac desejável; Windows fora do MVP._
 - [ ] **F0.5** Criar issue/board (GitHub Projects ou equivalente) com as tasks F1–F5 (opcional, 1 card por ID).
-- [ ] **F0.6** Atualizar este documento: dono, cliente piloto, data-alvo de UAT: `____/____/______`.  
-  _Dono/cliente OK; falta só a **data-alvo**._
+- [x] **F0.6** Atualizar este documento: dono, cliente piloto, data-alvo de UAT.  
+  _2026-07-17: data-alvo **2026-07-24** (H1 Hostinger); peer real = H2._
 
 #### Critério de saída F0
 
@@ -172,7 +220,7 @@ Aceite lab assinado; waivers restantes só com prazo e aprovador.
 - [x] **F2.3** Matriz RBAC na evidência: o que cada persona **vê / não vê** em `/sites` e targets WG.  
   _Ver tabela em `HOMOLOGACAO-UAT.md` §0.3 + smoke `uat-op-a` rio OK / marra deny._
 - [ ] **F2.4** Demo browser: user **sem** super-admin e **sem** `tenant_*` amplo → deny-by-default (sites filtrados).  
-  _Bastion: `uat-viewer` deny SSH ✅; console UI pendente humano._
+  _Hostinger H1: `uat-viewer` provisionado (sem tenant). Bastion sem roles WG. Console UI deny = revisor em UAT formal._
 - [x] **F2.5** Checklist de endpoints estável: conferir [`runbooks/endpoints-staging.md`](./runbooks/endpoints-staging.md) (id, console, wg, guac).  
   _2026-07-11: URLs OK no host (307/303/307/302)._
 - [x] **F2.6** Pacote de snippets para o revisor (SSH + DBeaver/psql) apontando para o **alvo do piloto** (não só lab genérico).  
@@ -245,8 +293,8 @@ Critério de ouro: bastion-first até host **real** do cliente, com isolamento e
   _Nota lab: `openssl` via 127.0.0.1 mostra **TRAEFIK DEFAULT CERT** (SNI/LE path público pode diferir). Validar no browser do revisor com DNS público._
 - [x] **F4.7** (Opcional pré-prod) mTLS ou rede restrita Axis — se não fizer, registrar waiver de homolog **interna**.  
   _Waiver homolog interna: Axis lab sem mTLS._
-- [ ] **F4.8** Lista de contatos on-call lab durante a janela de UAT.  
-  _Default: Edson Martins — confirmar._
+- [x] **F4.8** Lista de contatos on-call lab durante a janela de UAT.  
+  _2026-07-17: **Edson Martins** (on-call H1/H3 Hostinger)._
 
 #### Critério de saída F4
 

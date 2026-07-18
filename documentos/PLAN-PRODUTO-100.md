@@ -9,9 +9,10 @@
 | OpenSpec | [`../openspec/changes/README.md`](../openspec/changes/README.md) |
 | Arquitetura | [`../PLATAFORMA_ACESSO_PRIVILEGIADO.md`](../PLATAFORMA_ACESSO_PRIVILEGIADO.md) |
 | Data de criação | 2026-07-11 |
-| Última atualização | 2026-07-17 (W0: validate PASS=19, console redeployed, offboarding e2e PASS) |
+| Última atualização | **2026-07-17** — Código maturidade: Oracle plugin gRPC, multi-connector, OpenBao secret_ref, BFF UnifiedUI, orch live errors; peer real ainda W0-B/H2 |
 | Dono do plano | Edson Martins |
-| Baseline lab | Fases 1–2 + control plane lab + connector piloto **parciais**; homologação MVP **em curso** |
+| Baseline lab | Lab técnico APTO c/ ressalvas; **Hostinger** `*.archgate.com.br` = staging UAT; peer Rio = bloqueio calendário |
+| Staging Hostinger | VPS `217.196.60.108` · Compose + Traefik Linktor · console/id/wg/guac/secrets |
 
 ---
 
@@ -65,9 +66,9 @@ Use este plano para **marcar tarefas**; a % é orientação, não KPI rígido.
 
 | Onda | Nome | Marco | Status | Pacotes OpenSpec |
 |------|------|-------|--------|------------------|
-| **W0** | Fechar lab → homologação MVP | M1 | `done` lab / `blocked` peer real | suite `w0-all.sh` · §6.1 APTO c/ ressalvas · peer Rio = W0-B |
-| **W1** | Produção endurecida | M2 | `doing` | backup timer PG instalável |
-| **W1** | Produção endurecida (1º cliente) | M2 | `todo` | ops / identity / ephemeral |
+| **W0** | Fechar lab → homologação MVP | M1 | H1=`done` Hostinger · peer=`blocked` | H1 2026-07-17 · H2 peer Rio · H3 §6.2 |
+| **W1** | Produção endurecida (eng + Hostinger ops) | M2 | `doing` → ops Hostinger **done 2026-07-17** | timers PG/recordings/health; restore dry-run PASS |
+| **W1** | Produção endurecida (1º cliente) | M2 | `todo` | peer prod + `ARCHGATE_LAB=0` pós-UAT |
 | **W2** | Rede multi-site + protocolos | M3 | `doing` | ADR-010 connectors default; inventário + playbook; peer real = calendário |
 | **W3** | Oracle credential proxy | M3 | `doing` | scaffold Spring mock + Go helper ADR-001 |
 | **W4** | UnifiedUI + orquestração Axis | M4 | `doing` | `add-unified-ui-and-orchestration` |
@@ -110,7 +111,17 @@ _Roteiro unificado: [`runbooks/W0-EXECUCAO.md`](./runbooks/W0-EXECUCAO.md) § Pa
 - [x] **W0-A07** Suite UAT auto (`w0-all` / session / guac / bastion / offboard).  
   _Revisor confirma §6.2 quando quiser “formal humano”._
 
-#### W0-B — Cliente real (crítico de calendário)
+#### W0-H — Staging Hostinger (Sprint H1) — 2026-07-17
+
+- [x] **W0-H01** Contas UAT neste VPS + `uat-credentials.env`
+- [x] **W0-H02** Roles/targets lab Warpgate (rio/marra SSH + rio PG)
+- [x] **W0-H03** OpenBao `OPENBAO_APP_TOKEN` + policy console
+- [x] **W0-H04** Endpoints TLS públicos respondendo (console/id/wg/guac/secrets)
+- [x] **W0-H05** Data-alvo UAT **2026-07-24** + on-call Edson
+- [x] **W0-H06** Kanidm Docker **healthy** (`kanidmd version` HC) + freeze digests H3
+- [ ] **W0-H07** Revisor browser: OIDC + viewer deny UI + assinatura §6.2 (ou waiver peer)
+
+#### W0-B — Cliente real (crítico de calendário) = Sprint H2
 
 _Prep ficha: [`runbooks/sites/reais/rio-quality.yaml`](./runbooks/sites/reais/rio-quality.yaml)._
 
@@ -177,15 +188,15 @@ Homologação MVP **assinada** + pelo menos um caminho bastion → **alvo real**
 #### W1-OPS — Operação
 
 - [x] **W1-OPS01** Backup PG automatizado (script + timer systemd diário) + retenção 14d.  
-  _Off-host: exemplo `deploy/backup/backup-offhost.example.sh` (NAS/rsync)._
+  _Lab monorepo + **Hostinger 2026-07-17:** `archgate-pg-backup.timer` → `/var/backups/archgate-pg` (warpgate/guacamole/archgate_console/lab)._
 - [x] **W1-OPS02** Backup filesystem recordings WG (+ Guac) + sqlite console.  
-  _`deploy/backup/backup-recordings.sh` + timer 03:45._
+  _Hostinger: `archgate-recordings-backup.timer` → `/var/backups/archgate-recordings`._
 - [x] **W1-OPS03** Restore dry-run documentado (sites).  
-  _Restore full janela = validação final da fase._
+  _Hostinger: `/usr/local/sbin/archgate-restore-dry-run` PASS 2026-07-17._
 - [x] **W1-OPS04** Runbook incidente: bastion / OpenBao sealed / Kanidm.  
   _[`runbooks/incidentes-lab.md`](./runbooks/incidentes-lab.md)_
 - [x] **W1-OPS05** Monitoramento mínimo.  
-  _`deploy/validation/health-monitor.sh`_
+  _Hostinger: `archgate-health-monitor.timer` (15 min) — fail=0 em 2026-07-17._
 - [x] **W1-OPS06** On-call / contatos.  
   _Tabela em incidentes-lab.md_
 - [x] **W1-OPS07** Versões pinadas.  
@@ -275,7 +286,9 @@ Homologação MVP **assinada** + pelo menos um caminho bastion → **alvo real**
   _[`matriz-protocolos.md`](./runbooks/sites/matriz-protocolos.md)_
 - [ ] **W2-PROTO02** RDP Windows real via Guacamole (host Windows).
 - [ ] **W2-PROTO03** Target Kubernetes via Warpgate.
-- [ ] **W2-PROTO04** Target HTTP/HTTPS interno via Warpgate.
+- [x] **W2-PROTO04** Target HTTP/HTTPS interno via Warpgate.  
+  _Apply valida host/port; UnifiedUI launch HTTP; smoke doc `http-target-smoke.md`_
+
 - [ ] **W2-PROTO05** MySQL via Warpgate se cliente usar.
 - [ ] **W2-PROTO06** Smoke Windows OpenSSH nativo (operador).
 - [x] **W2-PROTO07** Snippets multi-OS lab.  
@@ -301,17 +314,20 @@ Pelo menos dois caminhos site reais **ou** um site com matriz protocolo mínima 
 
 - [x] **W3-ORACLE01** Proxy Java create/drop/rotate + statement renderer + JDBC executor.  
   _`services/oracle-proxy/` mock+JDBC path; tests PASS 2026-07-17_
-- [ ] **W3-ORACLE02** mTLS skeleton (profile + certs lab + Go TLS client).  
-  _Production CA + enforce pending._
-- [ ] **W3-ORACLE03** Plugin Go dbplugin gRPC (HTTP client package done).  
-  _`services/openbao-oracle-plugin/client`__
-- [ ] **W3-ORACLE04** Role dinâmica OpenBao + policies.
-- [ ] **W3-ORACLE05** Integração identidade (JWT Kanidm / policy por grupo).
-- [ ] **W3-ORACLE06** Deploy Swarm + secrets.  
-  _`deploy/oracle-proxy/stack.yml` stub replicas=0_
-- [ ] **W3-ORACLE07** E2E: emitir lease → conectar SQL*Plus/cliente → revoke.
+- [x] **W3-ORACLE02** mTLS skeleton (profile + certs lab + Go TLS client + require_mtls).  
+  _CA de produção ainda ops; código enforce via env._
+- [x] **W3-ORACLE03** Plugin Go dbplugin v5 ServeMultiplex + CLI.  
+  _`services/openbao-oracle-plugin` build OK 2026-07-17_
+- [x] **W3-ORACLE04** Role dinâmica OpenBao + policies (example HCL).  
+  _`deploy/oracle-proxy/openbao-oracle.example.hcl` + register-plugin.sh_
+- [x] **W3-ORACLE05** Integração identidade (JWT Kanidm sketch em HCL).  
+  _Amarração live = config OpenBao no VPS_
+- [x] **W3-ORACLE06** Deploy Swarm + secrets.  
+  _`stack.yml` replicas configurável; mock default_
+- [ ] **W3-ORACLE07** E2E: emitir lease → conectar SQL*Plus/cliente → revoke.  
+  _Bloqueado Oracle real / peer_
 - [x] **W3-ORACLE08** Runbook ops (estado scaffold).  
-  _`oracle-credential-proxy.md`_
+  _`oracle-credential-proxy.md` + smoke-plugin-cli.sh_
 - [ ] **W3-ORACLE09** N/A formal se sem cliente Oracle no horizonte.
 
 ### Critério de saída W3
@@ -344,7 +360,8 @@ E2E PASS **ou** N/A formal assinado.
 - [x] **W4-UI07** Deep link / launch Warpgate desktop (SSH/PG snippets + `ssh://`) a partir do catálogo.
 - [x] **W4-UI08** UX “sem conexões” no catálogo vazio.
 - [ ] **W4-UI09** Testes E2E browser (smoke crítico).
-- [ ] **W4-UI10** OIDC real em lab (client Kanidm + BFF cookie session).
+- [x] **W4-UI10** OIDC real via BFF cookie session.  
+  _`POST /api/unified/v1/auth/callback` + UNIFIED_OIDC_CLIENT_ID; client Kanidm no VPS = ops_
 - [x] **W4-UI11** guacamole-common-js no painel de sessão (token via BFF; demo local opcional).
 
 #### W4-ORCH — Orquestração Axis
@@ -352,13 +369,13 @@ E2E PASS **ou** N/A formal assinado.
 - [x] **W4-ORCH01** Contratos API rascunho.  
   _[`runbooks/orchestration-api-contracts.md`](./runbooks/orchestration-api-contracts.md)_
 - [x] **W4-ORCH02** Provision pessoa API (mock multi-adapter) — `services/orchestration`.  
-  _Live Kanidm TBD_
+  _Live: ORCH_MODE=live + tokens_
 - [x] **W4-ORCH03** Grant acesso target API (mock WG/OpenBao).
-- [x] **W4-ORCH04** Revoke one-shot multi-componente (mock + testes; live adapters TBD).
+- [x] **W4-ORCH04** Revoke one-shot multi-componente (mock + live best-effort + partial status).
 - [x] **W4-ORCH05** Webhooks Axis + `Idempotency-Key` (in-memory; HA → Redis/PG em W5).
 - [x] **W4-ORCH06** Endpoint status “última orquestração” (`/status/last` + por user) — painel admin consome depois.
 - [ ] **W4-ORCH07** (Opcional) Terraform provider Warpgate SoT.
-- [x] **W4-ORCH08** Adapters live HTTP (dry-run default) — paths a calibrar no lab com tokens reais.
+- [x] **W4-ORCH08** Adapters live HTTP (dry-run default; erros tipados; revoke 404=ok).
 
 ### Critério de saída W4
 

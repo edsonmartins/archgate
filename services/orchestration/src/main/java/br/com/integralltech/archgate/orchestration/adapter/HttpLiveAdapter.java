@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,8 @@ import java.util.Map;
 /**
  * Base HTTP adapter for live platform components.
  * Credentials only from env/config (never SPA).
+ * When dryRun=true or endpoint disabled → log only (safe default).
+ * When live → HTTP; failures throw so LifecycleService can surface errors.
  */
 public abstract class HttpLiveAdapter implements ComponentAdapter {
 
@@ -32,54 +35,83 @@ public abstract class HttpLiveAdapter implements ComponentAdapter {
         .build();
   }
 
+  protected boolean isLiveHttp() {
+    return !dryRun && endpoint.usable();
+  }
+
   protected void putJson(String path, Object body) {
-    if (dryRun || !endpoint.usable()) {
+    if (!isLiveHttp()) {
       log.info("[{}] dry-run PUT {} body={}", name(), path, body);
       return;
     }
-    client.put()
-        .uri(path)
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(body)
-        .retrieve()
-        .toBodilessEntity();
+    try {
+      client.put()
+          .uri(path)
+          .contentType(MediaType.APPLICATION_JSON)
+          .body(body)
+          .retrieve()
+          .toBodilessEntity();
+      log.info("[{}] PUT {} OK", name(), path);
+    } catch (RestClientResponseException e) {
+      throw new OrchestrationHttpException(name(), "PUT", path, e.getStatusCode().value(), e.getResponseBodyAsString(), e);
+    }
   }
 
   protected void postJson(String path, Object body) {
-    if (dryRun || !endpoint.usable()) {
+    if (!isLiveHttp()) {
       log.info("[{}] dry-run POST {} body={}", name(), path, body);
       return;
     }
-    client.post()
-        .uri(path)
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(body)
-        .retrieve()
-        .toBodilessEntity();
+    try {
+      client.post()
+          .uri(path)
+          .contentType(MediaType.APPLICATION_JSON)
+          .body(body)
+          .retrieve()
+          .toBodilessEntity();
+      log.info("[{}] POST {} OK", name(), path);
+    } catch (RestClientResponseException e) {
+      throw new OrchestrationHttpException(name(), "POST", path, e.getStatusCode().value(), e.getResponseBodyAsString(), e);
+    }
   }
 
   protected void patchJson(String path, Object body) {
-    if (dryRun || !endpoint.usable()) {
+    if (!isLiveHttp()) {
       log.info("[{}] dry-run PATCH {} body={}", name(), path, body);
       return;
     }
-    client.patch()
-        .uri(path)
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(body)
-        .retrieve()
-        .toBodilessEntity();
+    try {
+      client.patch()
+          .uri(path)
+          .contentType(MediaType.APPLICATION_JSON)
+          .body(body)
+          .retrieve()
+          .toBodilessEntity();
+      log.info("[{}] PATCH {} OK", name(), path);
+    } catch (RestClientResponseException e) {
+      throw new OrchestrationHttpException(name(), "PATCH", path, e.getStatusCode().value(), e.getResponseBodyAsString(), e);
+    }
   }
 
   protected void delete(String path) {
-    if (dryRun || !endpoint.usable()) {
+    if (!isLiveHttp()) {
       log.info("[{}] dry-run DELETE {}", name(), path);
       return;
     }
-    client.delete()
-        .uri(path)
-        .retrieve()
-        .toBodilessEntity();
+    try {
+      client.delete()
+          .uri(path)
+          .retrieve()
+          .toBodilessEntity();
+      log.info("[{}] DELETE {} OK", name(), path);
+    } catch (RestClientResponseException e) {
+      // Idempotent revoke: 404 = already gone
+      if (e.getStatusCode().value() == 404) {
+        log.info("[{}] DELETE {} → 404 (ok)", name(), path);
+        return;
+      }
+      throw new OrchestrationHttpException(name(), "DELETE", path, e.getStatusCode().value(), e.getResponseBodyAsString(), e);
+    }
   }
 
   @Override
@@ -103,5 +135,27 @@ public abstract class HttpLiveAdapter implements ComponentAdapter {
         "email", email != null ? email : "",
         "groups", groups != null ? groups : List.of()
     );
+  }
+
+  /** Typed failure for live HTTP so orchestration can mark step failed. */
+  public static class OrchestrationHttpException extends RuntimeException {
+    public final String component;
+    public final String method;
+    public final String path;
+    public final int status;
+
+    public OrchestrationHttpException(
+        String component, String method, String path, int status, String body, Throwable cause) {
+      super(component + " " + method + " " + path + " → HTTP " + status + ": " + truncate(body), cause);
+      this.component = component;
+      this.method = method;
+      this.path = path;
+      this.status = status;
+    }
+
+    private static String truncate(String b) {
+      if (b == null) return "";
+      return b.length() > 300 ? b.substring(0, 300) + "…" : b;
+    }
   }
 }

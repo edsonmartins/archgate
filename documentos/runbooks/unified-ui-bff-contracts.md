@@ -90,6 +90,10 @@ Resposta:
 
 | Op | Lab | Target |
 |----|-----|--------|
-| callback | SPA PKCE direto + mock | BFF cookie |
-| connections | mock fixture | BFF + Guac/WG RBAC |
-| guac tunnel token | SPA client + contract | BFF short-lived |
+| callback | SPA PKCE direto + mock | **BFF** `POST /api/unified/v1/auth/callback` (cookie `archguard_session`) |
+| connections | mock fixture fallback | **BFF** `GET /api/unified/v1/connections` (sites SoT + RBAC) |
+| guac tunnel token | SPA client + contract | **BFF** `POST /api/unified/v1/sessions` |
+
+Implementação: `archguard-console` — `src/server/unified-bff.ts` + `src/routes/api/unified/v1/*`.
+
+Env: `UNIFIED_UI_ORIGIN` (CORS), `UNIFIED_OIDC_CLIENT_ID` (default compartilha fluxo token com console se mesmo client).

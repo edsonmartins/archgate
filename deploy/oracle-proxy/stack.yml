@@ -1,7 +1,10 @@
-# Oracle proxy lab (mock mode). Run on Swarm when ready:
+# Oracle proxy (ADR-001). Mock by default; set ORACLE_PROXY_MOCK=false + JDBC env for real Oracle.
+#
+#   export ORACLE_PROXY_IMAGE=archgate-oracle-proxy:local
 #   docker stack deploy -c stack.yml archgate-oracle
 #
-# For now: local mvn/docker build of services/oracle-proxy is enough for unit tests.
+# Plugin binary (openbao-oracle-plugin) is registered on the OpenBao host — see
+# openbao-oracle.example.hcl and register-plugin.sh
 
 version: "3.8"
 
@@ -10,15 +13,32 @@ services:
     image: ${ORACLE_PROXY_IMAGE:-archgate-oracle-proxy:local}
     environment:
       PORT: "9040"
-      ORACLE_PROXY_MOCK: "true"
+      ORACLE_PROXY_MOCK: ${ORACLE_PROXY_MOCK:-true}
+      # JDBC (when mock=false):
+      # SPRING_PROFILES_ACTIVE: jdbc
+      # ORACLE_JDBC_URL: jdbc:oracle:thin:@//host:1521/ORCLPDB1
+      # ORACLE_JDBC_USER: archgate_admin
+      # ORACLE_JDBC_PASSWORD_FILE: /run/secrets/oracle_admin_password
+      SERVER_SSL_ENABLED: ${ORACLE_PROXY_TLS:-false}
     networks:
       - archgate-data
+    ports:
+      - target: 9040
+        published: ${ORACLE_PROXY_PUBLISH_PORT:-0}
+        protocol: tcp
+        mode: host
     deploy:
-      replicas: 0
+      replicas: ${ORACLE_PROXY_REPLICAS:-1}
       restart_policy:
         condition: on-failure
       labels:
         - "traefik.enable=false"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:9040/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
 networks:
   archgate-data:
