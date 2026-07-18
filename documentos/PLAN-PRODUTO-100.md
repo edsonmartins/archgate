@@ -9,7 +9,7 @@
 | OpenSpec | [`../openspec/changes/README.md`](../openspec/changes/README.md) |
 | Arquitetura | [`../PLATAFORMA_ACESSO_PRIVILEGIADO.md`](../PLATAFORMA_ACESSO_PRIVILEGIADO.md) |
 | Data de criação | 2026-07-11 |
-| Última atualização | **2026-07-17** — Código maturidade: Oracle plugin gRPC, multi-connector, OpenBao secret_ref, BFF UnifiedUI, orch live errors; peer real ainda W0-B/H2 |
+| Última atualização | **2026-07-18** — Console W-C1–W-C4 (wizard, lifecycle, secrets, audit, Oracle UI); residual em [`PLAN-IMPLEMENTACAO-RESTANTE.md`](./PLAN-IMPLEMENTACAO-RESTANTE.md); peer Rio ainda H2 |
 | Dono do plano | Edson Martins |
 | Baseline lab | Lab técnico APTO c/ ressalvas; **Hostinger** `*.archgate.com.br` = staging UAT; peer Rio = bloqueio calendário |
 | Staging Hostinger | VPS `217.196.60.108` · Compose + Traefik Linktor · console/id/wg/guac/secrets |
@@ -507,16 +507,18 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 
 ## 14. Ordem de trabalho sugerida (próximos 90 dias)
 
-| Prioridade | Foco | IDs |
-|------------|------|-----|
-| **P0** | Fechar W0 (browser + peer Rio) | W0-A*, W0-B* |
-| **P1** | W1 segurança + backup auto | W1-SEC*, W1-OPS01–03 |
-| **P1** | 2º site / stack real | W2-SITE02–04 |
-| **P2** | Decisão SSH cert + Guac path | W1-EPH03, W4-UI06 |
-| **P2** | UnifiedUI esqueleto | W4-UI01–03 |
-| **P3** | Oracle se cliente Consinco | W3-* |
-| **P3** | NetBird se multi-site exigir | W2-MESH* |
-| **P4** | HA + agêntico | W5-* |
+> **Plano detalhado do residual (IDs A1–G7, sprints):** [`PLAN-IMPLEMENTACAO-RESTANTE.md`](./PLAN-IMPLEMENTACAO-RESTANTE.md)
+
+| Prioridade | Foco | IDs (plano residual / legado) |
+|------------|------|--------------------------------|
+| **P0** | Peer Rio + UAT + §6.2 | **A1–A3** · W0-B* · H2/H3 |
+| **P0/P1** | 1º cliente operacional | **B1–B5** |
+| **P1** | Oracle E2E Consinco | **C1–C6** · W3-ORACLE07 |
+| **P1/P2** | Multi-site + protocolos | **D2–D4** · W2-SITE02–04 |
+| **P1/P2** | UnifiedUI + orch live | **E1–E5** · W4-* |
+| **P2** | Console polish | **F1–F5** |
+| **P3** | HA + agêntico → 100% | **G1–G7** · W5-* |
+| **Defer** | NetBird | W2-MESH* (só se exigir) |
 
 ---
 
@@ -527,6 +529,7 @@ Atualizar status: `todo` · `doing` · `done` · `blocked` · `n/a`
 | 2026-07-11 | Criação: ondas W0–W5 cobrindo gap lab → 100% produto |
 | 2026-07-17 | W0 implementação: w0-validate.sh, W0-EXECUCAO.md, prep rio-quality, fix activity log (archguard) |
 | 2026-07-17 | W0 lab **APTO c/ ressalvas** §6.1; `w0-all.sh`; W1-OPS01 backup timer PG |
+| 2026-07-18 | Console maturity W-C1–W-C4; **PLAN-IMPLEMENTACAO-RESTANTE** (fases A–G) como radar do gap |
 | 2026-07-17 | W1 bulk: harden console, recordings backup, health-monitor, incidentes, rotação, EPH03 |
 | 2026-07-17 | W1 residual: MFA/OIDC/TTL docs, OpenBao audit export timer, off-host backup example |
 | 2026-07-17 | W2 eng: ADR-010, inventário multi-site, matriz protocolos, segmentação, tunnel |

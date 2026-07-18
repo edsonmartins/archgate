@@ -12,6 +12,7 @@ Plataforma de acesso privilegiado (bastion/gateway) da IntegrAllTech. Este pacot
 6. **`MATRIZ_FUNCIONALIDADES.md`** — o que está **feito** vs **falta** no lab (atualizado com o progresso de implementação).
 7. **`PLAN-HOMOLOGACAO-MVP.md`** — plano com tarefas F0–F5 até produto **homologável** (não confundir com lab nem com Fases 4–5).
 8. **`PLAN-PRODUTO-100.md`** — plano do que falta até **100% do produto** (ondas W0–W5, OpenSpec completo).
+9. **`PLAN-IMPLEMENTACAO-RESTANTE.md`** — **radar executável** do residual (fases A–G, sprints, IDs A1–G7) pós-console maturity 2026-07-18.
 
 ## Conteúdo
 

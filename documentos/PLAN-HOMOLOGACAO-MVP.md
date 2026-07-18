@@ -9,7 +9,7 @@
 | Evidência lab | [`runbooks/sites/smoke-evidence-2026-07-11-aceite-piloto.md`](./runbooks/sites/smoke-evidence-2026-07-11-aceite-piloto.md) |
 | Matriz de features | [`MATRIZ_FUNCIONALIDADES.md`](./MATRIZ_FUNCIONALIDADES.md) |
 | Data de criação | 2026-07-11 |
-| Última atualização | **2026-07-17** — Hostinger staging + Sprint H1 (ensaiável) |
+| Última atualização | **2026-07-18** — H1 done; residual H2/H3 em [`PLAN-IMPLEMENTACAO-RESTANTE.md`](./PLAN-IMPLEMENTACAO-RESTANTE.md) fase A |
 | Dono do plano | **Edson Martins** |
 | Cliente piloto #1 | **Rio Quality** |
 | Revisor UAT | **Edson Martins** |
