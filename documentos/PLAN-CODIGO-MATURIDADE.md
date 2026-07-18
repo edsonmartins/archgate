@@ -113,4 +113,13 @@ A/B/C são independentes; E depende de sites+targets; D melhora offboarding; F �
 | E5 | **done** | SPA already prefers BFF |
 | F1–F3 | **done** | HTTP launch snippets + smoke doc |
 
+### Deploy Hostinger (2026-07-18)
+
+| Serviço | Container | Status |
+|---------|-----------|--------|
+| oracle-proxy | `archgate-oracle-proxy` | healthy (mock) |
+| orchestration | `archgate-orchestration` | healthy (mock) |
+| console | `archgate-console` | healthy |
+| Script | `archgate-devops/scripts/63-deploy-maturity-services.sh` | PASS |
+
 Atualizar `PLAN-PRODUTO-100.md` na mesma PR de deploy.
