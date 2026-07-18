@@ -230,12 +230,15 @@ Sprint 6+            F* polish · G* HA/agêntico            → M5
 
 ## Próxima ação imediata (começar por aqui)
 
-| # | ID | Ação concreta |
-|---|-----|----------------|
-| 1 | **A1.1** | Pedir ao Rio: conta Forti serviço + OpenVPN serviço + 3 IPs API + subnet Oracle |
-| 2 | **A1.2** | Preencher `inventory/clients/rio-quality.md` + wizard console |
-| 3 | **A1.3–A1.4** | Materializar connectors + targets no console |
-| 4 | **A2.*** | UAT browser + §6.2 |
+| # | ID | Ação concreta | Status 2026-07-18 |
+|---|-----|----------------|-------------------|
+| 0 | **A0** | `./scripts/67-sprint1-readiness.sh` (plataforma) | **Sprint 1 started** |
+| 1 | **A1.1** | Form + e-mail: `archgate-devops/inventory/clients/rio-quality-coleta-A1.1.md` | **in_progress** — aguarda Rio |
+| 2 | **A1.2** | Wizard console / ficha `reais/rio-quality.yaml` | pending dados |
+| 3 | **A1.3–A1.4** | Materializar connectors + targets no console | pending A1.1 |
+| 4 | **A2.*** | UAT browser + §6.2 | pending |
+
+Sprint tracking: `archgate-devops/docs/SPRINT-1-HOMOLOG.md`.
 
 Sem **A1.1** (dados do cliente), o restante de homologação fica artificial (só lab).
 
@@ -246,3 +249,4 @@ Sem **A1.1** (dados do cliente), o restante de homologação fica artificial (s�
 | Data | Mudança |
 |------|---------|
 | 2026-07-18 | Criação: fases A–G do residual pós-console maturity / Hostinger H1 |
+| 2026-07-18 | Sprint 1 iniciado: coleta A1.1 + readiness 67 + ficha dual connector |

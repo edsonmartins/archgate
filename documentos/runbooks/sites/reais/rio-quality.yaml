@@ -1,8 +1,9 @@
-# Ficha — Rio Quality PRODUÇÃO (conectividade real a confirmar)
-# Lab (enquanto peer não existe): ../lab-rio-quality.yaml
-# W0-B: documentos/runbooks/W0-EXECUCAO.md · onboarding: deploy/connector/onboarding-cliente-peer.md
+# Ficha — Rio Quality PRODUÇÃO
+# Coleta: archgate-devops/inventory/clients/rio-quality-coleta-A1.1.md
+# Sprint: archgate-devops/docs/SPRINT-1-HOMOLOG.md
+# Happy path: console /sites/wizard (não SSH)
 #
-# Preenchimento: marcar campos; NÃO commitar senhas — só secret_ref / OpenBao path.
+# NÃO commitar senhas — secret_ref / materializar na UI.
 
 cliente: Rio Quality
 slug: rio_quality
@@ -12,64 +13,59 @@ warpgate_roles:
   - tenant-rio-quality
 
 conectividade:
-  tipo: a_confirmar            # connector_peer | tunnel_agent | cloudflare_tunnel | misto
-  stack: a_confirmar           # wireguard | openvpn | openfortivpn | cloudflare_tunnel
-  cloudflare_tunnel:
-    tunnel_name: a_confirmar   # Tunnel existente (Rio)? validar escopo HTTP vs SSH/DB
-    notas: >
-      Validar se Tunnel cobre só borda HTTP ou também path a hosts SSH/DB.
-      Se houver VPN legada em paralelo, registrar stack mista.
-  wireguard:
-    endpoint: ""               # host:port do peer no cliente
-    allowed_ips: []            # subnets dos targets
-    platform_pubkey_ref: ""    # path OpenBao ou arquivo no connector (não inline)
-  openvpn:
-    profile_ref: ""            # secret_ref / path no connector
-    conta_servico: ""
-    mfa: false
-  openfortivpn:
-    host: ""
-    port: 443
-    conta_servico: ""
-    mfa_otp: a_confirmar
-  subnets_alvo: []             # ex.: ["10.x.y.0/24"]
-  connector_id: connector-rio-quality
-  ip_saida_visto_pelo_cliente: ""
-  contato_ops_cliente: ""      # e-mail/telefone — preencher na janela W0-B01
-  janela_peer: ""              # data/hora acordada
+  tipo: tunnel_agent
+  stack: mixed
+  connector_id: rio-forti
+  subnets_alvo: [] # A1.1
+  ip_saida_visto_pelo_cliente: "217.196.60.108"
+  contato_ops_cliente: "" # A1.1
+  janela_peer: "" # A1.1
   notas: >
-    Oracle/Consinco no roadmap (ADR-001). Confirmar stack VPN com ops
-    e atualizar clientes-reais-por-stack.md.
-    Lab SoT atual: stack=lab_overlay inventariado=true — NÃO confundir com peer real.
+    Dual tunnel_agent: Forti (LAN/Oracle) + OpenVPN (AWS).
+    Lab: stack lab_overlay separado (não confundir com peer real).
+
+connectors:
+  - id: rio-forti
+    stack: openfortivpn
+    tipo: tunnel_agent
+    subnets: [] # A1.1
+    meta:
+      forti_host: "" # A1.1
+      host_path: /var/lib/archgate/connector/rio-forti
+    notas: LAN — Oracle, Consinco, gestor-rq, Linux
+  - id: rio-aws
+    stack: openvpn
+    tipo: tunnel_agent
+    subnets: [] # A1.1
+    meta:
+      ovpn_path: /var/lib/archgate/connector/rio-aws/openvpn/client.ovpn
+      host_path: /var/lib/archgate/connector/rio-aws
+    notas: AWS — 3 APIs, DBs, observabilidade
 
 targets: []
-  # Após inventário real, exemplo (IPs internos — operador NÃO usa estes IPs):
-  # - nome: rio-app-ssh
+  # Após A1.1 — exemplos (IPs internos só no SoT admin, não para o dev):
+  # - nome: rio-api-1
   #   engine: warpgate
   #   protocolo: ssh
-  #   host: 10.x.y.z          # visto pelo connector, não pelo notebook
+  #   host: 10.x.x.x
   #   port: 22
   #   roles: [tenant-rio-quality]
-  # - nome: rio-app-postgres
-  #   engine: warpgate
-  #   protocolo: postgres
-  #   host: 10.x.y.w
-  #   port: 5432
-  #   database: ...
-  #   roles: [tenant-rio-quality]
+  #   connector_id: rio-aws
+  #   secret_ref: secret/data/archgate/targets/rio-api-1
 
 identidade:
-  operadores: []               # preferir uat-op-a em lab; prod = SPNs reais
+  operadores: [] # A1.1 + Kanidm
   tenant_admins: []
   uat_lab:
-    - uat-op-a                 # tenant_rio_quality (Kanidm + WG)
+    - uat-op-a
 
 estado:
-  inventariado: false          # true só com hosts/stack reais preenchidos
+  inventariado: false
   connector_deployed: false
   smoke_operador: false
-  data_revisao: "2026-07-17"
-  w0_peer_status: pending_client   # pending_client | in_progress | done
+  data_revisao: "2026-07-18"
+  w0_peer_status: pending_client # pending_client | in_progress | done
+  sprint: "1-homolog-A"
 
-credenciais_alvo: warpgate_and_guacamole_only
+credenciais_alvo: warpgate_and_openbao_only
 anti_padrao: never_document_direct_ip_or_target_password_to_operators
