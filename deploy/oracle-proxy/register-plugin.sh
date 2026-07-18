@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
-# Register openbao-oracle-plugin in OpenBao catalog (lab/prod).
-# Usage:
-#   PLUGIN_BIN=/path/to/openbao-oracle-plugin BAO_ADDR=https://... BAO_TOKEN=... ./register-plugin.sh
+# DEPRECATED as ops entrypoint — use archgate-devops:
+#   /opt/archgate-devops/config/oracle/register-plugin.sh
+#   or: archgate-devops/scripts/63-deploy-maturity-services.sh (containers)
+#
+# Kept for local lab next to the Go module only.
 set -euo pipefail
 
 PLUGIN_BIN="${PLUGIN_BIN:-./openbao-oracle-plugin}"
 PLUGIN_NAME="${PLUGIN_NAME:-oracle-archgate}"
 BAO="${BAO_ADDR:-${OPENBAO_ADDR:-http://127.0.0.1:8200}}"
 TOKEN="${BAO_TOKEN:-${OPENBAO_TOKEN:-${OPENBAO_ROOT_TOKEN:-}}}"
-PROXY_URL="${ORACLE_PROXY_URL:-http://oracle-proxy:9040}"
+PROXY_URL="${ORACLE_PROXY_URL:-http://archgate-oracle-proxy:9040}"
+echo "NOTE: production ops live in archgate-devops/config/oracle/" >&2
 
 if [[ ! -x "$PLUGIN_BIN" && ! -f "$PLUGIN_BIN" ]]; then
   echo "Build plugin first: (cd services/openbao-oracle-plugin && go build -o openbao-oracle-plugin .)" >&2

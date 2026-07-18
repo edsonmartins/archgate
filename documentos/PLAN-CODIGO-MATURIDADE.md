@@ -115,11 +115,15 @@ A/B/C são independentes; E depende de sites+targets; D melhora offboarding; F �
 
 ### Deploy Hostinger (2026-07-18)
 
+**Ops só em `archgate-devops`** (compose + scripts + `config/oracle`).  
+Produto (código/Dockerfile) em `archgate/services/*`.
+
 | Serviço | Container | Status |
 |---------|-----------|--------|
 | oracle-proxy | `archgate-oracle-proxy` | healthy (mock) |
 | orchestration | `archgate-orchestration` | healthy (mock) |
 | console | `archgate-console` | healthy |
 | Script | `archgate-devops/scripts/63-deploy-maturity-services.sh` | PASS |
+| Fronteira | `archgate-devops/docs/OPS-BOUNDARY.md` | — |
 
 Atualizar `PLAN-PRODUTO-100.md` na mesma PR de deploy.
