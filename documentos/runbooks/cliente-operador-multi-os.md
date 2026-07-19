@@ -15,6 +15,8 @@ Você (Linux | macOS | Windows)
   → alvo
 ```
 
+**Cliente oficial (evolução):** [ArchGate Connect](./archgate-connect.md) (CLI `archgate` + tray) — ADR-008A.  
+Este runbook permanece o **fallback manual** (OpenSSH/DBeaver + browser).
 ## URLs e portas (staging / lab)
 
 | Serviço | Uso | Endpoint |

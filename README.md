@@ -29,6 +29,7 @@ Ops / VPS / Cloudflare: repositório irmão **`archgate-devops`** (`../archgate-
 | Serviço (scaffold) | Path | Porta dev |
 |--------------------|------|-----------|
 | UnifiedUI | `frontend/unified-ui` | 5174 |
+| ArchGate Connect (CLI+tray) | `clients/archgate-connect` | — |
 | Orchestration (Axis) | `services/orchestration` | 8090 |
 | Agent control (OpenSRE) | `services/agent-control` | 8091 |
 | Oracle proxy | `services/oracle-proxy` | (Spring) |

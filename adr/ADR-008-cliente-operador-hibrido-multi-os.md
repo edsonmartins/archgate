@@ -157,9 +157,9 @@ UnifiedUI: catálogo único “minhas conexões” no ArchGate; embed de sessão
 - [ ] Fase 4 (UnifiedUI): catálogo unificado + embed Parte A + deep link Parte B (ADR-006).
 - [ ] Fase rede (NetBird / mesh): connector por site como implementação padrão do item “conectividade” desta ADR.
 
-### P3 — Fora de escopo desta decisão
+### P3 — Evolução / fora do núcleo desta decisão
 
-- App desktop nativo “ArchGate.app” (Electron etc.) — não necessário para P0–P1.
+- **App desktop / CLI operador** — **emenda [ADR-008A](./ADR-008A-archgate-connect-cliente-operador.md)** (ArchGate Connect: CLI `archgate` + tray Tauri). O fallback manual (OpenSSH/DBeaver + snippets) permanece válido.
 - Substituir Guacamole por outro motor RDP — só se RDP clientless deixar de atender (avaliar à parte).
 - Oracle / protocolos sem engine no Warpgate — ADR-001 e changes específicas.
 - Forçar fork GUACAMOLE-2258 — não é pré-requisito deste modelo híbrido.

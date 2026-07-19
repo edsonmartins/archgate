@@ -1,0 +1,12 @@
+archgate
+*.exe
+desktop/node_modules/
+desktop/dist/
+desktop/src-tauri/target/
+desktop/src-tauri/binaries/
+# packaged apps (optional local dist/)
+dist/*.app/
+dist/*.dmg
+
+# never
+# secrets live in ~/.config/archgate/

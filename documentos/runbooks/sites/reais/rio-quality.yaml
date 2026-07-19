@@ -4,6 +4,7 @@
 # Happy path: console /sites/wizard (não SSH)
 #
 # NÃO commitar senhas — secret_ref / materializar na UI.
+# Descoberta local Mac 2026-07-18 (túneis ativos).
 
 cliente: Rio Quality
 slug: rio_quality
@@ -16,56 +17,170 @@ conectividade:
   tipo: tunnel_agent
   stack: mixed
   connector_id: rio-forti
-  subnets_alvo: [] # A1.1
+  subnets_alvo:
+    - 192.168.0.0/23
+    - 192.168.2.0/24
+    - 192.168.4.0/23
+    - 192.168.32.0/24
+    - 192.168.34.0/24
+    - 192.168.36.0/24
+    - 192.168.38.0/24
+    - 192.168.40.0/24
+    - 192.168.42.0/24
+    - 192.168.44.0/24
+    - 192.168.46.0/24
+    - 192.168.48.0/24
+    - 192.168.50.0/24
+    - 192.168.52.0/24
+    - 192.168.54.0/24
+    - 192.168.56.0/24
+    - 192.168.58.0/24
+    - 192.168.60.0/24
+    - 192.168.62.0/24
+    - 192.168.64.0/24
+    - 172.20.103.10/32
+    - 10.0.0.0/16
   ip_saida_visto_pelo_cliente: "217.196.60.108"
-  contato_ops_cliente: "" # A1.1
-  janela_peer: "" # A1.1
+  contato_ops_cliente: "descoberta local IntegrAll; allowlist VPS se Forti/AS filtrar"
+  janela_peer: "imediata (IntegrAll)"
   notas: >
-    Dual tunnel_agent: Forti (LAN/Oracle) + OpenVPN (AWS).
+    Dual tunnel_agent: Forti (LAN/Oracle) + OpenVPN AS (AWS).
     Lab: stack lab_overlay separado (não confundir com peer real).
 
 connectors:
   - id: rio-forti
     stack: openfortivpn
     tipo: tunnel_agent
-    subnets: [] # A1.1
+    subnets:
+      - 192.168.0.0/23
+      - 192.168.2.0/24
+      - 192.168.4.0/23
+      - 192.168.32.0/24
+      - 192.168.34.0/24
+      - 192.168.36.0/24
+      - 192.168.38.0/24
+      - 192.168.40.0/24
+      - 192.168.42.0/24
+      - 192.168.44.0/24
+      - 192.168.46.0/24
+      - 192.168.48.0/24
+      - 192.168.50.0/24
+      - 192.168.52.0/24
+      - 192.168.54.0/24
+      - 192.168.56.0/24
+      - 192.168.58.0/24
+      - 192.168.60.0/24
+      - 192.168.62.0/24
+      - 192.168.64.0/24
+      - 172.20.103.10/32
     meta:
-      forti_host: "" # A1.1
+      forti_host: "187.32.0.169"
+      forti_port: 443
       host_path: /var/lib/archgate/connector/rio-forti
-    notas: LAN — Oracle, Consinco, gestor-rq, Linux
+      username_observed: suporte.mentors2
+      trusted_cert: c3854e02c08c91aa85a0a3432bb43f1587ee2ff681a097fbef32e5b4adae00b0
+      mac_entry: conecta_rq
+    notas: LAN — Oracle WINT/WINTTST, Consinco path, gestor-rq, Linux. Endpoint TAF 189.90.56.210 NÃO é Rio.
   - id: rio-aws
     stack: openvpn
     tipo: tunnel_agent
-    subnets: [] # A1.1
+    subnets:
+      - 10.0.0.0/16
     meta:
+      remote: "3.23.241.111"
       ovpn_path: /var/lib/archgate/connector/rio-aws/openvpn/client.ovpn
       host_path: /var/lib/archgate/connector/rio-aws
-    notas: AWS — 3 APIs, DBs, observabilidade
+      username_observed: mentors01
+    notas: AWS us-east-2 — 3 nós + DBs + observabilidade
 
-targets: []
-  # Após A1.1 — exemplos (IPs internos só no SoT admin, não para o dev):
-  # - nome: rio-api-1
-  #   engine: warpgate
-  #   protocolo: ssh
-  #   host: 10.x.x.x
-  #   port: 22
-  #   roles: [tenant-rio-quality]
-  #   connector_id: rio-aws
-  #   secret_ref: secret/data/archgate/targets/rio-api-1
+targets:
+  - nome: rio-gestor-linux
+    engine: warpgate
+    protocolo: ssh
+    host: 192.168.0.214
+    port: 22
+    roles: [tenant-rio-quality]
+    connector_id: rio-forti
+    secret_ref: secret/data/archgate/targets/rio-gestor-linux
+    username: mentors
+  - nome: rio-oracle-prod
+    engine: oracle_ui
+    protocolo: oracle
+    host: 192.168.0.112
+    port: 1522
+    roles: [tenant-rio-quality]
+    connector_id: rio-forti
+    secret_ref: secret/data/archgate/targets/rio-oracle-prod
+    service_name: WINT
+  - nome: rio-oracle-tst
+    engine: oracle_ui
+    protocolo: oracle
+    host: 192.168.0.25
+    port: 1522
+    roles: [tenant-rio-quality]
+    connector_id: rio-forti
+    secret_ref: secret/data/archgate/targets/rio-oracle-tst
+    service_name: WINTTST
+  - nome: rio-aws-obs
+    engine: warpgate
+    protocolo: ssh
+    host: 10.0.25.18
+    port: 22
+    roles: [tenant-rio-quality]
+    connector_id: rio-aws
+    secret_ref: secret/data/archgate/targets/rio-aws-obs
+    username: ec2-user
+  - nome: rio-aws-api-a
+    engine: warpgate
+    protocolo: ssh
+    host: 10.0.25.62
+    port: 22
+    roles: [tenant-rio-quality]
+    connector_id: rio-aws
+    secret_ref: secret/data/archgate/targets/rio-aws-api-a
+    username: ec2-user
+  - nome: rio-aws-api-b
+    engine: warpgate
+    protocolo: ssh
+    host: 10.0.31.102
+    port: 22
+    roles: [tenant-rio-quality]
+    connector_id: rio-aws
+    secret_ref: secret/data/archgate/targets/rio-aws-api-b
+    username: ec2-user
+  - nome: rio-aws-pg-a
+    engine: warpgate
+    protocolo: postgres
+    host: 10.0.25.62
+    port: 5432
+    roles: [tenant-rio-quality]
+    connector_id: rio-aws
+    secret_ref: secret/data/archgate/targets/rio-aws-pg-a
+  - nome: rio-aws-pg-b
+    engine: warpgate
+    protocolo: postgres
+    host: 10.0.31.102
+    port: 5432
+    roles: [tenant-rio-quality]
+    connector_id: rio-aws
+    secret_ref: secret/data/archgate/targets/rio-aws-pg-b
 
 identidade:
-  operadores: [] # A1.1 + Kanidm
-  tenant_admins: []
+  operadores:
+    - edson.martins
+  tenant_admins:
+    - edson.martins
   uat_lab:
     - uat-op-a
 
 estado:
-  inventariado: false
+  inventariado: true
   connector_deployed: false
   smoke_operador: false
   data_revisao: "2026-07-18"
-  w0_peer_status: pending_client # pending_client | in_progress | done
+  w0_peer_status: in_progress # pending_client | in_progress | done
   sprint: "1-homolog-A"
+  fonte_a1_1: local_mac_discovery
 
 credenciais_alvo: warpgate_and_openbao_only
 anti_padrao: never_document_direct_ip_or_target_password_to_operators

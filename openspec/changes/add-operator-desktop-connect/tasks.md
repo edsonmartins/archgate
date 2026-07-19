@@ -1,0 +1,34 @@
+# Tasks — ArchGate Connect
+
+## 0. Spec
+
+- [x] 0.1 ADR-008A
+- [x] 0.2 OpenSpec proposal/design/spec
+- [x] 0.3 PLAN-IMPLEMENTACAO Fase H
+- [x] 0.4 Runbook archgate-connect + migração
+
+## 1. CLI Go
+
+- [x] 1.1 Scaffold `clients/archgate-connect`
+- [x] 1.2 `login` (device stub + file token) / `logout` / `status`
+- [x] 1.3 `ls` / `doctor` (mock + API)
+- [x] 1.4 `ssh` / `config apply|remove` / `db` / `open`
+- [x] 1.5 OIDC PKCE browser (`internal/oidc`) — Kanidm sem device_code
+- [x] 1.6 `login --lab` fallback
+
+## 2. BFF
+
+- [x] 2.1 `GET /api/unified/v1/operator/bootstrap`
+- [x] 2.2 Bearer userinfo + lab token path
+- [x] 2.3 OIDC client `archgate-connect` no Kanidm (confidential + scopemap via SA; secret em bootstrap.env / `~/.config/archgate/oidc.env`)
+
+## 3. Tray Tauri
+
+- [x] 3.1 Scaffold tray UI + invoke CLI (janela Tauri MVP; system tray icon residual)
+- [ ] 3.2 Packaging macOS .app / codesign (pós-MVP ok — .app/.dmg unsigned gerados localmente)
+
+## 4. Validação
+
+- [x] 4.1 Smoke mock CLI: `archgate-devops/scripts/68-smoke-archgate-connect.sh` PASS
+- [ ] 4.2 Doc Windows/Linux CLI best-effort
+- [x] 4.3 OIDC preflight + bootstrap live lab: `clients/archgate-connect/scripts/smoke-h4-h5.sh` + evidence `documentos/evidence/2026-07-19-archgate-connect-h4-h5.md` (SSO browser interativo residual)

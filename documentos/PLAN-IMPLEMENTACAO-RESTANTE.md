@@ -159,11 +159,31 @@
 
 ---
 
+## Fase H — ArchGate Connect (cliente notebook) · **P0/P1 produto** · **// paralelo A/B**
+
+**Problema:** peer no VPS sem ferramenta no notebook → dev continua em VPN cliente ou snippets manuais.  
+**ADR:** [ADR-008A](../adr/ADR-008A-archgate-connect-cliente-operador.md) · OpenSpec `add-operator-desktop-connect`  
+**Runbook:** [`runbooks/archgate-connect.md`](./runbooks/archgate-connect.md)
+
+| ID | Tarefa | Tipo | Repo | Aceite |
+|----|--------|------|------|--------|
+| **H0** | ADR-008A + OpenSpec + runbook | `code` | archgate | Docs merged |
+| **H1** | CLI Go `archgate` (login/ls/ssh/config/doctor) | `code` | archgate `clients/archgate-connect` | `go test` + doctor mock |
+| **H2** | BFF `operator/bootstrap` + Bearer path | `code` | archguard | 200 bootstrap |
+| **H3** | Tray Tauri MVP (login + lista + connect) | `code` | archgate desktop | Janela MVP abre SSH/open (system tray residual) |
+| **H4** | OIDC client `archgate-connect` Kanidm | `ops`+`code` | devops + kanidm | **preflight PASS** 2026-07-19 (SSO browser residual) |
+| **H5** | Smoke macOS lab sem VPN cliente | `uat` | devops | **PASS** evidence `documentos/evidence/2026-07-19-archgate-connect-h4-h5.md` |
+| **H6** | Migração Rio: Connect substitui `conecta_rq`/OVPN diário | `uat` | — | checklist runbook (aberto) |
+
+**Critério de saída H:** dev macOS opera targets lab (e Rio se peer up) **só** com Connect + SSO; sem Forti/OpenVPN do cliente no happy path.
+
+---
+
 ## Ordem de execução sugerida (sprints)
 
 ```text
-Sprint 1 (agora)     A1 peer Rio + A2 UAT + A3 higiene     → M1
-Sprint 2             B1–B5 1º cliente operacional          → M2
+Sprint 1 (agora)     A1 peer Rio + A2 UAT + A3 higiene  // H0–H3 Connect scaffold  → M1 + Connect MVP
+Sprint 2             B1–B5 1º cliente operacional + H4–H6 Connect real            → M2
 Sprint 3             C1–C5 Oracle E2E Consinco             → W3
 Sprint 4             D2 Marra + D3–D4 protocolos           → W2
 Sprint 5             E1–E5 UnifiedUI + orch live           → M4
@@ -172,8 +192,9 @@ Sprint 6+            F* polish · G* HA/agêntico            → M5
 
 ### Paralelo possível
 
+- **H*** (Connect) // com **A1** / **B*** — peer no VPS e cliente no notebook são lados complementares.  
 - **C*** (Oracle) // com **B*** se peer Forti já entrega rede ao Oracle.  
-- **E*** (UnifiedUI) // com **B*** (admin já tem lifecycle).  
+- **E*** (UnifiedUI) // com **B*** (admin já tem lifecycle); Connect reusa BFF do UnifiedUI.  
 - **G*** só após M2 estável.
 
 ---
@@ -205,6 +226,7 @@ Sprint 6+            F* polish · G* HA/agêntico            → M5
 - [ ] **B5** adapters orch live paths reais  
 - [ ] **E*** UnifiedUI SPA deployable  
 - [ ] **G4–G5** agentic live  
+- [ ] **H*** ArchGate Connect CLI + tray (`clients/archgate-connect`)  
 
 ---
 
@@ -233,7 +255,7 @@ Sprint 6+            F* polish · G* HA/agêntico            → M5
 | # | ID | Ação concreta | Status 2026-07-18 |
 |---|-----|----------------|-------------------|
 | 0 | **A0** | `./scripts/67-sprint1-readiness.sh` (plataforma) | **Sprint 1 started** |
-| 1 | **A1.1** | Form + e-mail: `archgate-devops/inventory/clients/rio-quality-coleta-A1.1.md` | **in_progress** — aguarda Rio |
+| 1 | **A1.1** | Form + descoberta Mac: `archgate-devops/inventory/clients/rio-quality-coleta-A1.1.md` | **done** — local 2026-07-18 (sem e-mail cliente) |
 | 2 | **A1.2** | Wizard console / ficha `reais/rio-quality.yaml` | pending dados |
 | 3 | **A1.3–A1.4** | Materializar connectors + targets no console | pending A1.1 |
 | 4 | **A2.*** | UAT browser + §6.2 | pending |
