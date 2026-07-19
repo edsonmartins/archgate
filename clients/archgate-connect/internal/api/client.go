@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -86,22 +85,12 @@ func MockBootstrap(cfg *config.File) *Bootstrap {
 }
 
 func (c *Client) Bootstrap() (*Bootstrap, error) {
-	req, err := http.NewRequest(http.MethodGet, c.BaseURL+"/unified/v1/operator/bootstrap", nil)
+	body, status, err := c.get("/unified/v1/operator/bootstrap")
 	if err != nil {
 		return nil, err
 	}
-	if c.Token != "" {
-		req.Header.Set("Authorization", "Bearer "+c.Token)
-	}
-	req.Header.Set("Accept", "application/json")
-	res, err := c.HTTP.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-	if res.StatusCode >= 300 {
-		return nil, fmt.Errorf("bootstrap %s: %s", res.Status, truncate(string(body), 200))
+	if status >= 300 {
+		return nil, &StatusError{Op: "bootstrap", Status: status, Body: truncate(string(body), 200)}
 	}
 	var b Bootstrap
 	if err := json.Unmarshal(body, &b); err != nil {
@@ -111,22 +100,12 @@ func (c *Client) Bootstrap() (*Bootstrap, error) {
 }
 
 func (c *Client) Connections() ([]Connection, error) {
-	req, err := http.NewRequest(http.MethodGet, c.BaseURL+"/unified/v1/connections", nil)
+	body, status, err := c.get("/unified/v1/connections")
 	if err != nil {
 		return nil, err
 	}
-	if c.Token != "" {
-		req.Header.Set("Authorization", "Bearer "+c.Token)
-	}
-	req.Header.Set("Accept", "application/json")
-	res, err := c.HTTP.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-	if res.StatusCode >= 300 {
-		return nil, fmt.Errorf("connections %s: %s", res.Status, truncate(string(body), 200))
+	if status >= 300 {
+		return nil, &StatusError{Op: "connections", Status: status, Body: truncate(string(body), 200)}
 	}
 	var wrap struct {
 		Connections []Connection `json:"connections"`
@@ -135,6 +114,24 @@ func (c *Client) Connections() ([]Connection, error) {
 		return nil, err
 	}
 	return wrap.Connections, nil
+}
+
+func (c *Client) get(path string) ([]byte, int, error) {
+	req, err := http.NewRequest(http.MethodGet, c.BaseURL+path, nil)
+	if err != nil {
+		return nil, 0, err
+	}
+	if c.Token != "" {
+		req.Header.Set("Authorization", "Bearer "+c.Token)
+	}
+	req.Header.Set("Accept", "application/json")
+	res, err := c.HTTP.Do(req)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+	return body, res.StatusCode, nil
 }
 
 func truncate(s string, n int) string {

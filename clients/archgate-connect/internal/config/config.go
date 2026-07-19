@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Bastion struct {
@@ -25,11 +26,36 @@ type Bastion struct {
 type Credentials struct {
 	AccessToken  string `json:"access_token,omitempty"`
 	RefreshToken string `json:"refresh_token,omitempty"`
-	Username     string `json:"username,omitempty"`
+	// ExpiresAt is Unix seconds when AccessToken should be considered expired.
+	// Zero means unknown (refresh only after 401).
+	ExpiresAt int64 `json:"expires_at,omitempty"`
+	Username  string `json:"username,omitempty"`
 	// WarpgateUser is the bastion login (e.g. uat-op-a). Not the target OS user.
 	WarpgateUser string `json:"warpgate_user,omitempty"`
 	// LabToken is a local-only placeholder until OIDC is wired.
 	LabToken string `json:"lab_token,omitempty"`
+}
+
+// AccessTokenExpired reports whether the access token should be proactively refreshed.
+// skew is how early we refresh (e.g. 60s). If ExpiresAt is 0, returns false (wait for 401).
+func (c Credentials) AccessTokenExpired(skew time.Duration) bool {
+	if c.AccessToken == "" {
+		return true
+	}
+	if c.ExpiresAt <= 0 {
+		return false
+	}
+	return time.Now().Add(skew).Unix() >= c.ExpiresAt
+}
+
+// HasOIDCSession is true when an OIDC access or refresh token is present.
+func (c Credentials) HasOIDCSession() bool {
+	return c.AccessToken != "" || c.RefreshToken != ""
+}
+
+// IsLabSession is true when only lab catalog token is in use (no OIDC access token).
+func (c Credentials) IsLabSession() bool {
+	return c.LabToken != "" && c.AccessToken == ""
 }
 
 type File struct {

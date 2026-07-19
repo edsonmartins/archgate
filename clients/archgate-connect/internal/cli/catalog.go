@@ -1,12 +1,14 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"os/exec"
 	"strconv"
 	"time"
 
+	"github.com/integrall-tech/archgate/clients/archgate-connect/internal/api"
 	"github.com/integrall-tech/archgate/clients/archgate-connect/internal/config"
 	"github.com/integrall-tech/archgate/clients/archgate-connect/internal/util"
 )
@@ -16,9 +18,22 @@ func cmdStatus(jsonOut bool) error {
 	if err != nil {
 		return err
 	}
-	logged := cfg.Creds.LabToken != "" || cfg.Creds.AccessToken != ""
+	// Proactive refresh for OIDC so status reflects a usable session.
+	tokenOK := true
+	var tokenErr string
+	if cfg.Creds.HasOIDCSession() && !cfg.Creds.IsLabSession() {
+		if err := ensureAPIToken(cfg); err != nil {
+			tokenOK = false
+			tokenErr = err.Error()
+			// Reload may have cleared creds.
+			if reloaded, e := config.Load(); e == nil {
+				cfg = reloaded
+			}
+		}
+	}
+	logged := cfg.Creds.LabToken != "" || cfg.Creds.AccessToken != "" || cfg.Creds.RefreshToken != ""
 	mode := "none"
-	if cfg.Creds.AccessToken != "" {
+	if cfg.Creds.AccessToken != "" || (cfg.Creds.RefreshToken != "" && !cfg.Creds.IsLabSession()) {
 		mode = "oidc"
 	} else if cfg.Creds.LabToken != "" {
 		mode = "lab"
@@ -35,8 +50,9 @@ func cmdStatus(jsonOut bool) error {
 		"mock":          config.MockMode(),
 		"user":          util.Or(cfg.Creds.Username, ""),
 		"warpgate_user": wgUser,
-		"session":       logged,
+		"session":       logged && tokenOK,
 		"auth":          mode,
+		"token_ok":      tokenOK,
 		"bastion": map[string]any{
 			"ssh_host": cfg.Bastion.SSHHost,
 			"ssh_port": cfg.Bastion.SSHPort,
@@ -44,10 +60,24 @@ func cmdStatus(jsonOut bool) error {
 			"pg_port":  cfg.Bastion.PGPort,
 		},
 	}
-	if logged && !config.MockMode() {
+	if cfg.Creds.ExpiresAt > 0 {
+		out["expires_at"] = cfg.Creds.ExpiresAt
+	}
+	if tokenErr != "" {
+		out["token_error"] = tokenErr
+		out["need_login"] = true
+	}
+	if logged && tokenOK && !config.MockMode() {
 		if b, err := loadBootstrap(cfg); err == nil {
 			out["connections"] = len(b.Connections)
 			out["tenants"] = b.Profile.Tenants
+		} else {
+			out["catalog_error"] = err.Error()
+			if errors.Is(err, ErrNeedLogin) || api.IsUnauthorized(err) {
+				out["need_login"] = true
+				out["session"] = false
+				out["token_ok"] = false
+			}
 		}
 	}
 	if jsonOut {
@@ -56,7 +86,13 @@ func cmdStatus(jsonOut bool) error {
 	fmt.Printf("api_base:     %s\n", cfg.APIBase)
 	fmt.Printf("mock:         %v\n", config.MockMode())
 	fmt.Printf("user:         %s\n", util.Or(cfg.Creds.Username, "(not logged in)"))
-	fmt.Printf("session:      %v (%s)\n", logged, mode)
+	fmt.Printf("session:      %v (%s)\n", logged && tokenOK, mode)
+	if !tokenOK {
+		fmt.Printf("token:        FAIL %s\n", tokenErr)
+		fmt.Println("              → archgate login")
+	} else if cfg.Creds.ExpiresAt > 0 {
+		fmt.Printf("token:        OK until %s\n", time.Unix(cfg.Creds.ExpiresAt, 0).Local().Format(time.RFC3339))
+	}
 	if wgUser != "" {
 		fmt.Printf("warpgate:     %s\n", wgUser)
 	}

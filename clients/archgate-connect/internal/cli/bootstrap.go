@@ -13,15 +13,26 @@ func loadBootstrap(cfg *config.File) (*api.Bootstrap, error) {
 	if config.MockMode() {
 		return api.MockBootstrap(cfg), nil
 	}
-	client := api.New(cfg)
-	b, err := client.Bootstrap()
+
+	var out *api.Bootstrap
+	err := withAuthRetry(cfg, func(cfg *config.File) error {
+		client := api.New(cfg)
+		b, err := client.Bootstrap()
+		if err != nil {
+			return err
+		}
+		out = b
+		return nil
+	})
 	if err != nil {
 		if os.Getenv("ARCHGATE_MOCK_FALLBACK") == "1" {
 			fmt.Fprintf(os.Stderr, "warn: API bootstrap failed (%v); using mock\n", err)
 			return api.MockBootstrap(cfg), nil
 		}
-		return nil, err
+		return nil, fmt.Errorf("%w%s", err, needLoginHint(err))
 	}
+
+	b := out
 	if b.Bastion.SSHHost != "" {
 		cfg.Bastion = b.Bastion
 		// Cloudflare only publishes HTTPS for wg.*; TCP SSH/PG are on the VPS IP.
@@ -31,10 +42,13 @@ func loadBootstrap(cfg *config.File) (*api.Bootstrap, error) {
 		if isCloudflareOnlyHost(cfg.Bastion.PGHost) {
 			cfg.Bastion.PGHost = config.DefaultBastion().PGHost
 		}
-		_ = config.Save(cfg)
+		if err := config.Save(cfg); err != nil {
+			fmt.Fprintf(os.Stderr, "warn: save config: %v\n", err)
+		}
 	}
 	if b.Profile.Username != "" && cfg.Creds.Username == "" {
 		cfg.Creds.Username = b.Profile.Username
+		_ = config.SaveCredentials(&cfg.Creds)
 	}
 	return b, nil
 }

@@ -57,6 +57,17 @@ archgate logout
 
 O desktop Tauri **só executa o CLI** — não hardcodeia host/usuário Warpgate.
 
+### Sessão OIDC (refresh)
+
+| Evento | Comportamento |
+|--------|----------------|
+| Login SSO | grava `access_token`, `refresh_token`, `expires_at` |
+| `status` / `ls` / bootstrap | se access perto de expirar → **refresh** automático |
+| HTTP 401 do BFF | tenta **um** refresh e repete; se falhar → limpa credenciais |
+| Refresh falhou / sem refresh_token | `session expired — run: archgate login` |
+
+Lab (`login --lab`) não usa refresh (token de catálogo local).
+
 
 ## Desktop (Tauri)
 

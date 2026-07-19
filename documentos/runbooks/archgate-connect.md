@@ -39,8 +39,11 @@ archgate login --lab --user edson # homolog (BFF lab bearer)
 
 archgate ls
 archgate ls --json
-archgate status
+archgate status                   # refresh OIDC se access perto de expirar
 archgate doctor
+
+# Sessão SSO: credentials.json guarda refresh_token + expires_at.
+# 401 ou refresh falho → "session expired — run: archgate login"
 
 archgate ssh rio-aws-api-b
 archgate ssh rio-aws-api-b --terminal   # Terminal.app

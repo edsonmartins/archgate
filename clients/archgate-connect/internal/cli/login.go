@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/integrall-tech/archgate/clients/archgate-connect/internal/config"
 	"github.com/integrall-tech/archgate/clients/archgate-connect/internal/oidc"
@@ -43,14 +44,23 @@ func loginLab(user string) error {
 	if err := config.SaveCredentials(c); err != nil {
 		return err
 	}
-	cfg, _ := config.Load()
-	_ = config.Save(cfg)
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	if err := config.Save(cfg); err != nil {
+		return err
+	}
 	if !config.MockMode() {
 		if b, err := loadBootstrap(cfg); err == nil {
 			fmt.Printf("Logged in as %s (lab catalog). Warpgate SSH user: %s · %d connections.\n",
 				user, wgUser, len(b.Connections))
 			fmt.Println("SSH: archgate ssh <target>")
 			fmt.Printf("Note: password is Warpgate user (%s), not the lab catalog nickname.\n", wgUser)
+			return nil
+		} else {
+			fmt.Printf("Logged in as %s (lab). Warpgate SSH user: %s\n", user, wgUser)
+			fmt.Fprintf(os.Stderr, "warn: catalog bootstrap: %v\n", err)
 			return nil
 		}
 	}
@@ -75,24 +85,34 @@ func loginOIDC() error {
 		username = "operator"
 	}
 	creds := &config.Credentials{
-		Username:     username,
-		AccessToken:  tok.AccessToken,
-		RefreshToken: tok.RefreshToken,
+		Username: username,
 		// OIDC: Warpgate user defaults to preferred username; override via env.
 		WarpgateUser: util.Or(strings.TrimSpace(os.Getenv("ARCHGATE_WG_USER")), username),
 	}
+	applyTokenToCreds(creds, tok)
 	if err := config.SaveCredentials(creds); err != nil {
 		return err
 	}
-	cfg, _ := config.Load()
-	_ = config.Save(cfg)
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	if err := config.Save(cfg); err != nil {
+		return err
+	}
 	n := 0
 	if b, err := loadBootstrap(cfg); err == nil {
 		n = len(b.Connections)
 		_ = config.Save(cfg)
+	} else {
+		fmt.Fprintf(os.Stderr, "warn: catalog bootstrap: %v\n", err)
 	}
-	fmt.Printf("Logged in as %s (OIDC). Warpgate user: %s · %d connections.\n",
-		username, creds.WarpgateUser, n)
+	expNote := ""
+	if creds.ExpiresAt > 0 {
+		expNote = fmt.Sprintf(" · token até %s", time.Unix(creds.ExpiresAt, 0).Local().Format(time.RFC3339))
+	}
+	fmt.Printf("Logged in as %s (OIDC). Warpgate user: %s · %d connections%s\n",
+		username, creds.WarpgateUser, n, expNote)
 	return nil
 }
 

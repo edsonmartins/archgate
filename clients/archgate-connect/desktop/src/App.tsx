@@ -16,7 +16,23 @@ type Status = {
   session?: boolean
   auth?: string
   connections?: number
+  token_ok?: boolean
+  need_login?: boolean
+  token_error?: string
+  expires_at?: number
   bastion?: { ssh_host?: string; ssh_port?: number }
+}
+
+function looksLikeNeedLogin(text: string): boolean {
+  const t = text.toLowerCase()
+  return (
+    t.includes('session expired') ||
+    t.includes('need_login') ||
+    t.includes('run: archgate login') ||
+    (t.includes('archgate login') && t.includes('expired')) ||
+    t.includes('unauthorized') ||
+    /\b401\b/.test(t)
+  )
 }
 
 type Notice = {
@@ -96,11 +112,23 @@ export function App() {
         if (next.user) {
           setUser((prev) => (prev.trim() === '' ? next!.user! : prev))
         }
+        if (next.need_login || next.token_ok === false) {
+          setNotice({
+            kind: 'err',
+            text:
+              next.token_error ||
+              'Sessão SSO expirada. Use Login SSO para renovar (refresh falhou ou não há refresh_token).',
+          })
+          setConns([])
+        }
       }
     } else if (st.code !== 0) {
+      const msg = st.stderr || st.stdout || `status falhou (exit ${st.code})`
       setNotice({
         kind: 'err',
-        text: st.stderr || st.stdout || `status falhou (exit ${st.code})`,
+        text: looksLikeNeedLogin(msg)
+          ? `Sessão expirada — faça Login SSO de novo.\n${msg}`
+          : msg,
       })
     }
 
@@ -109,12 +137,17 @@ export function App() {
       setConns(data?.connections || [])
     } else {
       setConns([])
+      const lsMsg = ls.stderr || ls.stdout || `catálogo falhou (exit ${ls.code})`
       if (ls.code !== 0 && st.code === 0) {
-        // Offline / not logged in: ls often fails — don't scream unless we thought we had a session.
-        if (next?.session) {
+        if (next?.need_login || looksLikeNeedLogin(lsMsg)) {
           setNotice({
             kind: 'err',
-            text: ls.stderr || ls.stdout || `catálogo falhou (exit ${ls.code})`,
+            text: `Sessão expirada — faça Login SSO.\n${lsMsg}`,
+          })
+        } else if (next?.session) {
+          setNotice({
+            kind: 'err',
+            text: lsMsg,
           })
         }
       }
@@ -249,19 +282,25 @@ export function App() {
     )
   }, [conns, filter])
 
-  const sessionOn = !!status?.session
+  const sessionOn = !!status?.session && status?.token_ok !== false && !status?.need_login
   const wgUser = status?.warpgate_user || '—'
   const bastionHost = status?.bastion?.ssh_host || '—'
   const bastionPort = status?.bastion?.ssh_port
   const catalogUser = status?.user || '—'
   const authMode = status?.auth || 'none'
   const connCount = status?.connections ?? conns.length
+  const tokenExpiry =
+    status?.expires_at && status.expires_at > 0
+      ? new Date(status.expires_at * 1000).toLocaleString()
+      : null
 
   const pillLabel = !bootstrapped
     ? 'Carregando…'
-    : sessionOn
-      ? `Ativo · ${catalogUser}`
-      : 'Offline'
+    : status?.need_login
+      ? 'Re-login SSO'
+      : sessionOn
+        ? `Ativo · ${catalogUser}`
+        : 'Offline'
 
   return (
     <div className="app">
@@ -326,11 +365,26 @@ export function App() {
                 <span className="k">Conexões</span>
                 <span className="v mono">{connCount}</span>
               </div>
+              {tokenExpiry ? (
+                <div className="session-summary-row">
+                  <span className="k">Token SSO</span>
+                  <span className="v mono">{tokenExpiry}</span>
+                </div>
+              ) : null}
             </div>
           ) : (
             <p className="auth-hint">
-              Sem sessão. Use <strong>Login lab</strong> (homolog) ou{' '}
-              <strong>Login SSO</strong> (Kanidm no browser).
+              {status?.need_login ? (
+                <>
+                  Sessão SSO expirada (refresh falhou). Use <strong>Login SSO</strong> de
+                  novo. Lab só para homolog.
+                </>
+              ) : (
+                <>
+                  Sem sessão. Use <strong>Login lab</strong> (homolog) ou{' '}
+                  <strong>Login SSO</strong> (Kanidm no browser).
+                </>
+              )}
             </p>
           )}
 
