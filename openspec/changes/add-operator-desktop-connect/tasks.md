@@ -47,5 +47,6 @@
 ## 6. Still blocked on org credentials / human
 
 - [x] 6.1 Interactive SSO evidence (`documentos/evidence/2026-07-19-archgate-connect-sso-e2e.md` — testadmin OIDC PASS)
-- [ ] 6.2 Developer ID Application cert + notarytool profile → real notarize
+- [ ] 6.2 Developer ID Application cert + notarytool profile → real notarize (org/Apple only)
 - [x] 6.3 H6 lab-path evidence (`documentos/evidence/2026-07-20-h6-connect-lab-path.md`)
+- [x] 6.4 AWS Warpgate client keys via PEM (72) + PG targets (73) + WG user testadmin

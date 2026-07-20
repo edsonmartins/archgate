@@ -1,46 +1,18 @@
-# ArchGate Connect — residual tracker
+# ArchGate Connect — residual (final)
 
-Atualizado: 2026-07-20 (pós SSO E2E + H6 expanded)
+Atualizado: 2026-07-20 closeout
 
-## Fechado
+## Product = **DONE** for intended lab/homolog scope
 
-| Item | Evidence / artefato |
-|------|---------------------|
-| MVP CLI + desktop | repo `clients/archgate-connect` |
-| SSO browser E2E | `2026-07-19-archgate-connect-sso-e2e.md` **PASS** |
-| H6 lab + expanded | `2026-07-20-h6-connect-lab-path.md`, `2026-07-20-h6-connect-expanded.md` |
-| Token exchange confidential | Basic + secret sync oidc.env |
-| Keychain / Win-Linux docs / tray / scroll / `go` | commits em main |
-| Warpgate SSH targets apply (72) | PASS (targets já existiam) |
-| Package + codesign ad-hoc / Apple Development | `scripts/package-macos.sh` |
+See `2026-07-20-connect-residual-closeout.md`.
 
-## Aberto (não bloqueia lab Connect)
+## Only external gates remain
 
-| ID | Item | Bloqueio |
-|----|------|----------|
-| **R2** | **Notarize oficial** (Gatekeeper terceiros) | Sem **Developer ID Application** (só Apple Development no Mac) |
-| **R3** | H6 “dia operacional” sem VPN cliente | Processo humano / hábito |
-| **R4** | Forti VPS **off** enquanto Mac usa Forti | Correto (XOR); religar quando Mac desconectar |
-| **R5** | Conta serviço Forti/OVPN | Ops |
-| **R6** | authorized_keys AWS via PEM + PG pending apply | Ops (`RIO_AWS_PEM=… ./scripts/72-…`) |
+| Gate | Owner | Action |
+|------|-------|--------|
+| Developer ID + notarize | Apple Developer team | Issue cert → `package-macos.sh --notarize` |
+| Full H6 lifestyle | Operator | Day without FortiClient/`conecta_rq` |
+| Forti service account | Rio / ops | Dedicated connector identity |
+| PG target DB passwords | Ops | Configure secrets in Warpgate for `rio-aws-pg-*` |
 
-## Comandos
-
-```bash
-# SSO
-archgate login
-
-# H6 lab
-archgate login --lab --user YOU
-archgate doctor && archgate ls && archgate config apply
-
-# Package local (Development ID se disponível)
-SIGN_IDENTITY="Apple Development: …" ./scripts/package-macos.sh
-
-# Notarize (quando tiver Developer ID)
-SIGN_IDENTITY="Developer ID Application: …" NOTARY_PROFILE=archgate \
-  ./scripts/package-macos.sh --notarize
-
-# Forti VPS off (Mac usando Forti)
-# remote: systemctl disable --now archgate-connector-forti@rio-forti
-```
+Nothing else is blocking Connect MVP ship for internal operators who install the ad-hoc `.app` or CLI from source.
