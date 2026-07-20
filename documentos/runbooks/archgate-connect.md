@@ -119,4 +119,7 @@ export ARCHGATE_WG_PG_HOST=217.196.60.108
 
 - [Forti Mac XOR VPS](./forti-mac-xor-vps.md) — single-session SSL-VPN  
 - [Checklist H6 migração Rio](./h6-migracao-rio-connect.md)  
+- [Windows / Linux CLI](./archgate-connect-windows-linux.md)  
+- [macOS notarize](./archgate-connect-macos-notarize.md)  
 - Dispatcher: `archgate go <target>` (ssh/db/open pelo catálogo)  
+- Credenciais: keychain OS (`ARCHGATE_KEYCHAIN=file` para JSON)  

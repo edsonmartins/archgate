@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -183,50 +184,47 @@ func Save(f *File) error {
 }
 
 func LoadCredentials() (*Credentials, error) {
-	dir, err := Dir()
-	if err != nil {
-		return nil, err
-	}
-	path := filepath.Join(dir, "credentials.json")
-	b, err := os.ReadFile(path)
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return &Credentials{}, nil
+	// Prefer keychain when enabled; fall back to plaintext file (migration / ARCHGATE_KEYCHAIN=file).
+	if UseKeychain() {
+		if c, err := loadKeychain(); err == nil && c != nil {
+			return c, nil
 		}
-		return nil, err
 	}
-	var c Credentials
-	if err := json.Unmarshal(b, &c); err != nil {
-		return nil, err
-	}
-	return &c, nil
+	return loadFileCredentials()
 }
 
 func SaveCredentials(c *Credentials) error {
-	dir, err := Dir()
-	if err != nil {
-		return err
+	if c == nil {
+		c = &Credentials{}
 	}
-	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return err
+	if UseKeychain() {
+		if err := saveKeychain(c); err != nil {
+			// Fall back to file so login never fails hard on headless/CI.
+			if ferr := saveFileCredentials(c); ferr != nil {
+				return fmt.Errorf("keychain: %w; file: %v", err, ferr)
+			}
+			return nil
+		}
+		// Drop plaintext tokens from disk; leave a pointer file.
+		return writeCredsPointer(c, StorageKeychain)
 	}
-	b, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(filepath.Join(dir, "credentials.json"), b, 0o600)
+	_ = clearKeychain() // best-effort if switching modes
+	return saveFileCredentials(c)
 }
 
 func ClearCredentials() error {
-	dir, err := Dir()
+	var first error
+	if err := clearKeychain(); err != nil && first == nil {
+		first = err
+	}
+	path, err := credentialsPath()
 	if err != nil {
 		return err
 	}
-	path := filepath.Join(dir, "credentials.json")
-	if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
+	if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) && first == nil {
+		first = err
 	}
-	return nil
+	return first
 }
 
 func MockMode() bool {

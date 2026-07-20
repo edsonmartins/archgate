@@ -53,6 +53,7 @@ func cmdStatus(jsonOut bool) error {
 		"session":       logged && tokenOK,
 		"auth":          mode,
 		"token_ok":      tokenOK,
+		"cred_storage":  string(config.StorageBackend()),
 		"bastion": map[string]any{
 			"ssh_host": cfg.Bastion.SSHHost,
 			"ssh_port": cfg.Bastion.SSHPort,
@@ -85,6 +86,7 @@ func cmdStatus(jsonOut bool) error {
 	}
 	fmt.Printf("api_base:     %s\n", cfg.APIBase)
 	fmt.Printf("mock:         %v\n", config.MockMode())
+	fmt.Printf("creds:        %s\n", config.DescribeStorage())
 	fmt.Printf("user:         %s\n", util.Or(cfg.Creds.Username, "(not logged in)"))
 	fmt.Printf("session:      %v (%s)\n", logged && tokenOK, mode)
 	if !tokenOK {

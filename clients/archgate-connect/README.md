@@ -59,16 +59,26 @@ archgate logout
 
 O desktop Tauri **só executa o CLI** — não hardcodeia host/usuário Warpgate.
 
-### Sessão OIDC (refresh)
+### Sessão OIDC (refresh + keychain)
 
 | Evento | Comportamento |
 |--------|----------------|
 | Login SSO | grava `access_token`, `refresh_token`, `expires_at` |
+| Storage | **Keychain** (macOS/Windows/Linux) por default; `ARCHGATE_KEYCHAIN=file` força JSON |
 | `status` / `ls` / bootstrap | se access perto de expirar → **refresh** automático |
 | HTTP 401 do BFF | tenta **um** refresh e repete; se falhar → limpa credenciais |
 | Refresh falhou / sem refresh_token | `session expired — run: archgate login` |
 
 Lab (`login --lab`) não usa refresh (token de catálogo local).
+
+### Multi-OS / packaging
+
+| Doc | Conteúdo |
+|------|----------|
+| [Windows/Linux CLI](../../documentos/runbooks/archgate-connect-windows-linux.md) | build, PATH, terminal/clipboard gaps |
+| [macOS notarize](../../documentos/runbooks/archgate-connect-macos-notarize.md) | Developer ID + notarytool |
+| `./scripts/package-macos.sh [--notarize]` | build + sign (+ optional notary) |
+| `./scripts/smoke-sso-e2e.sh` | `--preflight` / `--interactive` SSO E2E |
 
 
 ## Desktop (Tauri)

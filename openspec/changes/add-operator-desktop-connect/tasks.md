@@ -39,7 +39,12 @@
 ## 5. Residual
 
 - [x] 5.1 System tray icon (menu bar) — hide-on-close + Abrir/Status/Sair
-- [x] 5.2 Codesign ad-hoc via `scripts/package-macos.sh` (Developer ID + notarize residual)
-- [ ] 5.3 SSO browser E2E evidence (humano)
-- [ ] 5.4 Keychain token storage
-- [ ] 5.5 Windows/Linux CLI doc (4.2)
+- [x] 5.2 Codesign ad-hoc via `scripts/package-macos.sh`; notarize pipeline doc + `--notarize` (needs Developer ID)
+- [x] 5.3 SSO E2E: preflight script + interactive harness + evidence template (`smoke-sso-e2e.sh`)
+- [x] 5.4 Keychain token storage (`go-keyring`; `ARCHGATE_KEYCHAIN=file` fallback)
+- [x] 5.5 Windows/Linux CLI doc (`documentos/runbooks/archgate-connect-windows-linux.md`)
+
+## 6. Still blocked on org credentials / human
+
+- [ ] 6.1 Interactive SSO evidence filled by operator (`smoke-sso-e2e.sh --interactive`)
+- [ ] 6.2 Developer ID Application cert + notarytool profile → real notarize

@@ -16,6 +16,7 @@ func TestLoginStatusLogout(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("ARCHGATE_CONFIG_DIR", dir)
 	t.Setenv("ARCHGATE_MOCK", "1")
+	t.Setenv("ARCHGATE_KEYCHAIN", "file")
 	t.Setenv("ARCHGATE_WG_USER", "")
 
 	if err := Execute([]string{"login", "--lab", "--user", "tester"}); err != nil {
