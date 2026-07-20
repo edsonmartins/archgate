@@ -38,8 +38,8 @@
 
 ## 5. Residual
 
-- [ ] 5.1 System tray icon (menu bar)
-- [ ] 5.2 Codesign / notarize .app
+- [x] 5.1 System tray icon (menu bar) — hide-on-close + Abrir/Status/Sair
+- [x] 5.2 Codesign ad-hoc via `scripts/package-macos.sh` (Developer ID + notarize residual)
 - [ ] 5.3 SSO browser E2E evidence (humano)
 - [ ] 5.4 Keychain token storage
 - [ ] 5.5 Windows/Linux CLI doc (4.2)

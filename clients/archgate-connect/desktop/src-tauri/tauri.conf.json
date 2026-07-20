@@ -12,13 +12,15 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "ArchGate Connect",
         "width": 500,
         "height": 780,
         "minWidth": 420,
         "minHeight": 620,
         "resizable": true,
-        "decorations": true
+        "decorations": true,
+        "visible": true
       }
     ],
     "security": {
