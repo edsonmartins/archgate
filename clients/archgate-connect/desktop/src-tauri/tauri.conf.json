@@ -14,10 +14,10 @@
       {
         "label": "main",
         "title": "ArchGate Connect",
-        "width": 500,
-        "height": 780,
-        "minWidth": 420,
-        "minHeight": 620,
+        "width": 1100,
+        "height": 720,
+        "minWidth": 860,
+        "minHeight": 560,
         "resizable": true,
         "decorations": true,
         "visible": true

@@ -70,12 +70,13 @@ Admin continua no archguard-console (ADR-009). Operador **não** recebe IPs inte
 | Auth | OIDC Kanidm (`archgate-connect`) — device code e/ou PKCE browser |
 | Tokens | `~/.config/archgate/` + keychain quando possível |
 
-### 6. Fora do MVP v1
+### 6. Fora do MVP v1 / evolução
 
 - Proxy Oracle `localhost:1521` com senha (usar `/oracle` + lease)
 - NetBird no notebook do dev
 - Auto-update assinado (pós-MVP)
 - Windows/Linux tray parity (macOS first; CLI multi-OS)
+- **Sessões embutidas (RDM-lite)** — ver [ADR-008B](./ADR-008B-connect-sessoes-embutidas.md) (P1; S1 UI multi-aba em andamento)
 
 ## Consequências
 

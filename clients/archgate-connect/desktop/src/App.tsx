@@ -9,6 +9,8 @@ import {
   IconShield,
 } from './icons'
 import { protocolMeta, type Connection } from './protocol'
+import { SessionWorkspace } from './sessions/SessionWorkspace'
+import { newSessionTab, type SessionTab } from './sessions/types'
 
 type Status = {
   user?: string
@@ -70,6 +72,8 @@ export function App() {
   const [pending, setPending] = useState<string | null>(null)
   const [filter, setFilter] = useState('')
   const [bootstrapped, setBootstrapped] = useState(false)
+  const [sessionTabs, setSessionTabs] = useState<SessionTab[]>([])
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
 
   const busy = busyCount > 0
 
@@ -231,6 +235,8 @@ export function App() {
     setNotice({ kind: 'info', text: 'Encerrando sessão…' })
     try {
       const r = await runLogged(['logout'])
+      setSessionTabs([])
+      setActiveSessionId(null)
       await refresh()
       if (r.code === 0) {
         setNotice({ kind: 'ok', text: 'Sessão encerrada. Faça login lab ou SSO para continuar.' })
@@ -246,13 +252,59 @@ export function App() {
     }
   }
 
-  const connect = async (c: Connection) => {
+  /** S1: open RDM tab; external launch remains available from the tab. */
+  const openSessionTab = (c: Connection) => {
+    const existing = sessionTabs.find((t) => t.connection.target === c.target)
+    if (existing) {
+      setActiveSessionId(existing.id)
+      setNotice({ kind: 'info', text: `Aba já aberta: ${c.target}` })
+      return
+    }
+    if (sessionTabs.length >= 8) {
+      setNotice({ kind: 'err', text: 'Limite de 8 sessões — feche uma aba antes de abrir outra.' })
+      return
+    }
+    const tab = newSessionTab(c)
+    setSessionTabs((prev) => [...prev, tab])
+    setActiveSessionId(tab.id)
+    setNotice({
+      kind: 'ok',
+      text: `Sessão «${c.target}» aberta. Embutido SSH/RDP em desenvolvimento — use “Abrir externo” se precisar agora.`,
+    })
+  }
+
+  const closeSessionTab = (id: string) => {
+    setSessionTabs((prev) => {
+      const next = prev.filter((t) => t.id !== id)
+      if (activeSessionId === id) {
+        setActiveSessionId(next.length ? next[next.length - 1].id : null)
+      }
+      return next
+    })
+  }
+
+  const launchExternal = async (tab: SessionTab) => {
+    const c = tab.connection
     const meta = protocolMeta(c.protocol)
     setPending(`connect:${c.target}`)
-    setNotice({ kind: 'info', text: `Abrindo ${meta.actionLabel} · ${c.target}…` })
+    setNotice({ kind: 'info', text: `Externo: ${meta.actionLabel} · ${c.target}…` })
     setShowLog(true)
     try {
       const r = await runLogged(meta.cliArgs(c))
+      setSessionTabs((prev) =>
+        prev.map((t) =>
+          t.id === tab.id
+            ? {
+                ...t,
+                state: r.code === 0 ? 'external' : 'error',
+                note:
+                  r.code === 0
+                    ? 'Sessão externa lançada (Terminal/browser). Embutido chega em S2.'
+                    : r.stderr || r.stdout || 'Falha ao abrir externo',
+              }
+            : t,
+        ),
+      )
       if (r.code !== 0) {
         setNotice({
           kind: 'err',
@@ -262,7 +314,7 @@ export function App() {
       }
       setNotice({
         kind: 'ok',
-        text: `${meta.actionLabel} · ${c.target} — comando enviado (veja o console se precisar da linha SSH).`,
+        text: `${meta.actionLabel} · ${c.target} — externo enviado.`,
       })
     } finally {
       setPending(null)
@@ -303,7 +355,7 @@ export function App() {
         : 'Offline'
 
   return (
-    <div className="app">
+    <div className="app app-rdm">
       <div className={`busy-bar ${busy ? 'on' : ''}`} aria-hidden />
 
       <header className="topbar">
@@ -313,7 +365,7 @@ export function App() {
           </div>
           <div className="brand-text">
             <h1>ArchGate Connect</h1>
-            <p className="subtitle">Bastion access · sem VPN no notebook</p>
+            <p className="subtitle">Bastion · sessões embutidas (RDM-lite)</p>
           </div>
         </div>
         <div
@@ -326,8 +378,9 @@ export function App() {
         </div>
       </header>
 
-      <main className="main">
-        {/* Callout only when offline — frees vertical space for the connection list when logged in */}
+      <div className="rdm-body">
+      <aside className="rdm-sidebar">
+      <main className="main main-sidebar">
         {!sessionOn ? (
           <div className="callout">
             <div className="callout-icon">
@@ -556,10 +609,8 @@ export function App() {
                 ? 'Nenhuma conexão neste filtro.'
                 : 'Faça Lab (homolog) ou SSO (Kanidm) para carregar o catálogo.'}
               <div className="hint">
-                Botão Connect chama <code>archgate go</code> (CLI decide SSH/DB/Open).
-                Campo = nickname do catálogo lab; SSH = Warpgate{' '}
-                <strong>{wgUser}</strong>
-                {sessionOn ? '' : ' (lab default: uat-op-a)'}.
+                Connect abre aba de sessão (RDM-lite). SSH/RDP embutidos em S2;
+                use “Abrir externo” na aba. Warpgate: <strong>{wgUser}</strong>.
               </div>
             </div>
           ) : (
@@ -585,10 +636,10 @@ export function App() {
                     <button
                       className={`btn btn-sm btn-action ${meta.actionBtn}`}
                       disabled={busy}
-                      onClick={() => void connect(c)}
-                      aria-label={`${meta.actionLabel} ${c.target}`}
+                      onClick={() => openSessionTab(c)}
+                      aria-label={`Connect ${c.target}`}
                     >
-                      {isConnecting ? '…' : meta.actionLabel}
+                      {isConnecting ? '…' : 'Connect'}
                     </button>
                   </li>
                 )
@@ -597,6 +648,19 @@ export function App() {
           )}
         </section>
       </main>
+      </aside>
+
+      <section className="rdm-workspace">
+        <SessionWorkspace
+          tabs={sessionTabs}
+          activeId={activeSessionId}
+          onSelect={setActiveSessionId}
+          onClose={closeSessionTab}
+          onExternal={(tab) => void launchExternal(tab)}
+          busy={busy}
+        />
+      </section>
+      </div>
 
       <div className="log-panel">
         <button

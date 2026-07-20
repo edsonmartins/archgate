@@ -87,6 +87,228 @@ button {
     linear-gradient(180deg, var(--bg-base) 0%, var(--bg-void) 100%);
 }
 
+/* RDM-lite body: catalog sidebar + session workspace */
+.rdm-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.rdm-sidebar {
+  width: min(360px, 38vw);
+  min-width: 280px;
+  max-width: 420px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--line);
+  background: rgba(7, 11, 18, 0.45);
+}
+
+.rdm-sidebar .main {
+  max-width: none;
+  margin: 0;
+  flex: 1;
+  min-height: 0;
+}
+
+.rdm-workspace {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.session-workspace {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: rgba(5, 7, 12, 0.35);
+}
+
+.session-workspace.empty {
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.session-empty {
+  max-width: 420px;
+  text-align: center;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.session-empty h2 {
+  margin: 0 0 10px;
+  color: var(--ink);
+  font-size: 1.1rem;
+}
+
+.session-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  padding: 8px 10px 0;
+  overflow-x: auto;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--line);
+  background: rgba(10, 14, 23, 0.75);
+}
+
+.session-tab {
+  display: inline-flex;
+  align-items: center;
+  max-width: 200px;
+  border: 1px solid var(--line);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: rgba(16, 22, 35, 0.9);
+}
+
+.session-tab.active {
+  background: rgba(26, 36, 56, 0.95);
+  border-color: var(--line-strong);
+  box-shadow: 0 -1px 0 var(--signal) inset;
+}
+
+.session-tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  padding: 8px 6px 8px 10px;
+  cursor: pointer;
+  min-width: 0;
+  font-size: 0.78rem;
+}
+
+.tab-badge {
+  flex-shrink: 0;
+  font-size: 0.58rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: var(--bg-active);
+  color: var(--ink-2);
+}
+
+.tab-badge.kind-ssh {
+  color: var(--gate);
+  background: var(--gate-dim);
+}
+
+.tab-badge.kind-guac {
+  color: var(--violet);
+  background: var(--violet-dim);
+}
+
+.tab-badge.kind-db {
+  color: var(--amber);
+  background: var(--amber-dim);
+}
+
+.tab-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-tab-close {
+  border: 0;
+  background: transparent;
+  color: var(--ink-3);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.session-tab-close:hover {
+  color: var(--err);
+}
+
+.session-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.session-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.session-chrome-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.session-chrome-meta .dim {
+  font-size: 0.72rem;
+  color: var(--ink-3);
+  font-family: var(--mono);
+}
+
+.session-chrome-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.session-surface {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(56, 189, 248, 0.06), transparent 60%),
+    #05080f;
+}
+
+.session-placeholder {
+  max-width: 440px;
+  text-align: center;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.session-placeholder-title {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.session-placeholder .hint {
+  font-size: 0.75rem;
+  color: var(--ink-4);
+  margin: 12px 0 16px;
+}
+
+.session-placeholder .btn {
+  margin: 0 auto;
+}
+
 .app::before {
   content: '';
   pointer-events: none;
