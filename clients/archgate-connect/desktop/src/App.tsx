@@ -327,17 +327,20 @@ export function App() {
       </header>
 
       <main className="main">
-        <div className="callout">
-          <div className="callout-icon">
-            <IconShield />
+        {/* Callout only when offline — frees vertical space for the connection list when logged in */}
+        {!sessionOn ? (
+          <div className="callout">
+            <div className="callout-icon">
+              <IconShield />
+            </div>
+            <div className="callout-body">
+              <strong>Bastion, not VPN.</strong> O acesso privilegiado passa pelo
+              ArchGate (Warpgate). Forti/OpenVPN ficam no VPS — não no seu Mac.
+            </div>
           </div>
-          <div className="callout-body">
-            <strong>Bastion, not VPN.</strong> O acesso privilegiado passa pelo
-            ArchGate (Warpgate). Forti/OpenVPN ficam no VPS — não no seu Mac.
-          </div>
-        </div>
+        ) : null}
 
-        <section className="panel">
+        <section className="panel panel-identity">
           <h3 className="panel-label">Identidade</h3>
 
           {sessionOn ? (
