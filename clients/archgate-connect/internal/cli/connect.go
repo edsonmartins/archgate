@@ -249,6 +249,10 @@ func cmdDB(args []string, jsonOut bool) error {
 	if err != nil {
 		return err
 	}
+	if act := classifyConn(conn); act != actionDB {
+		return fmt.Errorf("target %s is %s/%s — use: archgate go %s (or archgate %s %s)",
+			target, conn.Engine, conn.Protocol, target, act, target)
+	}
 	user, err := resolveWarpgateUser(cfg)
 	if err != nil {
 		return err
