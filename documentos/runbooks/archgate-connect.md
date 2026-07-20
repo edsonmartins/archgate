@@ -114,3 +114,9 @@ export ARCHGATE_WG_PG_HOST=217.196.60.108
 - VPN do cliente + Connect “por precaução”  
 - PEM de EC2 no app  
 - Pedir full-tunnel L3 no notebook  
+
+## Relacionados
+
+- [Forti Mac XOR VPS](./forti-mac-xor-vps.md) — single-session SSL-VPN  
+- [Checklist H6 migração Rio](./h6-migracao-rio-connect.md)  
+- Dispatcher: `archgate go <target>` (ssh/db/open pelo catálogo)  

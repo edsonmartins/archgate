@@ -404,16 +404,18 @@ export function App() {
               disabled={busy}
               onClick={() => void loginLab()}
               aria-busy={pending === 'lab'}
+              title="Homologação: token lab local + catálogo BFF (não é identidade corporativa)"
             >
-              {pending === 'lab' ? 'Entrando…' : 'Login lab'}
+              {pending === 'lab' ? 'Entrando…' : 'Lab (homolog)'}
             </button>
             <button
               className="btn btn-primary"
               disabled={busy}
               onClick={() => void loginOidc()}
               aria-busy={pending === 'sso'}
+              title="Produção: Kanidm OIDC no browser (refresh automático)"
             >
-              {pending === 'sso' ? 'Aguardando SSO…' : 'Login SSO'}
+              {pending === 'sso' ? 'Aguardando SSO…' : 'SSO (Kanidm)'}
             </button>
           </div>
           <div className="tool-row">
@@ -549,11 +551,12 @@ export function App() {
               </div>
               {sessionOn
                 ? 'Nenhuma conexão neste filtro.'
-                : 'Faça login lab ou SSO para carregar o catálogo.'}
+                : 'Faça Lab (homolog) ou SSO (Kanidm) para carregar o catálogo.'}
               <div className="hint">
-                O campo acima é só o <em>nickname do catálogo lab</em>. SSH usa o
-                usuário Warpgate <strong>{wgUser}</strong>
-                {sessionOn ? '' : ' (definido no login lab, default uat-op-a)'}.
+                Botão Connect chama <code>archgate go</code> (CLI decide SSH/DB/Open).
+                Campo = nickname do catálogo lab; SSH = Warpgate{' '}
+                <strong>{wgUser}</strong>
+                {sessionOn ? '' : ' (lab default: uat-op-a)'}.
               </div>
             </div>
           ) : (

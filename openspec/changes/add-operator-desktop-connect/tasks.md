@@ -32,3 +32,14 @@
 - [x] 4.1 Smoke mock CLI: `archgate-devops/scripts/68-smoke-archgate-connect.sh` PASS
 - [ ] 4.2 Doc Windows/Linux CLI best-effort
 - [x] 4.3 OIDC preflight + bootstrap live lab: `clients/archgate-connect/scripts/smoke-h4-h5.sh` + evidence `documentos/evidence/2026-07-19-archgate-connect-h4-h5.md` (SSO browser interativo residual)
+- [x] 4.4 OIDC refresh + re-login on 401 (`internal/cli/session.go`)
+- [x] 4.5 Dispatcher `archgate go` / `connect` (UI usa go; policy no CLI)
+- [x] 4.6 Runbook Forti Mac XOR VPS + checklist H6
+
+## 5. Residual
+
+- [ ] 5.1 System tray icon (menu bar)
+- [ ] 5.2 Codesign / notarize .app
+- [ ] 5.3 SSO browser E2E evidence (humano)
+- [ ] 5.4 Keychain token storage
+- [ ] 5.5 Windows/Linux CLI doc (4.2)

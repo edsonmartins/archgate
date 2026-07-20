@@ -34,10 +34,11 @@ archgate ls --json             # para UI / scripts
 archgate status --json         # inclui warpgate_user + bastion
 
 archgate print-ssh rio-aws-api-b
-archgate ssh rio-aws-api-b
-archgate ssh rio-aws-api-b --terminal   # Terminal.app
+archgate go rio-aws-api-b --terminal    # dispatcher (ssh/db/open)
+archgate ssh rio-aws-api-b              # só SSH
+archgate ssh rio-aws-api-b --terminal
 
-archgate db rio-lab-postgres
+archgate db rio-lab-postgres --clipboard
 archgate open rio-oracle-prod           # console /oracle
 
 archgate config apply          # Hosts em ~/.ssh/config.d/archgate
@@ -46,6 +47,7 @@ ssh archgate-rio-aws-api-b
 archgate doctor
 archgate logout
 ```
+
 
 ### Identidade SSH (única fonte)
 

@@ -1,4 +1,4 @@
-/** Single protocol policy for the desktop UI (badge, accent, action, CLI args). */
+/** Presentation metadata for connections. Routing is owned by CLI `archgate go`. */
 
 export type Connection = {
   id: string
@@ -20,72 +20,36 @@ export type ProtocolMeta = {
   protoCls: string
   actionLabel: string
   actionBtn: string
-  /** CLI args to run for this connection (no program name). */
+  /** Always dispatch via CLI go (catalog decides ssh/db/open). */
   cliArgs: (c: Connection) => string[]
 }
 
-const SSH: ProtocolMeta = {
-  kind: 'ssh',
-  badge: 'SSH',
-  iconCls: 'ssh',
-  protoCls: 'proto-ssh',
-  actionLabel: 'SSH',
-  actionBtn: 'btn-ssh',
-  cliArgs: (c) => {
-    if (c.engine === 'guacamole') return ['open', c.target]
-    return ['ssh', c.target, '--terminal']
-  },
+function base(
+  kind: ProtocolKind,
+  badge: string,
+  iconCls: string,
+  protoCls: string,
+  actionLabel: string,
+  actionBtn: string,
+): ProtocolMeta {
+  return {
+    kind,
+    badge,
+    iconCls,
+    protoCls,
+    actionLabel,
+    actionBtn,
+    // Desktop always wants terminal for SSH; go ignores --terminal for non-ssh.
+    cliArgs: (c) => ['go', c.target, '--terminal', '--clipboard'],
+  }
 }
 
-const PG: ProtocolMeta = {
-  kind: 'postgres',
-  badge: 'PG',
-  iconCls: 'postgres',
-  protoCls: 'proto-postgres',
-  actionLabel: 'DB',
-  actionBtn: 'btn-db',
-  cliArgs: (c) => ['db', c.target],
-}
-
-const MYSQL: ProtocolMeta = {
-  kind: 'mysql',
-  badge: 'SQL',
-  iconCls: 'mysql',
-  protoCls: 'proto-mysql',
-  actionLabel: 'DB',
-  actionBtn: 'btn-db',
-  cliArgs: (c) => ['db', c.target],
-}
-
-const ORACLE: ProtocolMeta = {
-  kind: 'oracle',
-  badge: 'ORA',
-  iconCls: 'oracle',
-  protoCls: 'proto-oracle',
-  actionLabel: 'Open',
-  actionBtn: 'btn-open',
-  cliArgs: (c) => ['open', c.target],
-}
-
-const HTTP: ProtocolMeta = {
-  kind: 'http',
-  badge: 'WEB',
-  iconCls: 'http',
-  protoCls: 'proto-http',
-  actionLabel: 'Open',
-  actionBtn: 'btn-open',
-  cliArgs: (c) => ['open', c.target],
-}
-
-const OTHER: ProtocolMeta = {
-  kind: 'other',
-  badge: '?',
-  iconCls: 'other',
-  protoCls: 'proto-other',
-  actionLabel: 'Open',
-  actionBtn: 'btn-open',
-  cliArgs: (c) => ['open', c.target],
-}
+const SSH = base('ssh', 'SSH', 'ssh', 'proto-ssh', 'SSH', 'btn-ssh')
+const PG = base('postgres', 'PG', 'postgres', 'proto-postgres', 'DB', 'btn-db')
+const MYSQL = base('mysql', 'SQL', 'mysql', 'proto-mysql', 'DB', 'btn-db')
+const ORACLE = base('oracle', 'ORA', 'oracle', 'proto-oracle', 'Open', 'btn-open')
+const HTTP = base('http', 'WEB', 'http', 'proto-http', 'Open', 'btn-open')
+const OTHER = base('other', '?', 'other', 'proto-other', 'Open', 'btn-open')
 
 export function protocolMeta(protocol: string): ProtocolMeta {
   const p = (protocol || '').toLowerCase()

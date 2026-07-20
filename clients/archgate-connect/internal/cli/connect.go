@@ -14,6 +14,92 @@ import (
 	"github.com/integrall-tech/archgate/clients/archgate-connect/internal/util"
 )
 
+// dispatchAction is the canonical connect action for a catalog entry.
+type dispatchAction string
+
+const (
+	actionSSH  dispatchAction = "ssh"
+	actionDB   dispatchAction = "db"
+	actionOpen dispatchAction = "open"
+)
+
+// classifyConn chooses ssh | db | open from protocol/engine (single policy).
+func classifyConn(conn *api.Connection) dispatchAction {
+	if conn == nil {
+		return actionOpen
+	}
+	p := strings.ToLower(conn.Protocol)
+	e := strings.ToLower(conn.Engine)
+	t := strings.ToLower(conn.Target)
+	if e == "guacamole" || p == "http" || p == "https" || p == "oracle" || strings.Contains(t, "oracle") {
+		return actionOpen
+	}
+	if p == "postgres" || p == "postgresql" || p == "mysql" {
+		return actionDB
+	}
+	if p == "ssh" || e == "warpgate" {
+		return actionSSH
+	}
+	return actionOpen
+}
+
+// cmdGo is the canonical dispatcher: open / db / ssh based on catalog.
+// Flags: --terminal (SSH), --clipboard (DB copy psql line).
+func cmdGo(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: archgate go <target> [--terminal] [--clipboard]")
+	}
+	target := args[0]
+	terminal := false
+	clipboard := false
+	rest := []string{}
+	for i := 1; i < len(args); i++ {
+		switch args[i] {
+		case "--terminal", "-t":
+			terminal = true
+		case "--clipboard", "--copy", "-c":
+			clipboard = true
+		case "--":
+			rest = append(rest, args[i+1:]...)
+			i = len(args)
+		default:
+			rest = append(rest, args[i])
+		}
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	b, err := loadBootstrap(cfg)
+	if err != nil {
+		return err
+	}
+	conn, err := findConn(b.Connections, target)
+	if err != nil {
+		return err
+	}
+	switch classifyConn(conn) {
+	case actionOpen:
+		return cmdOpen([]string{conn.Target})
+	case actionDB:
+		dbArgs := []string{conn.Target}
+		if clipboard {
+			dbArgs = append(dbArgs, "--clipboard")
+		}
+		return cmdDB(dbArgs, false)
+	default:
+		sshArgs := []string{conn.Target}
+		if terminal {
+			sshArgs = append(sshArgs, "--terminal")
+		}
+		if len(rest) > 0 {
+			sshArgs = append(sshArgs, "--")
+			sshArgs = append(sshArgs, rest...)
+		}
+		return cmdSSH(sshArgs)
+	}
+}
+
 func cmdPrintSSH(args []string, jsonOut bool) error {
 	if len(args) < 1 {
 		return fmt.Errorf("usage: archgate print-ssh <target>")
@@ -21,6 +107,9 @@ func cmdPrintSSH(args []string, jsonOut bool) error {
 	cfg, conn, user, err := resolveSSH(args[0])
 	if err != nil {
 		return err
+	}
+	if classifyConn(conn) != actionSSH {
+		return fmt.Errorf("target %s is %s/%s — not SSH (use: archgate go %s)", conn.Target, conn.Engine, conn.Protocol, conn.Target)
 	}
 	proxyUser := fmt.Sprintf("%s:%s", user, conn.Target)
 	cmd := fmt.Sprintf("ssh -p %d -o StrictHostKeyChecking=accept-new '%s@%s'",
@@ -41,6 +130,9 @@ func cmdPrintSSH(args []string, jsonOut bool) error {
 }
 
 func resolveSSH(target string) (*config.File, *api.Connection, string, error) {
+	if !util.TargetSafe(target) {
+		return nil, nil, "", fmt.Errorf("invalid target %q (use letters, digits, ._- only)", target)
+	}
 	cfg, err := config.Load()
 	if err != nil {
 		return nil, nil, "", err
@@ -65,9 +157,6 @@ func cmdSSH(args []string) error {
 		return fmt.Errorf("usage: archgate ssh <target> [--terminal]")
 	}
 	target := args[0]
-	if !util.TargetSafe(target) {
-		return fmt.Errorf("invalid target %q (use letters, digits, ._- only)", target)
-	}
 	terminal := false
 	extra := []string{}
 	for i := 1; i < len(args); i++ {
@@ -85,11 +174,9 @@ func cmdSSH(args []string) error {
 	if err != nil {
 		return err
 	}
-	if conn.Engine == "guacamole" || conn.Protocol == "oracle" || strings.Contains(strings.ToLower(conn.Target), "oracle") {
-		return fmt.Errorf("target %s is %s/%s — use: archgate open %s", target, conn.Engine, conn.Protocol, target)
-	}
-	if conn.Protocol == "postgres" || conn.Protocol == "mysql" {
-		return fmt.Errorf("target %s is database — use: archgate db %s", target, target)
+	if act := classifyConn(conn); act != actionSSH {
+		return fmt.Errorf("target %s is %s/%s — use: archgate go %s (or archgate %s %s)",
+			target, conn.Engine, conn.Protocol, target, act, target)
 	}
 	proxyUser := fmt.Sprintf("%s:%s", user, conn.Target)
 	sshArgs := []string{
@@ -138,9 +225,18 @@ end tell`, sshLine)
 
 func cmdDB(args []string, jsonOut bool) error {
 	if len(args) < 1 {
-		return fmt.Errorf("usage: archgate db <target>")
+		return fmt.Errorf("usage: archgate db <target> [--clipboard]")
 	}
 	target := args[0]
+	clipboard := false
+	for _, a := range args[1:] {
+		if a == "--clipboard" || a == "--copy" || a == "-c" {
+			clipboard = true
+		}
+	}
+	if !util.TargetSafe(target) {
+		return fmt.Errorf("invalid target %q (use letters, digits, ._- only)", target)
+	}
 	cfg, err := config.Load()
 	if err != nil {
 		return err
@@ -179,6 +275,13 @@ func cmdDB(args []string, jsonOut bool) error {
 	fmt.Printf("  Password: <credencial do operador no Warpgate>\n")
 	fmt.Printf("  SSL:      require\n")
 	fmt.Printf("\n%s\n", psql)
+	if clipboard {
+		if err := util.CopyClipboard(psql + "\n"); err != nil {
+			fmt.Fprintf(os.Stderr, "warn: clipboard: %v\n", err)
+		} else {
+			fmt.Println("(copiado para o clipboard)")
+		}
+	}
 	return nil
 }
 

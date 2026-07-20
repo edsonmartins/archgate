@@ -173,7 +173,7 @@
 | **H3** | Tray Tauri MVP (login + lista + connect) | `code` | archgate desktop | Janela MVP abre SSH/open (system tray residual) |
 | **H4** | OIDC client `archgate-connect` Kanidm | `ops`+`code` | devops + kanidm | **preflight PASS** 2026-07-19 (SSO browser residual) |
 | **H5** | Smoke macOS lab sem VPN cliente | `uat` | devops | **PASS** evidence `documentos/evidence/2026-07-19-archgate-connect-h4-h5.md` |
-| **H6** | Migração Rio: Connect substitui `conecta_rq`/OVPN diário | `uat` | — | checklist runbook (aberto) |
+| **H6** | Migração Rio: Connect substitui `conecta_rq`/OVPN diário | `uat` | — | checklist em `runbooks/h6-migracao-rio-connect.md` (adoção por operador) |
 
 **Critério de saída H:** dev macOS opera targets lab (e Rio se peer up) **só** com Connect + SSO; sem Forti/OpenVPN do cliente no happy path.
 

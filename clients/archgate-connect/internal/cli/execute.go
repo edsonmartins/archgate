@@ -53,7 +53,12 @@ func Execute(args []string) error {
 		return cmdLs(jsonOut)
 	case "doctor":
 		return cmdDoctor(jsonOut)
-	case "ssh", "connect":
+	case "go":
+		return cmdGo(rest)
+	case "connect":
+		// Canonical dispatcher (was ssh-only alias).
+		return cmdGo(rest)
+	case "ssh":
 		return cmdSSH(rest)
 	case "db":
 		return cmdDB(rest, jsonOut)
@@ -80,11 +85,14 @@ Uso:
   archgate status | whoami
   archgate ls [--json]
   archgate doctor [--json]
-  archgate ssh <target>          SSH via Warpgate (interativo)
-  archgate ssh <target> --terminal   Abre Terminal.app (macOS) / xterm
-  archgate connect <target>      Alias de ssh
+  archgate go <target>           Dispatcher: ssh | db | open (pelo catálogo)
+  archgate go <t> --terminal     SSH em Terminal.app / xterm
+  archgate go <t> --clipboard    DB: copia linha psql
+  archgate connect <target>      Alias de go
+  archgate ssh <target>          Só SSH Warpgate (interativo)
+  archgate ssh <target> --terminal
   archgate print-ssh <target>    Só imprime o comando ssh
-  archgate db <target> [--json]  Snippet Postgres/DBeaver via bastion
+  archgate db <target> [--clipboard] [--json]
   archgate open <target>         Browser (Guac / Oracle UI / HTTP)
   archgate config apply|remove   ~/.ssh/config.d/archgate
   archgate version
@@ -95,6 +103,9 @@ Flags globais:
 Identidade SSH:
   Warpgate user = ARCHGATE_WG_USER ou credentials.warpgate_user
   (login --lab grava warpgate_user; default lab: uat-op-a)
+
+OIDC:
+  access perto de expirar → refresh automático; falha → archgate login
 
 Config:
   ~/.config/archgate/oidc.env    OIDC client secret (auto-load)
