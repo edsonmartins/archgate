@@ -116,7 +116,7 @@ Legenda de status:
 | Connector openfortivpn E2E real | **Pendente** | 1º site real Forti |
 | NetBird control plane self-hosted | **Pendente** | mesh completo |
 | Inventário clientes reais por stack | **Parcial** | YAML + admin `/sites` (SoT **Postgres**; seed/sync populam) |
-| Control plane admin (estilo AWS) | **Lab complete (CP-0…7)** | **ADR-009**; orquestração full pessoas = Fase 4 |
+| Control plane admin / **ArchGate Manager** (estilo AWS) | **Lab complete (CP-0…7)** | **ADR-009** + **ADR-009A** (nome produto); orquestração full pessoas = Fase 4 |
 | Aceite piloto lab (definição formal) | **Checklist** | `documentos/runbooks/ACEITE-PILOTO-LAB.md` |
 | Módulo Plataforma (saúde stack) | **Feito (lab)** | `/platform` — probes Kanidm/Bao/WG/Guac/Axis/connector + endpoints + runbooks |
 | Sites SoT PostgreSQL | **Feito (lab)** | `CONSOLE_DATABASE_URL` → DB `archguard_console`; fallback SQLite |

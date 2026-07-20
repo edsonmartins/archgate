@@ -1,15 +1,17 @@
-# Admin visual — Control Plane ArchGate (estilo AWS Console)
+# Admin visual — ArchGate Manager (estilo AWS Console)
 
-> **ADR-009** — um console para configurar a plataforma (não só identidade).
+> **ADR-009 / ADR-009A** — **ArchGate Manager**: console para configurar a plataforma (não só identidade).  
+> Operador abre sessão no **Connect** / UnifiedUI — não aqui.
 
 ## Onde
 
 | | |
 |--|--|
 | URL base | `https://console.archgate.com.br` |
-| Branding | **ArchGate Control Plane** (sidebar) |
-| Código | `archguard-console` (repo ArchGuard) |
-| Persistência sites | SQLite (`sites`) — inventário, **sem** senhas de VPN |
+| Produto | **ArchGate Manager** |
+| Branding | Sidebar / title: ArchGate Manager |
+| Código | `archguard-console` (repo ArchGuard; OIDC client legado `archguard-console`) |
+| Persistência sites | SQLite/Postgres (`sites`) — inventário, **sem** senhas de VPN |
 
 ### Módulos (navegação)
 
@@ -22,7 +24,7 @@
 | **Mentors Axis** | `/integrations/mentors-axis` | Sync proprietários → sites (CP-7) |
 | Site → Warpgate | botão **Sincronizar Warpgate** | Materializa targets no bastion |
 
-## Roadmap control plane (ADR-009)
+## Roadmap Manager / control plane (ADR-009)
 
 | Fase | Conteúdo | Status |
 |------|----------|--------|

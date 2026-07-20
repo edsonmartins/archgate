@@ -2,7 +2,8 @@
 
 - **Status:** Aceito (direção de produto)
 - **Data:** 2026-07-11
-- **Relacionado:** ADR-005 (ArchGate), ADR-006 (frontend), ADR-008 (operador), UnifiedUI (Fase 4)
+- **Atualizado:** 2026-07-20 — nome de produto **ArchGate Manager** ([ADR-009A](./ADR-009A-archgate-manager-produto.md))
+- **Relacionado:** ADR-005 (ArchGate), ADR-006 (frontend), ADR-008 (operador), UnifiedUI (Fase 4), [ADR-009A](./ADR-009A-archgate-manager-produto.md)
 
 ## Contexto
 
@@ -21,9 +22,9 @@ O operador e o admin de plataforma **precisam** de um único painel — análogo
 
 ## Decisão
 
-### 1. Console único de **admin de plataforma** = ArchGuard Console evoluído
+### 1. Console único de **admin de plataforma** = **ArchGate Manager**
 
-Reutilizar o console em `console.archgate.com.br` (auth OIDC, RBAC, proxy server-side, UI Shadcn) como **ArchGate Control Plane**, com navegação em módulos (como “serviços” na AWS):
+Reutilizar o console em `console.archgate.com.br` (auth OIDC, RBAC, proxy server-side, UI Shadcn) como **ArchGate Manager** (control plane; ver [ADR-009A](./ADR-009A-archgate-manager-produto.md)), com navegação em módulos (como “serviços” na AWS):
 
 | Módulo | Escopo |
 |--------|--------|
@@ -35,14 +36,15 @@ Reutilizar o console em `console.archgate.com.br` (auth OIDC, RBAC, proxy server
 
 UIs stock Warpgate/Guacamole/OpenBao **permanecem** como “console avançado do componente” (como usar a API AWS diretamente), **não** como fluxo principal de configuração.
 
-### 2. UnifiedUI (Fase 4) ≠ Control Plane
+### 2. UnifiedUI / Connect ≠ Manager
 
 | Superfície | Público | Função |
 |------------|---------|--------|
-| **Control Plane (este ADR)** | Super Admin / Tenant Admin | Configurar clientes, identidade, gateways |
-| **UnifiedUI** | Operador | Abrir sessão RDP/SSH no browser, catálogo “minhas conexões” |
+| **ArchGate Manager** (este ADR) | Super Admin / Tenant Admin | Configurar clientes, identidade, gateways |
+| **ArchGate Connect** | Operador (desktop) | Sessões embutidas (ADR-008A/B) |
+| **UnifiedUI** | Operador (browser) | Abrir sessão RDP/SSH no browser, catálogo “minhas conexões” |
 
-Não bloquear o control plane à UnifiedUI.
+Não bloquear o Manager à UnifiedUI/Connect.
 
 ### 3. Padrão de segurança (inalterado)
 
@@ -85,11 +87,11 @@ Apply no gateway: botão **“Sincronizar gateways”** materializa targets **Wa
 
 **+** Um lugar para o time configurar clientes como na AWS.  
 **+** Reaproveita auth/RBAC/deploy do console.  
-**−** O console deixa de ser “só identidade” — documentar o product split ArchGuard módulo vs ArchGate control plane.  
+**−** O console deixa de ser “só identidade” — product split: **ArchGuard** (módulo) vs **ArchGate Manager** (produto admin).  
 **−** Integrações gateway exigem secrets no serviço console (Swarm env).  
 
 ## Fora de escopo deste ADR
 
 - Inferência agêntica, HA de componentes (Fase 5).  
 - Substituir Kanidm UI interna; substituir gravação de sessão.  
-- Operador abrindo RDP no control plane (isso é UnifiedUI).
+- Operador abrindo RDP no Manager (isso é UnifiedUI / Connect).
