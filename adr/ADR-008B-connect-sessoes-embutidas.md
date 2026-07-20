@@ -39,3 +39,14 @@ O operador pede experiência tipo **Remote Desktop Manager**: várias sessões *
 ## Aceite
 
 Ver OpenSpec `add-connect-embedded-sessions` e plano de implementação S0–S4.
+
+## Status de implementação
+
+| Fase | Conteúdo | Estado |
+|------|----------|--------|
+| S0 | ADR-008B + OpenSpec | Feito |
+| S1 | UI multi-aba + fallback externo | Feito |
+| S2a | SSH embutido (xterm + PTY + `ssh -tt` Warpgate) | Feito (MVP) |
+| S2b | Guacamole RDP embutido | Pendente |
+| S3 | Auth polish (agent/key, sem persistir senha) | Pendente |
+| S4 | DB/psql embutido / polish | Pendente |

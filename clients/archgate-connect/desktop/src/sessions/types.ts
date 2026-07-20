@@ -4,10 +4,11 @@ export type SessionKind = 'ssh' | 'guac' | 'db' | 'web'
 
 export type SessionState =
   | 'idle'
-  | 'placeholder' // S1: UI ready, embedded backend not yet wired
+  | 'placeholder' // non-SSH kinds until Guac/DB embed
   | 'connecting'
   | 'connected'
   | 'error'
+  | 'closed'
   | 'external'
 
 export type SessionTab = {
@@ -48,12 +49,12 @@ export function newSessionTab(c: Connection): SessionTab {
     id: `${c.target}-${Date.now()}`,
     connection: c,
     kind,
-    state: 'placeholder',
+    state: kind === 'ssh' ? 'connecting' : 'placeholder',
     note:
       kind === 'ssh'
-        ? 'Sessão embutida SSH (S2) — use “Externo” para Terminal.app por enquanto.'
+        ? 'Abrindo terminal SSH embutido via Warpgate…'
         : kind === 'guac'
-          ? 'Sessão embutida Guac/RDP (S2) — use “Externo” para o browser por enquanto.'
+          ? 'Sessão embutida Guac/RDP (S2b) — use “Externo” para o browser por enquanto.'
           : kind === 'db'
             ? 'DB embutido depois — use “Externo” para copiar/abrir psql.'
             : 'Abra no browser interno/externo (Oracle/HTTP).',

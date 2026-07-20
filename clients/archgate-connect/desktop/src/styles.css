@@ -285,6 +285,56 @@ button {
     #05080f;
 }
 
+.session-surface.filled {
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+}
+
+.ssh-terminal-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: #05080f;
+}
+
+.ssh-terminal-banner {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 0.72rem;
+  color: var(--amber);
+  background: var(--amber-dim);
+  border-bottom: 1px solid var(--amber-line);
+}
+
+.ssh-terminal-host {
+  flex: 1;
+  min-height: 0;
+  padding: 8px 10px 10px;
+  overflow: hidden;
+}
+
+.ssh-terminal-host .xterm {
+  height: 100%;
+}
+
+.ssh-terminal-host .xterm-viewport {
+  overflow-y: auto !important;
+}
+
+.tab-live {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 8px var(--ok);
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+
 .session-placeholder {
   max-width: 440px;
   text-align: center;

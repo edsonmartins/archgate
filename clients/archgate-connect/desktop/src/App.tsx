@@ -10,7 +10,7 @@ import {
 } from './icons'
 import { protocolMeta, type Connection } from './protocol'
 import { SessionWorkspace } from './sessions/SessionWorkspace'
-import { newSessionTab, type SessionTab } from './sessions/types'
+import { newSessionTab, type SessionState, type SessionTab } from './sessions/types'
 
 type Status = {
   user?: string
@@ -235,6 +235,15 @@ export function App() {
     setNotice({ kind: 'info', text: 'Encerrando sessão…' })
     try {
       const r = await runLogged(['logout'])
+      // Close any embedded SSH PTYs before clearing OIDC/lab session.
+      for (const t of sessionTabs) {
+        try {
+          const { invoke } = await import('@tauri-apps/api/core')
+          await invoke('ssh_session_close', { sessionId: t.id })
+        } catch {
+          /* ignore */
+        }
+      }
       setSessionTabs([])
       setActiveSessionId(null)
       await refresh()
@@ -269,11 +278,37 @@ export function App() {
     setActiveSessionId(tab.id)
     setNotice({
       kind: 'ok',
-      text: `Sessão «${c.target}» aberta. Embutido SSH/RDP em desenvolvimento — use “Abrir externo” se precisar agora.`,
+      text:
+        tab.kind === 'ssh'
+          ? `Terminal SSH «${c.target}» — digite a senha Warpgate do operador se solicitado.`
+          : `Sessão «${c.target}» aberta. Use “Abrir externo” se o embutido ainda não estiver disponível.`,
     })
   }
 
+  const updateSessionState = (id: string, state: SessionState, note?: string) => {
+    setSessionTabs((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              state,
+              note: note ?? t.note,
+            }
+          : t,
+      ),
+    )
+  }
+
   const closeSessionTab = (id: string) => {
+    // SshTerminal cleanup closes PTY on unmount; also best-effort kill from here.
+    void (async () => {
+      try {
+        const { invoke } = await import('@tauri-apps/api/core')
+        await invoke('ssh_session_close', { sessionId: id })
+      } catch {
+        /* not open or not tauri */
+      }
+    })()
     setSessionTabs((prev) => {
       const next = prev.filter((t) => t.id !== id)
       if (activeSessionId === id) {
@@ -609,8 +644,9 @@ export function App() {
                 ? 'Nenhuma conexão neste filtro.'
                 : 'Faça Lab (homolog) ou SSO (Kanidm) para carregar o catálogo.'}
               <div className="hint">
-                Connect abre aba de sessão (RDM-lite). SSH/RDP embutidos em S2;
-                use “Abrir externo” na aba. Warpgate: <strong>{wgUser}</strong>.
+                Connect abre aba (RDM-lite). SSH = terminal embutido; RDP/Guac em
+                S2b. “Abrir externo” = Terminal/browser. Warpgate:{' '}
+                <strong>{wgUser}</strong>.
               </div>
             </div>
           ) : (
@@ -657,6 +693,7 @@ export function App() {
           onSelect={setActiveSessionId}
           onClose={closeSessionTab}
           onExternal={(tab) => void launchExternal(tab)}
+          onSessionState={updateSessionState}
           busy={busy}
         />
       </section>

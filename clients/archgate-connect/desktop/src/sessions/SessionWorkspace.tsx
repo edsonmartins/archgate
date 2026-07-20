@@ -1,5 +1,6 @@
-import type { SessionTab } from './types'
+import type { SessionTab, SessionState } from './types'
 import { kindLabel } from './types'
+import { SshTerminal } from './SshTerminal'
 
 type Props = {
   tabs: SessionTab[]
@@ -7,6 +8,7 @@ type Props = {
   onSelect: (id: string) => void
   onClose: (id: string) => void
   onExternal: (tab: SessionTab) => void
+  onSessionState: (id: string, state: SessionState, note?: string) => void
   busy?: boolean
 }
 
@@ -16,6 +18,7 @@ export function SessionWorkspace({
   onSelect,
   onClose,
   onExternal,
+  onSessionState,
   busy,
 }: Props) {
   const active = tabs.find((t) => t.id === activeId) || null
@@ -27,8 +30,8 @@ export function SessionWorkspace({
           <h2>Sessões</h2>
           <p>
             Selecione uma conexão e clique <strong>Connect</strong> para abrir uma
-            aba (estilo RDM). SSH e RDP/Guac embutidos entram nas próximas entregas;
-            “Externo” usa o fluxo atual (Terminal / browser).
+            aba (estilo RDM). SSH abre terminal embutido via Warpgate; RDP/Guac
+            embutido em seguida — “Externo” usa Terminal / browser.
           </p>
         </div>
       </div>
@@ -50,6 +53,7 @@ export function SessionWorkspace({
               <span className="tab-title" title={t.connection.target}>
                 {t.connection.target}
               </span>
+              {t.state === 'connected' ? <span className="tab-live" title="Conectado" /> : null}
             </button>
             <button
               type="button"
@@ -63,55 +67,77 @@ export function SessionWorkspace({
         ))}
       </div>
 
-      {active ? (
-        <div className="session-body" role="tabpanel">
-          <div className="session-chrome">
-            <div className="session-chrome-meta">
-              <strong>{active.connection.target}</strong>
-              <span className="dim">
-                {active.connection.protocol} · {active.connection.engine} · {active.state}
-              </span>
+      {/* Keep all tab surfaces mounted so SSH PTYs stay alive when switching tabs */}
+      {tabs.map((tab) => {
+        const isActive = tab.id === activeId
+        return (
+          <div
+            key={tab.id}
+            className="session-body"
+            role="tabpanel"
+            hidden={!isActive}
+            style={{ display: isActive ? 'flex' : 'none' }}
+          >
+            <div className="session-chrome">
+              <div className="session-chrome-meta">
+                <strong>{tab.connection.target}</strong>
+                <span className="dim">
+                  {tab.connection.protocol} · {tab.connection.engine} · {tab.state}
+                </span>
+              </div>
+              <div className="session-chrome-actions">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-ssh"
+                  disabled={busy}
+                  onClick={() => onExternal(tab)}
+                >
+                  Abrir externo
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-ghost"
+                  onClick={() => onClose(tab.id)}
+                >
+                  Fechar aba
+                </button>
+              </div>
             </div>
-            <div className="session-chrome-actions">
-              <button
-                type="button"
-                className="btn btn-sm btn-ssh"
-                disabled={busy}
-                onClick={() => onExternal(active)}
-              >
-                Abrir externo
-              </button>
-              <button
-                type="button"
-                className="btn btn-sm btn-ghost"
-                onClick={() => onClose(active.id)}
-              >
-                Fechar aba
-              </button>
+            <div className={`session-surface kind-${tab.kind} ${tab.kind === 'ssh' ? 'filled' : ''}`}>
+              {tab.kind === 'ssh' ? (
+                <SshTerminal
+                  sessionId={tab.id}
+                  target={tab.connection.target}
+                  active={isActive}
+                  onState={(state, note) => onSessionState(tab.id, state, note)}
+                />
+              ) : (
+                <div className="session-placeholder">
+                  <p className="session-placeholder-title">
+                    {kindLabel(tab.kind)} · {tab.connection.target}
+                  </p>
+                  <p>{tab.note}</p>
+                  <p className="hint">
+                    {tab.kind === 'guac'
+                      ? 'Canvas Guacamole (RDP) nesta área — S2b.'
+                      : 'Painel embutido / externo conforme o protocolo.'}
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={busy}
+                    onClick={() => onExternal(tab)}
+                  >
+                    Abrir externo agora
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-          <div className={`session-surface kind-${active.kind}`}>
-            <div className="session-placeholder">
-              <p className="session-placeholder-title">
-                {kindLabel(active.kind)} · {active.connection.target}
-              </p>
-              <p>{active.note}</p>
-              <p className="hint">
-                Em breve: terminal xterm (SSH Warpgate) e canvas Guacamole (RDP) nesta
-                área — sem sair do Connect.
-              </p>
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={busy}
-                onClick={() => onExternal(active)}
-              >
-                Abrir externo agora
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+        )
+      })}
+
+      {!active ? null : null}
     </div>
   )
 }

@@ -1,3 +1,5 @@
+mod ssh_session;
+
 use serde::Serialize;
 use std::process::Command;
 use tauri::{
@@ -146,7 +148,14 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![run_cli])
+        .manage(ssh_session::SshSessions::default())
+        .invoke_handler(tauri::generate_handler![
+            run_cli,
+            ssh_session::ssh_session_open,
+            ssh_session::ssh_session_write,
+            ssh_session::ssh_session_resize,
+            ssh_session::ssh_session_close,
+        ])
         .setup(|app| {
             setup_tray(app)?;
             Ok(())
