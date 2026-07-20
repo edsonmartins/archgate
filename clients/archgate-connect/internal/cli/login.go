@@ -86,8 +86,8 @@ func loginOIDC() error {
 	}
 	creds := &config.Credentials{
 		Username: username,
-		// OIDC: Warpgate user defaults to preferred username; override via env.
-		WarpgateUser: util.Or(strings.TrimSpace(os.Getenv("ARCHGATE_WG_USER")), username),
+		// OIDC: Warpgate user defaults to preferred username (local part); override via env.
+		WarpgateUser: util.StripAt(util.Or(strings.TrimSpace(os.Getenv("ARCHGATE_WG_USER")), username)),
 	}
 	applyTokenToCreds(creds, tok)
 	if err := config.SaveCredentials(creds); err != nil {

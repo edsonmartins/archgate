@@ -166,6 +166,13 @@ func LoginBrowser(cfg Config) (*TokenResponse, *UserInfo, error) {
 
 	fmt.Println("Abrindo browser para login Kanidm…")
 	fmt.Println(authURL)
+	fmt.Println()
+	fmt.Println("Importante:")
+	fmt.Println("  1) Use a URL acima (não abra id.archgate.com.br sozinho).")
+	fmt.Println("  2) Após digitar a senha, se aparecer 'Allow/Permitir' para ArchGate Connect, aceite.")
+	fmt.Println("  3) O browser deve ir para http://127.0.0.1:8765/callback — deixe esta janela/terminal aberta.")
+	fmt.Println("  4) Se ficar só no Kanidm sem redirecionar, cancele (Ctrl+C) e rode de novo: archgate login")
+	fmt.Println()
 	_ = util.OpenBrowser(authURL)
 
 	var code string
@@ -174,7 +181,7 @@ func LoginBrowser(cfg Config) (*TokenResponse, *UserInfo, error) {
 	case err = <-errCh:
 		return nil, nil, err
 	case <-time.After(5 * time.Minute):
-		return nil, nil, fmt.Errorf("login timeout (5m)")
+		return nil, nil, fmt.Errorf("login timeout (5m): callback em http://%s/callback não chegou — o CLI precisa continuar rodando até o redirect", cfg.CallbackHostPort)
 	}
 
 	tok, err := exchangeCode(disc.TokenEndpoint, cfg.ClientID, cfg.ClientSecret, code, redirectURI, verifier)
@@ -190,37 +197,77 @@ func LoginBrowser(cfg Config) (*TokenResponse, *UserInfo, error) {
 }
 
 func exchangeCode(tokenURL, clientID, clientSecret, code, redirectURI, verifier string) (*TokenResponse, error) {
-	form := url.Values{}
-	form.Set("grant_type", "authorization_code")
-	form.Set("client_id", clientID)
-	form.Set("code", code)
-	form.Set("redirect_uri", redirectURI)
-	form.Set("code_verifier", verifier)
+	// Prefer confidential-client auth via HTTP Basic (Kanidm resource server basic).
+	// Fall back to client_secret_post if Basic is rejected.
+	try := func(useBasic bool) (*TokenResponse, int, string, error) {
+		form := url.Values{}
+		form.Set("grant_type", "authorization_code")
+		form.Set("code", code)
+		form.Set("redirect_uri", redirectURI)
+		form.Set("code_verifier", verifier)
+		if !useBasic {
+			form.Set("client_id", clientID)
+			if clientSecret != "" {
+				form.Set("client_secret", clientSecret)
+			}
+		} else {
+			// Some ASs still want client_id in body with Basic.
+			form.Set("client_id", clientID)
+		}
+		req, err := http.NewRequest(http.MethodPost, tokenURL, strings.NewReader(form.Encode()))
+		if err != nil {
+			return nil, 0, "", err
+		}
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.Set("Accept", "application/json")
+		if useBasic && clientSecret != "" {
+			req.SetBasicAuth(clientID, clientSecret)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return nil, 0, "", err
+		}
+		defer res.Body.Close()
+		body, _ := io.ReadAll(res.Body)
+		if res.StatusCode >= 300 {
+			return nil, res.StatusCode, string(body), nil
+		}
+		var tok TokenResponse
+		if err := json.Unmarshal(body, &tok); err != nil {
+			return nil, res.StatusCode, string(body), err
+		}
+		if tok.AccessToken == "" {
+			return nil, res.StatusCode, string(body), fmt.Errorf("empty access_token")
+		}
+		return &tok, res.StatusCode, string(body), nil
+	}
+
 	if clientSecret != "" {
-		form.Set("client_secret", clientSecret)
+		if tok, status, body, err := try(true); err != nil {
+			return nil, err
+		} else if tok != nil {
+			return tok, nil
+		} else if status != 401 && status != 403 {
+			return nil, fmt.Errorf("token %d: %s", status, body)
+		}
+		// retry post body style
+		if tok, status, body, err := try(false); err != nil {
+			return nil, err
+		} else if tok != nil {
+			return tok, nil
+		} else {
+			return nil, fmt.Errorf("token %d: %s", status, body)
+		}
 	}
-	req, err := http.NewRequest(http.MethodPost, tokenURL, strings.NewReader(form.Encode()))
+
+	tok, status, body, err := try(false)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
+	if tok == nil {
+		return nil, fmt.Errorf("token %d: %s", status, body)
 	}
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-	if res.StatusCode >= 300 {
-		return nil, fmt.Errorf("token %s: %s", res.Status, string(body))
-	}
-	var tok TokenResponse
-	if err := json.Unmarshal(body, &tok); err != nil {
-		return nil, err
-	}
-	if tok.AccessToken == "" {
-		return nil, fmt.Errorf("empty access_token")
-	}
-	return &tok, nil
+	return tok, nil
 }
 
 func FetchUserInfo(userinfoURL, accessToken string) (*UserInfo, error) {
