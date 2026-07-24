@@ -152,6 +152,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             run_cli,
             ssh_session::ssh_session_open,
+            ssh_session::pty_session_open,
             ssh_session::ssh_session_write,
             ssh_session::ssh_session_resize,
             ssh_session::ssh_session_close,

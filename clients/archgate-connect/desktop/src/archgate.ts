@@ -153,5 +153,51 @@ function mockArchgate(args: string[]): RunResult {
     return { code: 0, stdout: 'Logged out.\n', stderr: '' }
   }
 
+  if (cmd === 'auth-header' || cmd === 'api-token') {
+    return {
+      code: 0,
+      stdout:
+        JSON.stringify({
+          mode: 'lab',
+          api_base: 'https://console.archgate.com.br/api',
+          token: 'lab-mock',
+          authorization: 'Bearer lab-mock',
+          user: 'edson',
+        }) + '\n',
+      stderr: '',
+    }
+  }
+
+  if (cmd === 'print-open') {
+    return {
+      code: 0,
+      stdout:
+        JSON.stringify({
+          url: 'https://guac.archgate.com.br/',
+          target,
+          protocol: 'rdp',
+          engine: 'guacamole',
+          guac_base: 'https://guac.archgate.com.br',
+        }) + '\n',
+      stderr: '',
+    }
+  }
+
+  if (cmd === 'db' && json) {
+    return {
+      code: 0,
+      stdout:
+        JSON.stringify({
+          host: '217.196.60.108',
+          port: 55432,
+          database: 'archgate_lab',
+          username: `uat-op-a:${target}`,
+          sslmode: 'require',
+          psql: `psql "host=217.196.60.108 port=55432 user=uat-op-a:${target} dbname=archgate_lab sslmode=require"`,
+        }) + '\n',
+      stderr: '',
+    }
+  }
+
   return { code: 0, stdout: `${cmd} ok\n`, stderr: '' }
 }

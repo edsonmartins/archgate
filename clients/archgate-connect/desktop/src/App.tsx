@@ -280,8 +280,12 @@ export function App() {
       kind: 'ok',
       text:
         tab.kind === 'ssh'
-          ? `Terminal SSH «${c.target}» — digite a senha Warpgate do operador se solicitado.`
-          : `Sessão «${c.target}» aberta. Use “Abrir externo” se o embutido ainda não estiver disponível.`,
+          ? `SSH embutido «${c.target}» — senha Warpgate do operador se pedida.`
+          : tab.kind === 'guac'
+            ? `RDP/VNC embutido «${c.target}» (Guacamole no app).`
+            : tab.kind === 'db'
+              ? `DB embutido «${c.target}» — senha Warpgate no psql se pedida.`
+              : `Painel embutido «${c.target}».`,
     })
   }
 
@@ -334,7 +338,7 @@ export function App() {
                 state: r.code === 0 ? 'external' : 'error',
                 note:
                   r.code === 0
-                    ? 'Sessão externa lançada (Terminal/browser). Embutido chega em S2.'
+                    ? 'Fallback externo lançado (Terminal/browser do SO).'
                     : r.stderr || r.stdout || 'Falha ao abrir externo',
               }
             : t,
@@ -644,8 +648,8 @@ export function App() {
                 ? 'Nenhuma conexão neste filtro.'
                 : 'Faça Lab (homolog) ou SSO (Kanidm) para carregar o catálogo.'}
               <div className="hint">
-                Connect abre aba (RDM-lite). SSH = terminal embutido; RDP/Guac em
-                S2b. “Abrir externo” = Terminal/browser. Warpgate:{' '}
+                Sessões <strong>embutidas</strong> no app (SSH, RDP/VNC/Guac, DB,
+                Web). “Abrir externo” só como fallback. Warpgate:{' '}
                 <strong>{wgUser}</strong>.
               </div>
             </div>

@@ -1,4 +1,4 @@
-//! Embedded SSH sessions via local PTY + system `ssh` client.
+//! Embedded interactive sessions via local PTY (SSH, psql, …).
 //! Auth (password/agent/key) is interactive in the terminal — no secret storage here.
 
 use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize};
@@ -39,24 +39,23 @@ struct SshExitEvent {
     code: Option<u32>,
 }
 
-/// Open an interactive SSH session to host:port as user (Warpgate: operator:target@bastion).
-#[tauri::command]
-pub fn ssh_session_open(
+fn spawn_pty(
     app: AppHandle,
-    sessions: State<'_, SshSessions>,
+    sessions: &SshSessions,
     session_id: String,
-    host: String,
-    port: u16,
-    user: String,
+    program: &str,
+    args: &[String],
     cols: u16,
     rows: u16,
 ) -> Result<(), String> {
-    if session_id.is_empty() || host.is_empty() || user.is_empty() {
-        return Err("session_id, host e user são obrigatórios".into());
+    if session_id.is_empty() || program.is_empty() {
+        return Err("session_id e program são obrigatórios".into());
     }
-    // Bastion-only guard: refuse empty/odd hosts; identity comes from print-ssh.
-    if host.contains(' ') || host.contains('\n') || user.contains(' ') {
-        return Err("host/user inválidos".into());
+    // Refuse shell metacharacters in program/args (bastion-only commands).
+    for a in std::iter::once(program).chain(args.iter().map(String::as_str)) {
+        if a.contains('\n') || a.contains('\0') {
+            return Err("argumento inválido".into());
+        }
     }
 
     let mut map = sessions.inner.lock().map_err(|e| e.to_string())?;
@@ -74,21 +73,15 @@ pub fn ssh_session_open(
         })
         .map_err(|e| format!("PTY: {e}"))?;
 
-    let mut cmd = CommandBuilder::new("ssh");
-    cmd.arg("-tt");
-    cmd.arg("-p");
-    cmd.arg(port.to_string());
-    cmd.arg("-o");
-    cmd.arg("StrictHostKeyChecking=accept-new");
-    cmd.arg("-o");
-    cmd.arg("PreferredAuthentications=publickey,keyboard-interactive,password");
-    cmd.arg(format!("{user}@{host}"));
+    let mut cmd = CommandBuilder::new(program);
+    for a in args {
+        cmd.arg(a);
+    }
 
     let child = pair
         .slave
         .spawn_command(cmd)
-        .map_err(|e| format!("ssh spawn: {e}"))?;
-    // Drop slave so the master is the only end (child holds its fd).
+        .map_err(|e| format!("{program} spawn: {e}"))?;
     drop(pair.slave);
 
     let mut reader = pair
@@ -138,6 +131,56 @@ pub fn ssh_session_open(
         },
     );
     Ok(())
+}
+
+/// Open an interactive SSH session to host:port as user (Warpgate: operator:target@bastion).
+#[tauri::command]
+pub fn ssh_session_open(
+    app: AppHandle,
+    sessions: State<'_, SshSessions>,
+    session_id: String,
+    host: String,
+    port: u16,
+    user: String,
+    cols: u16,
+    rows: u16,
+) -> Result<(), String> {
+    if host.is_empty() || user.is_empty() {
+        return Err("host e user são obrigatórios".into());
+    }
+    if host.contains(' ') || host.contains('\n') || user.contains(' ') {
+        return Err("host/user inválidos".into());
+    }
+    let args = vec![
+        "-tt".into(),
+        "-p".into(),
+        port.to_string(),
+        "-o".into(),
+        "StrictHostKeyChecking=accept-new".into(),
+        "-o".into(),
+        "PreferredAuthentications=publickey,keyboard-interactive,password".into(),
+        format!("{user}@{host}"),
+    ];
+    spawn_pty(app, &sessions, session_id, "ssh", &args, cols, rows)
+}
+
+/// Generic PTY (e.g. psql against Warpgate PG proxy).
+#[tauri::command]
+pub fn pty_session_open(
+    app: AppHandle,
+    sessions: State<'_, SshSessions>,
+    session_id: String,
+    program: String,
+    args: Vec<String>,
+    cols: u16,
+    rows: u16,
+) -> Result<(), String> {
+    // Allow-list client programs (bastion clients only).
+    match program.as_str() {
+        "ssh" | "psql" | "mysql" | "mariadb" => {}
+        _ => return Err(format!("program not allowed: {program}")),
+    }
+    spawn_pty(app, &sessions, session_id, &program, &args, cols, rows)
 }
 
 #[tauri::command]

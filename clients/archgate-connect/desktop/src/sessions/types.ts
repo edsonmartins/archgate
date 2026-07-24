@@ -4,7 +4,6 @@ export type SessionKind = 'ssh' | 'guac' | 'db' | 'web'
 
 export type SessionState =
   | 'idle'
-  | 'placeholder' // non-SSH kinds until Guac/DB embed
   | 'connecting'
   | 'connected'
   | 'error'
@@ -35,7 +34,7 @@ export function kindLabel(k: SessionKind): string {
     case 'ssh':
       return 'SSH'
     case 'guac':
-      return 'RDP/Guac'
+      return 'RDP/VNC'
     case 'db':
       return 'DB'
     case 'web':
@@ -45,19 +44,20 @@ export function kindLabel(k: SessionKind): string {
 
 export function newSessionTab(c: Connection): SessionTab {
   const kind = sessionKindFor(c)
+  const note =
+    kind === 'ssh'
+      ? 'Terminal SSH embutido (Warpgate)…'
+      : kind === 'guac'
+        ? 'Display RDP/VNC embutido (Guacamole)…'
+        : kind === 'db'
+          ? 'Terminal psql embutido (Warpgate PG)…'
+          : 'Painel web embutido…'
   return {
     id: `${c.target}-${Date.now()}`,
     connection: c,
     kind,
-    state: kind === 'ssh' ? 'connecting' : 'placeholder',
-    note:
-      kind === 'ssh'
-        ? 'Abrindo terminal SSH embutido via Warpgate…'
-        : kind === 'guac'
-          ? 'Sessão embutida Guac/RDP (S2b) — use “Externo” para o browser por enquanto.'
-          : kind === 'db'
-            ? 'DB embutido depois — use “Externo” para copiar/abrir psql.'
-            : 'Abra no browser interno/externo (Oracle/HTTP).',
+    state: 'connecting',
+    note,
     createdAt: Date.now(),
   }
 }

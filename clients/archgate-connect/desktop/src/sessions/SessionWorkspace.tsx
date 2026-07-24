@@ -1,6 +1,9 @@
 import type { SessionTab, SessionState } from './types'
 import { kindLabel } from './types'
 import { SshTerminal } from './SshTerminal'
+import { GuacSession } from './GuacSession'
+import { DbTerminal } from './DbTerminal'
+import { WebSession } from './WebSession'
 
 type Props = {
   tabs: SessionTab[]
@@ -21,17 +24,15 @@ export function SessionWorkspace({
   onSessionState,
   busy,
 }: Props) {
-  const active = tabs.find((t) => t.id === activeId) || null
-
   if (tabs.length === 0) {
     return (
       <div className="session-workspace empty">
         <div className="session-empty">
-          <h2>Sessões</h2>
+          <h2>Sessões embutidas</h2>
           <p>
-            Selecione uma conexão e clique <strong>Connect</strong> para abrir uma
-            aba (estilo RDM). SSH abre terminal embutido via Warpgate; RDP/Guac
-            embutido em seguida — “Externo” usa Terminal / browser.
+            <strong>Connect</strong> abre a sessão <em>dentro</em> do app (RDM-lite):
+            SSH e Postgres em terminal embutido; RDP/VNC/Guac e HTTP/Oracle em painel
+            embutido. “Abrir externo” é só fallback.
           </p>
         </div>
       </div>
@@ -67,9 +68,10 @@ export function SessionWorkspace({
         ))}
       </div>
 
-      {/* Keep all tab surfaces mounted so SSH PTYs stay alive when switching tabs */}
       {tabs.map((tab) => {
         const isActive = tab.id === activeId
+        const filled =
+          tab.kind === 'ssh' || tab.kind === 'guac' || tab.kind === 'db' || tab.kind === 'web'
         return (
           <div
             key={tab.id}
@@ -83,6 +85,7 @@ export function SessionWorkspace({
                 <strong>{tab.connection.target}</strong>
                 <span className="dim">
                   {tab.connection.protocol} · {tab.connection.engine} · {tab.state}
+                  {tab.note ? ` · ${tab.note}` : ''}
                 </span>
               </div>
               <div className="session-chrome-actions">
@@ -91,6 +94,7 @@ export function SessionWorkspace({
                   className="btn btn-sm btn-ssh"
                   disabled={busy}
                   onClick={() => onExternal(tab)}
+                  title="Fallback: Terminal.app / browser do sistema"
                 >
                   Abrir externo
                 </button>
@@ -103,7 +107,7 @@ export function SessionWorkspace({
                 </button>
               </div>
             </div>
-            <div className={`session-surface kind-${tab.kind} ${tab.kind === 'ssh' ? 'filled' : ''}`}>
+            <div className={`session-surface ${filled ? 'filled' : ''} kind-${tab.kind}`}>
               {tab.kind === 'ssh' ? (
                 <SshTerminal
                   sessionId={tab.id}
@@ -111,33 +115,36 @@ export function SessionWorkspace({
                   active={isActive}
                   onState={(state, note) => onSessionState(tab.id, state, note)}
                 />
+              ) : tab.kind === 'guac' ? (
+                <GuacSession
+                  sessionId={tab.id}
+                  connection={tab.connection}
+                  active={isActive}
+                  onState={(state, note) => onSessionState(tab.id, state, note)}
+                />
+              ) : tab.kind === 'db' ? (
+                <DbTerminal
+                  sessionId={tab.id}
+                  target={tab.connection.target}
+                  active={isActive}
+                  onState={(state, note) => onSessionState(tab.id, state, note)}
+                />
+              ) : tab.kind === 'web' ? (
+                <WebSession
+                  connection={tab.connection}
+                  active={isActive}
+                  onState={(state, note) => onSessionState(tab.id, state, note)}
+                />
               ) : (
                 <div className="session-placeholder">
-                  <p className="session-placeholder-title">
-                    {kindLabel(tab.kind)} · {tab.connection.target}
-                  </p>
+                  <p className="session-placeholder-title">{tab.connection.target}</p>
                   <p>{tab.note}</p>
-                  <p className="hint">
-                    {tab.kind === 'guac'
-                      ? 'Canvas Guacamole (RDP) nesta área — S2b.'
-                      : 'Painel embutido / externo conforme o protocolo.'}
-                  </p>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    disabled={busy}
-                    onClick={() => onExternal(tab)}
-                  >
-                    Abrir externo agora
-                  </button>
                 </div>
               )}
             </div>
           </div>
         )
       })}
-
-      {!active ? null : null}
     </div>
   )
 }

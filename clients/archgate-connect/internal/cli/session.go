@@ -16,6 +16,44 @@ var ErrNeedLogin = errors.New("session expired — run: archgate login")
 
 const accessTokenSkew = 60 * time.Second
 
+// cmdAuthHeader prints Authorization material for desktop BFF calls (embed sessions).
+// Prefer --json. Never logs the token to stderr beyond intentional stdout.
+func cmdAuthHeader(jsonOut bool) error {
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	if err := ensureAPIToken(cfg); err != nil {
+		return err
+	}
+	mode := "none"
+	token := ""
+	if cfg.Creds.IsLabSession() && cfg.Creds.LabToken != "" {
+		mode = "lab"
+		token = cfg.Creds.LabToken
+	} else if cfg.Creds.AccessToken != "" {
+		mode = "oidc"
+		token = cfg.Creds.AccessToken
+	}
+	if token == "" {
+		return fmt.Errorf("%w (no token)", ErrNeedLogin)
+	}
+	out := map[string]any{
+		"mode":          mode,
+		"api_base":      cfg.APIBase,
+		"token":         token,
+		"authorization": "Bearer " + token,
+		"user":          cfg.Creds.Username,
+	}
+	if jsonOut {
+		return printJSON(out)
+	}
+	fmt.Printf("Authorization: Bearer %s\n", token)
+	fmt.Printf("api_base: %s\n", cfg.APIBase)
+	fmt.Printf("mode: %s\n", mode)
+	return nil
+}
+
 // ensureAPIToken refreshes the OIDC access token when expired/near-expiry.
 // Lab sessions are a no-op. On hard failure, credentials may be cleared.
 func ensureAPIToken(cfg *config.File) error {

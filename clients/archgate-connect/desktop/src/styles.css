@@ -359,6 +359,40 @@ button {
   margin: 0 auto;
 }
 
+.guac-session-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: #05080f;
+  position: relative;
+}
+
+.guac-host {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.guac-host canvas,
+.guac-host div {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.embed-frame {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  border: 0;
+  background: #0a0e17;
+}
+
 .app::before {
   content: '';
   pointer-events: none;

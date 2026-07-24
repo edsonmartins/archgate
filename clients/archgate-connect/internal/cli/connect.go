@@ -354,6 +354,57 @@ func cmdManager(args []string) error {
 	return util.OpenBrowser(url)
 }
 
+func openURLForConn(cfg *config.File, conn *api.Connection) string {
+	if cfg == nil || conn == nil {
+		return ""
+	}
+	p := strings.ToLower(conn.Protocol)
+	switch {
+	case conn.Engine == "guacamole" || p == "rdp" || p == "vnc":
+		return strings.TrimRight(cfg.Bastion.GuacBase, "/") + "/"
+	case p == "http" || p == "https":
+		return fmt.Sprintf("%s/?warpgate-target=%s", strings.TrimRight(cfg.Bastion.HTTPBase, "/"), conn.Target)
+	case p == "oracle" || strings.Contains(strings.ToLower(conn.Target), "oracle"):
+		return cfg.Bastion.OracleUI
+	default:
+		return strings.TrimRight(cfg.Bastion.ConsoleBase, "/") + "/sites"
+	}
+}
+
+func cmdPrintOpen(args []string, jsonOut bool) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: archgate print-open <target> [--json]")
+	}
+	target := args[0]
+	if !util.TargetSafe(target) {
+		return fmt.Errorf("invalid target %q", target)
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	b, err := loadBootstrap(cfg)
+	if err != nil {
+		return err
+	}
+	conn, err := findConn(b.Connections, target)
+	if err != nil {
+		return err
+	}
+	url := openURLForConn(cfg, conn)
+	if jsonOut {
+		return printJSON(map[string]any{
+			"url":      url,
+			"target":   conn.Target,
+			"protocol": conn.Protocol,
+			"engine":   conn.Engine,
+			"guac_base": cfg.Bastion.GuacBase,
+		})
+	}
+	fmt.Println(url)
+	return nil
+}
+
 func cmdOpen(args []string) error {
 	if len(args) < 1 {
 		return fmt.Errorf("usage: archgate open <target>")
@@ -371,17 +422,7 @@ func cmdOpen(args []string) error {
 	if err != nil {
 		return err
 	}
-	var url string
-	switch {
-	case conn.Engine == "guacamole":
-		url = strings.TrimRight(cfg.Bastion.GuacBase, "/") + "/"
-	case conn.Protocol == "http":
-		url = fmt.Sprintf("%s/?warpgate-target=%s", strings.TrimRight(cfg.Bastion.HTTPBase, "/"), conn.Target)
-	case conn.Protocol == "oracle" || strings.Contains(strings.ToLower(conn.Target), "oracle"):
-		url = cfg.Bastion.OracleUI
-	default:
-		url = strings.TrimRight(cfg.Bastion.ConsoleBase, "/") + "/sites"
-	}
+	url := openURLForConn(cfg, conn)
 	fmt.Printf("→ open %s\n", url)
 	return util.OpenBrowser(url)
 }

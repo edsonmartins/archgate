@@ -46,7 +46,7 @@ Ver OpenSpec `add-connect-embedded-sessions` e plano de implementação S0–S4.
 |------|----------|--------|
 | S0 | ADR-008B + OpenSpec | Feito |
 | S1 | UI multi-aba + fallback externo | Feito |
-| S2a | SSH embutido (xterm + PTY + `ssh -tt` Warpgate) | Feito (MVP) |
-| S2b | Guacamole RDP embutido | Pendente |
+| S2a | SSH embutido (xterm + PTY + `ssh -tt` Warpgate) | Feito |
+| S2b | Guacamole RDP/VNC embutido (WS + iframe SSO no app) | Feito (2026-07-24) |
 | S3 | Auth polish (agent/key, sem persistir senha) | Pendente |
-| S4 | DB/psql embutido / polish | Pendente |
+| S4 | DB/psql embutido (PTY) + Web/Oracle iframe | Feito (2026-07-24) |

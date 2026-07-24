@@ -70,6 +70,10 @@ func Execute(args []string) error {
 		return cmdConfig(rest)
 	case "print-ssh":
 		return cmdPrintSSH(rest, jsonOut)
+	case "auth-header", "api-token":
+		return cmdAuthHeader(jsonOut)
+	case "print-open":
+		return cmdPrintOpen(rest, jsonOut)
 	default:
 		return fmt.Errorf("unknown command %q — try archgate help", cmd)
 	}
@@ -98,6 +102,8 @@ Uso:
   archgate open <target>         Browser (Guac / Oracle UI / HTTP)
   archgate manager [--path /x]   Abre ArchGate Manager (admin) no browser
   archgate open-manager          Alias de manager
+  archgate auth-header [--json]  Token Bearer p/ BFF (desktop embutido)
+  archgate print-open <target>   URL embutível (Guac/HTTP/Oracle) JSON
   archgate config apply|remove   ~/.ssh/config.d/archgate
   archgate version
 
