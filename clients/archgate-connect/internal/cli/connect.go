@@ -289,6 +289,71 @@ func cmdDB(args []string, jsonOut bool) error {
 	return nil
 }
 
+// managerPathOK allows only relative Manager paths (no scheme/host injection).
+func managerPathOK(p string) bool {
+	if p == "" || p[0] != '/' {
+		return false
+	}
+	if strings.Contains(p, "//") || strings.Contains(p, "://") || strings.ContainsAny(p, " \t\n\r") {
+		return false
+	}
+	for _, r := range p {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') ||
+			(r >= '0' && r <= '9') || r == '/' || r == '-' || r == '_' || r == '.' {
+			continue
+		}
+		return false
+	}
+	// Reject path traversal segments (e.g. /../x, /sites/..)
+	for _, seg := range strings.Split(p, "/") {
+		if seg == ".." || seg == "." {
+			return false
+		}
+	}
+	return true
+}
+
+// cmdManager opens ArchGate Manager (admin control plane) in the system browser.
+// Does not pass Connect OIDC tokens. Path is optional and sanitized.
+func cmdManager(args []string) error {
+	path := "/dashboard"
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--path", "-p":
+			if i+1 >= len(args) {
+				return fmt.Errorf("usage: archgate manager [--path /sites]")
+			}
+			path = args[i+1]
+			i++
+		case "--help", "-h":
+			fmt.Println("usage: archgate manager [--path /dashboard|/sites|/gateways|…]")
+			return nil
+		default:
+			// bare path argument
+			if strings.HasPrefix(args[i], "/") {
+				path = args[i]
+			} else {
+				return fmt.Errorf("usage: archgate manager [--path /sites]")
+			}
+		}
+	}
+	if !managerPathOK(path) {
+		return fmt.Errorf("invalid Manager path %q (use e.g. /dashboard, /sites)", path)
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	base := strings.TrimRight(cfg.Bastion.ConsoleBase, "/")
+	if base == "" {
+		base = "https://console.archgate.com.br"
+	}
+	url := base + path
+	fmt.Printf("→ ArchGate Manager  %s\n", url)
+	fmt.Println("(admin control plane — not an operator session)")
+	return util.OpenBrowser(url)
+}
+
 func cmdOpen(args []string) error {
 	if len(args) < 1 {
 		return fmt.Errorf("usage: archgate open <target>")

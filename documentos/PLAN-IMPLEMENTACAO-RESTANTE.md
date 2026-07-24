@@ -4,8 +4,8 @@
 |-------|--------|
 | Status | **Ativo** |
 | Objetivo | Checklist **executável** do residual vs specs (`PLAN-PRODUTO-100`, homologação MVP, console AWS) |
-| Baseline | Hostinger staging H1 **done**; console W-C1–W-C4 (parcial Oracle) **done**; peer Rio **blocked** |
-| Data | 2026-07-18 |
+| Baseline | Hostinger staging H1 **done**; console W-C1–W-C4 (parcial Oracle) **done**; peer Rio dual VPN **ensaiável** (A1.3–A1.4 SSH) |
+| Data | 2026-07-18 · **first-use 2026-07-24:** [`PLAN-FIRST-USE-2026-07-24.md`](./PLAN-FIRST-USE-2026-07-24.md) |
 | Dono | Edson Martins |
 | Specs de referência | [`PLAN-PRODUTO-100.md`](./PLAN-PRODUTO-100.md) · [`PLAN-HOMOLOGACAO-MVP.md`](./PLAN-HOMOLOGACAO-MVP.md) · [`../archgate-devops/docs/CONSOLE-NORTH-STAR.md`](../../archgate-devops/docs/CONSOLE-NORTH-STAR.md) |
 

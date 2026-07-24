@@ -64,6 +64,8 @@ func Execute(args []string) error {
 		return cmdDB(rest, jsonOut)
 	case "open":
 		return cmdOpen(rest)
+	case "manager", "open-manager":
+		return cmdManager(rest)
 	case "config":
 		return cmdConfig(rest)
 	case "print-ssh":
@@ -94,6 +96,8 @@ Uso:
   archgate print-ssh <target>    Só imprime o comando ssh
   archgate db <target> [--clipboard] [--json]
   archgate open <target>         Browser (Guac / Oracle UI / HTTP)
+  archgate manager [--path /x]   Abre ArchGate Manager (admin) no browser
+  archgate open-manager          Alias de manager
   archgate config apply|remove   ~/.ssh/config.d/archgate
   archgate version
 

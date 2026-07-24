@@ -219,6 +219,43 @@ func TestIsCloudflareOnlyHost(t *testing.T) {
 	}
 }
 
+func TestManagerPathOK(t *testing.T) {
+	ok := []string{"/dashboard", "/sites", "/sites/wizard", "/gateways", "/identities"}
+	for _, p := range ok {
+		if !managerPathOK(p) {
+			t.Fatalf("expected ok path %q", p)
+		}
+	}
+	bad := []string{"", "dashboard", "//evil", "https://evil", "/sites?x=1", "/a b", "/../x"}
+	for _, p := range bad {
+		if managerPathOK(p) {
+			t.Fatalf("expected reject path %q", p)
+		}
+	}
+}
+
+func TestManagerHelp(t *testing.T) {
+	out := captureStdout(t, func() {
+		if err := Execute([]string{"manager", "--help"}); err != nil {
+			t.Fatal(err)
+		}
+	})
+	if !strings.Contains(out, "usage: archgate manager") {
+		t.Fatalf("help: %s", out)
+	}
+}
+
+func TestHelpListsManager(t *testing.T) {
+	out := captureStdout(t, func() {
+		if err := Execute([]string{"help"}); err != nil {
+			t.Fatal(err)
+		}
+	})
+	if !strings.Contains(out, "archgate manager") {
+		t.Fatalf("help missing manager: %s", out)
+	}
+}
+
 func captureStdout(t *testing.T, fn func()) string {
 	t.Helper()
 	old := os.Stdout

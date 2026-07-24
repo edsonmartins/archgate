@@ -6,6 +6,7 @@ import (
 	"net"
 	"os/exec"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/integrall-tech/archgate/clients/archgate-connect/internal/api"
@@ -55,11 +56,14 @@ func cmdStatus(jsonOut bool) error {
 		"token_ok":      tokenOK,
 		"cred_storage":  string(config.StorageBackend()),
 		"bastion": map[string]any{
-			"ssh_host": cfg.Bastion.SSHHost,
-			"ssh_port": cfg.Bastion.SSHPort,
-			"pg_host":  cfg.Bastion.PGHost,
-			"pg_port":  cfg.Bastion.PGPort,
+			"ssh_host":     cfg.Bastion.SSHHost,
+			"ssh_port":     cfg.Bastion.SSHPort,
+			"pg_host":      cfg.Bastion.PGHost,
+			"pg_port":      cfg.Bastion.PGPort,
+			"console_base": cfg.Bastion.ConsoleBase,
 		},
+		"console_base": cfg.Bastion.ConsoleBase,
+		"manager_url":  strings.TrimRight(cfg.Bastion.ConsoleBase, "/") + "/dashboard",
 	}
 	if cfg.Creds.ExpiresAt > 0 {
 		out["expires_at"] = cfg.Creds.ExpiresAt
@@ -100,6 +104,9 @@ func cmdStatus(jsonOut bool) error {
 	}
 	fmt.Printf("ssh bastion:  %s:%d\n", cfg.Bastion.SSHHost, cfg.Bastion.SSHPort)
 	fmt.Printf("pg bastion:   %s:%d\n", cfg.Bastion.PGHost, cfg.Bastion.PGPort)
+	if base, ok := out["console_base"].(string); ok && base != "" {
+		fmt.Printf("manager:      %s\n", strings.TrimRight(base, "/")+"/dashboard")
+	}
 	if n, ok := out["connections"].(int); ok {
 		fmt.Printf("connections:  %d\n", n)
 	}

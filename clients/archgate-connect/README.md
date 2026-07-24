@@ -45,6 +45,8 @@ archgate config apply          # Hosts em ~/.ssh/config.d/archgate
 ssh archgate-rio-aws-api-b
 
 archgate doctor
+archgate manager                 # abre ArchGate Manager (admin) no browser
+archgate manager --path /sites
 archgate logout
 ```
 
