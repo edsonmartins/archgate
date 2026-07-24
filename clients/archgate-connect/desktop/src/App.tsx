@@ -9,6 +9,7 @@ import {
   IconShield,
 } from './icons'
 import { protocolMeta, type Connection } from './protocol'
+import { TerminalPrefsPanel } from './prefs/TerminalPrefsPanel'
 import { SessionWorkspace } from './sessions/SessionWorkspace'
 import { newSessionTab, type SessionState, type SessionTab } from './sessions/types'
 
@@ -74,6 +75,8 @@ export function App() {
   const [bootstrapped, setBootstrapped] = useState(false)
   const [sessionTabs, setSessionTabs] = useState<SessionTab[]>([])
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
+  const [prefsOpen, setPrefsOpen] = useState(false)
+  const [prefsTarget, setPrefsTarget] = useState<string | null>(null)
 
   const busy = busyCount > 0
 
@@ -407,13 +410,26 @@ export function App() {
             <p className="subtitle">Bastion · sessões embutidas (RDM-lite)</p>
           </div>
         </div>
-        <div
-          className={`session-pill ${sessionOn ? 'on' : ''} ${!bootstrapped ? 'loading' : ''}`}
-          role="status"
-          aria-live="polite"
-        >
-          <span className="dot" />
-          {pillLabel}
+        <div className="topbar-actions">
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => {
+              setPrefsTarget(null)
+              setPrefsOpen(true)
+            }}
+            title="Fonte, cores e cursor dos terminais"
+          >
+            Preferências
+          </button>
+          <div
+            className={`session-pill ${sessionOn ? 'on' : ''} ${!bootstrapped ? 'loading' : ''}`}
+            role="status"
+            aria-live="polite"
+          >
+            <span className="dot" />
+            {pillLabel}
+          </div>
         </div>
       </header>
 
@@ -698,10 +714,20 @@ export function App() {
           onClose={closeSessionTab}
           onExternal={(tab) => void launchExternal(tab)}
           onSessionState={updateSessionState}
+          onPrefs={(target) => {
+            setPrefsTarget(target)
+            setPrefsOpen(true)
+          }}
           busy={busy}
         />
       </section>
       </div>
+
+      <TerminalPrefsPanel
+        open={prefsOpen}
+        onClose={() => setPrefsOpen(false)}
+        initialTarget={prefsTarget}
+      />
 
       <div className="log-panel">
         <button

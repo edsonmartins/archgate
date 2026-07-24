@@ -12,6 +12,7 @@ type Props = {
   onClose: (id: string) => void
   onExternal: (tab: SessionTab) => void
   onSessionState: (id: string, state: SessionState, note?: string) => void
+  onPrefs?: (target: string) => void
   busy?: boolean
 }
 
@@ -22,6 +23,7 @@ export function SessionWorkspace({
   onClose,
   onExternal,
   onSessionState,
+  onPrefs,
   busy,
 }: Props) {
   if (tabs.length === 0) {
@@ -89,6 +91,16 @@ export function SessionWorkspace({
                 </span>
               </div>
               <div className="session-chrome-actions">
+                {onPrefs && (tab.kind === 'ssh' || tab.kind === 'db') ? (
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-ghost"
+                    onClick={() => onPrefs(tab.connection.target)}
+                    title="Fonte e cores deste terminal"
+                  >
+                    Preferências
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   className="btn btn-sm btn-ssh"

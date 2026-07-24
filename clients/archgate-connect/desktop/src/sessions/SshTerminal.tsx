@@ -1,8 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
 import { runArchgate } from '../archgate'
+import { toXtermTheme } from '../prefs/terminalPrefs'
+import {
+  useApplyTerminalOptions,
+  useTerminalAppearance,
+} from '../prefs/useTerminalAppearance'
 
 type PrintSsh = {
   host: string
@@ -30,45 +35,34 @@ export function SshTerminal({ sessionId, target, active, onState }: Props) {
   const fitRef = useRef<FitAddon | null>(null)
   const openedRef = useRef(false)
   const [banner, setBanner] = useState<string | null>(null)
+  const appearance = useTerminalAppearance(target)
+  const doFit = useCallback(() => {
+    try {
+      fitRef.current?.fit()
+    } catch {
+      /* ignore */
+    }
+  }, [])
+  useApplyTerminalOptions(termRef, appearance, doFit)
 
   useEffect(() => {
     if (!hostRef.current || termRef.current) return
 
     const term = new Terminal({
-      cursorBlink: true,
-      fontFamily: "'JetBrains Mono', ui-monospace, Menlo, monospace",
-      fontSize: 13,
-      lineHeight: 1.2,
-      theme: {
-        background: '#05080f',
-        foreground: '#e2e8f0',
-        cursor: '#38bdf8',
-        selectionBackground: 'rgba(56, 189, 248, 0.28)',
-        black: '#0f172a',
-        red: '#fb7185',
-        green: '#34d399',
-        yellow: '#fbbf24',
-        blue: '#38bdf8',
-        magenta: '#a78bfa',
-        cyan: '#22d3ee',
-        white: '#e2e8f0',
-        brightBlack: '#64748b',
-        brightRed: '#fda4af',
-        brightGreen: '#6ee7b7',
-        brightYellow: '#fde68a',
-        brightBlue: '#7dd3fc',
-        brightMagenta: '#c4b5fd',
-        brightCyan: '#67e8f9',
-        brightWhite: '#f8fafc',
-      },
+      cursorBlink: appearance.cursorBlink,
+      cursorStyle: appearance.cursorStyle,
+      fontFamily: appearance.fontFamily,
+      fontSize: appearance.fontSize,
+      lineHeight: appearance.lineHeight,
+      theme: toXtermTheme(appearance),
       allowProposedApi: true,
     })
-    const fit = new FitAddon()
-    term.loadAddon(fit)
+    const fitAddon = new FitAddon()
+    term.loadAddon(fitAddon)
     term.open(hostRef.current)
-    fit.fit()
+    fitAddon.fit()
     termRef.current = term
-    fitRef.current = fit
+    fitRef.current = fitAddon
 
     term.writeln('\x1b[90mArchGate Connect · SSH embutido (Warpgate bastion)\x1b[0m')
     term.writeln(`\x1b[90mAlvo: ${target}\x1b[0m`)
@@ -125,7 +119,7 @@ export function SshTerminal({ sessionId, target, active, onState }: Props) {
       const { invoke } = await import('@tauri-apps/api/core')
       const { listen } = await import('@tauri-apps/api/event')
 
-      fit.fit()
+      fitRef.current?.fit()
       const cols = term.cols
       const rows = term.rows
 
@@ -183,7 +177,7 @@ export function SshTerminal({ sessionId, target, active, onState }: Props) {
 
     const ro = new ResizeObserver(() => {
       try {
-        fit.fit()
+        fitRef.current?.fit()
       } catch {
         /* ignore */
       }
