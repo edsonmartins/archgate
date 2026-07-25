@@ -46,3 +46,10 @@ logs/
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+
