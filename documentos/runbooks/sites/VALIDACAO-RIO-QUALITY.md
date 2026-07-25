@@ -11,7 +11,21 @@
 | UAT formal | [`HOMOLOGACAO-UAT.md`](../HOMOLOGACAO-UAT.md) · §6.2 em [`PLAN-HOMOLOGACAO-MVP.md`](../../PLAN-HOMOLOGACAO-MVP.md) |
 | First-use | [`PLAN-FIRST-USE-2026-07-24.md`](../../PLAN-FIRST-USE-2026-07-24.md) |
 | Evidence template | [`smoke-evidence-TEMPLATE.md`](./smoke-evidence-TEMPLATE.md) |
+| **Auto-report (Python)** | [`deploy/validation/rio_quality_report/`](../../../deploy/validation/rio_quality_report/) |
 | Data do runbook | 2026-07-25 |
+
+### Relatório automático
+
+```bash
+# na raiz do monorepo archgate
+python3 -m deploy.validation.rio_quality_report
+# deep (SSH/PG com senha Warpgate):
+#   UAT_PASS_uat_op_a='…' python3 -m deploy.validation.rio_quality_report --deep
+# peers VPS + scripts devops:
+#   … --remote-peer --devops-scripts
+```
+
+Saída: `documentos/evidence/smoke-evidence-YYYY-MM-DD-rio-quality-auto.{md,json}`
 
 ### Princípio
 

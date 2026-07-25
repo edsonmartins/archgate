@@ -1,0 +1,301 @@
+{
+  "started_at": "2026-07-25T22:50:18.336266+00:00",
+  "finished_at": "2026-07-25T22:50:22.203189+00:00",
+  "environment": {
+    "console_url": "https://console.archgate.com.br",
+    "bastion_host": "217.196.60.108",
+    "bastion_ssh_port": "2222",
+    "bastion_pg_port": "55432",
+    "wg_user": "uat-op-a",
+    "deep": "False",
+    "has_password": "False",
+    "remote_peer": "False",
+    "vps_host": "",
+    "devops_scripts": "False",
+    "archgate_cli": "/Users/edsonmartins/.local/bin/archgate"
+  },
+  "summary": {
+    "PASS": 11,
+    "FAIL": 0,
+    "WARN": 0,
+    "SKIP": 10,
+    "INFO": 0
+  },
+  "checks": [
+    {
+      "id": "P1",
+      "category": "platform",
+      "title": "Console HTTPS",
+      "status": "PASS",
+      "detail": "HTTP 307 → /dashboard",
+      "duration_ms": 205,
+      "evidence": {
+        "status": 307,
+        "location": "/dashboard"
+      }
+    },
+    {
+      "id": "P2",
+      "category": "platform",
+      "title": "Kanidm id HTTPS",
+      "status": "PASS",
+      "detail": "HTTP 303 → /ui",
+      "duration_ms": 196,
+      "evidence": {
+        "status": 303,
+        "location": "/ui"
+      }
+    },
+    {
+      "id": "P3",
+      "category": "platform",
+      "title": "Warpgate UI HTTPS",
+      "status": "PASS",
+      "detail": "HTTP 307 → /@warpgate#/login?next=%2F",
+      "duration_ms": 145,
+      "evidence": {
+        "status": 307,
+        "location": "/@warpgate#/login?next=%2F"
+      }
+    },
+    {
+      "id": "P4",
+      "category": "platform",
+      "title": "Guacamole HTTPS",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "duration_ms": 147,
+      "evidence": {
+        "status": 200,
+        "location": ""
+      }
+    },
+    {
+      "id": "P5",
+      "category": "platform",
+      "title": "Bastion SSH TCP",
+      "status": "PASS",
+      "detail": "217.196.60.108:2222 OPEN (18ms)",
+      "duration_ms": 18,
+      "evidence": {}
+    },
+    {
+      "id": "P6",
+      "category": "platform",
+      "title": "Bastion Postgres TCP",
+      "status": "PASS",
+      "detail": "217.196.60.108:55432 OPEN (18ms)",
+      "duration_ms": 18,
+      "evidence": {}
+    },
+    {
+      "id": "B1",
+      "category": "bootstrap",
+      "title": "Bootstrap unauth → 401",
+      "status": "PASS",
+      "detail": "401 Unauthorized (expected)",
+      "duration_ms": 192,
+      "evidence": {
+        "status": 401
+      }
+    },
+    {
+      "id": "B2",
+      "category": "bootstrap",
+      "title": "Bootstrap lab bearer → catalog",
+      "status": "PASS",
+      "detail": "10 connections · rio=10 · ssh=217.196.60.108:2222",
+      "duration_ms": 2304,
+      "evidence": {
+        "count": 10,
+        "rio_count": 10,
+        "targets": [
+          "rio-gestor-linux",
+          "rio-oracle-prod",
+          "rio-oracle-tst",
+          "rio-aws-obs",
+          "rio-aws-api-a",
+          "rio-aws-api-b",
+          "rio-aws-pg-a",
+          "rio-aws-pg-b",
+          "rio-lab-ssh",
+          "rio-lab-postgres"
+        ],
+        "bastion": {
+          "ssh_host": "217.196.60.108",
+          "ssh_port": 2222,
+          "pg_host": "217.196.60.108",
+          "pg_port": 55432,
+          "pg_database": "archgate_lab",
+          "http_base": "https://wg.archgate.com.br",
+          "guac_base": "https://guac.archgate.com.br",
+          "console_base": "https://console.archgate.com.br",
+          "oracle_ui": "https://console.archgate.com.br/oracle"
+        }
+      }
+    },
+    {
+      "id": "B3",
+      "category": "bootstrap",
+      "title": "Sessions API (lab bearer)",
+      "status": "PASS",
+      "detail": "HTTP 200: {'tunnel_url': '', 'connect_data': '', 'expires_in': 120, 'launch': {'engine': 'warpgate', 'target': 'rio-lab-ssh', 'protocol': 'ssh', 'warpgate_public': 'https://wg.archgate.com.b",
+      "duration_ms": 119,
+      "evidence": {
+        "status": 200,
+        "body": {
+          "tunnel_url": "",
+          "connect_data": "",
+          "expires_in": 120,
+          "launch": {
+            "engine": "warpgate",
+            "target": "rio-lab-ssh",
+            "protocol": "ssh",
+            "warpgate_public": "https://wg.archgate.com.br"
+          }
+        }
+      }
+    },
+    {
+      "id": "I1",
+      "category": "connect",
+      "title": "archgate CLI version",
+      "status": "PASS",
+      "detail": "archgate 0.2.0-dev (darwin/arm64)",
+      "duration_ms": 295,
+      "evidence": {}
+    },
+    {
+      "id": "I2",
+      "category": "connect",
+      "title": "archgate doctor --json",
+      "status": "PASS",
+      "detail": "6 checks OK",
+      "duration_ms": 220,
+      "evidence": {
+        "checks": [
+          {
+            "name": "auth",
+            "ok": true,
+            "detail": "lab.operator"
+          },
+          {
+            "name": "warpgate_user",
+            "ok": true,
+            "detail": "uat-op-a"
+          },
+          {
+            "name": "ssh_bastion",
+            "ok": true,
+            "detail": "217.196.60.108:2222 OPEN"
+          },
+          {
+            "name": "pg_bastion",
+            "ok": true,
+            "detail": "217.196.60.108:55432 OPEN"
+          },
+          {
+            "name": "openssh_cli",
+            "ok": true,
+            "detail": "on PATH"
+          },
+          {
+            "name": "catalog",
+            "ok": true,
+            "detail": "10 connections"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S0",
+      "category": "ssh",
+      "title": "SSH deep checks",
+      "status": "SKIP",
+      "detail": "Set RIO_WG_PASSWORD or UAT_PASS_uat_op_a (and RIO_DEEP=1) for live SSH",
+      "duration_ms": 0,
+      "evidence": {}
+    },
+    {
+      "id": "C0",
+      "category": "postgres",
+      "title": "Postgres deep checks",
+      "status": "SKIP",
+      "detail": "Set RIO_WG_PASSWORD for live psql",
+      "duration_ms": 0,
+      "evidence": {}
+    },
+    {
+      "id": "A0",
+      "category": "peer",
+      "title": "Remote peer probes",
+      "status": "SKIP",
+      "detail": "Set ARCHGATE_HOST (+ key) and RIO_REMOTE_PEER=1",
+      "duration_ms": 0,
+      "evidence": {}
+    },
+    {
+      "id": "D0",
+      "category": "devops",
+      "title": "Devops smoke scripts",
+      "status": "SKIP",
+      "detail": "Set RIO_DEVOPS_SCRIPTS=1 to run 67/74",
+      "duration_ms": 0,
+      "evidence": {}
+    },
+    {
+      "id": "H1",
+      "category": "admin",
+      "title": "Manager /sites/rio_quality visual",
+      "status": "SKIP",
+      "detail": "MANUAL: Browser: dual connectors + targets",
+      "duration_ms": 0,
+      "evidence": {}
+    },
+    {
+      "id": "H2",
+      "category": "admin",
+      "title": "Viewer deny UI",
+      "status": "SKIP",
+      "detail": "MANUAL: Login uat-viewer — sem mutações",
+      "duration_ms": 0,
+      "evidence": {}
+    },
+    {
+      "id": "F1",
+      "category": "guac",
+      "title": "Guacamole SSO visual",
+      "status": "SKIP",
+      "detail": "MANUAL: Browser guac.archgate.com.br",
+      "duration_ms": 0,
+      "evidence": {}
+    },
+    {
+      "id": "D3",
+      "category": "oracle",
+      "title": "Oracle lease E2E real",
+      "status": "SKIP",
+      "detail": "MANUAL: Manager /oracle + JDBC mock=false",
+      "duration_ms": 0,
+      "evidence": {}
+    },
+    {
+      "id": "I5",
+      "category": "connect",
+      "title": "Connect preferências terminal",
+      "status": "SKIP",
+      "detail": "MANUAL: UI Preferências global/por target",
+      "duration_ms": 0,
+      "evidence": {}
+    },
+    {
+      "id": "U1",
+      "category": "uat",
+      "title": "Assinatura §6.2",
+      "status": "SKIP",
+      "detail": "MANUAL: PLAN-HOMOLOGACAO-MVP.md",
+      "duration_ms": 0,
+      "evidence": {}
+    }
+  ]
+}
