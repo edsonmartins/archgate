@@ -8,8 +8,10 @@ import {
   IconSearch,
   IconShield,
 } from './icons'
-import { protocolMeta, type Connection } from './protocol'
+import { FirstRunWizard } from './onboarding/FirstRunWizard'
+import { loadAppPrefs, patchAppPrefs, type AppPrefs } from './prefs/appPrefs'
 import { TerminalPrefsPanel } from './prefs/TerminalPrefsPanel'
+import { protocolMeta, type Connection } from './protocol'
 import { SessionWorkspace } from './sessions/SessionWorkspace'
 import { newSessionTab, type SessionState, type SessionTab } from './sessions/types'
 
@@ -77,8 +79,19 @@ export function App() {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
   const [prefsOpen, setPrefsOpen] = useState(false)
   const [prefsTarget, setPrefsTarget] = useState<string | null>(null)
+  const [appPrefs, setAppPrefs] = useState<AppPrefs>(() => loadAppPrefs())
+  const [wgUserEdit, setWgUserEdit] = useState('')
+  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [actionsOpen, setActionsOpen] = useState(false)
+  const [doctorOk, setDoctorOk] = useState<boolean | null>(null)
+  const [sessionExpired, setSessionExpired] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => !loadAppPrefs().onboardingDone,
+  )
 
   const busy = busyCount > 0
+  const homologMode = appPrefs.homologMode
+  const showWgTip = !appPrefs.wgPasswordTipDismissed
 
   const withBusy = useCallback(async <T,>(fn: () => Promise<T>): Promise<T> => {
     setBusyCount((n) => n + 1)
@@ -119,24 +132,33 @@ export function App() {
         if (next.user) {
           setUser((prev) => (prev.trim() === '' ? next!.user! : prev))
         }
+        if (next.warpgate_user) {
+          setWgUserEdit((prev) => (prev.trim() === '' ? next!.warpgate_user! : prev))
+        }
         if (next.need_login || next.token_ok === false) {
+          setSessionExpired(true)
           setNotice({
             kind: 'err',
             text:
               next.token_error ||
-              'Sessão SSO expirada. Use Login SSO para renovar (refresh falhou ou não há refresh_token).',
+              'Sessão SSO expirada. Use Reconectar SSO para renovar.',
           })
           setConns([])
+        } else if (next.session) {
+          setSessionExpired(false)
         }
       }
     } else if (st.code !== 0) {
       const msg = st.stderr || st.stdout || `status falhou (exit ${st.code})`
-      setNotice({
-        kind: 'err',
-        text: looksLikeNeedLogin(msg)
-          ? `Sessão expirada — faça Login SSO de novo.\n${msg}`
-          : msg,
-      })
+      if (looksLikeNeedLogin(msg)) {
+        setSessionExpired(true)
+        setNotice({
+          kind: 'err',
+          text: `Sessão expirada — reconecte com SSO.\n${msg}`,
+        })
+      } else {
+        setNotice({ kind: 'err', text: msg })
+      }
     }
 
     if (ls.code === 0 && ls.stdout) {
@@ -147,9 +169,10 @@ export function App() {
       const lsMsg = ls.stderr || ls.stdout || `catálogo falhou (exit ${ls.code})`
       if (ls.code !== 0 && st.code === 0) {
         if (next?.need_login || looksLikeNeedLogin(lsMsg)) {
+          setSessionExpired(true)
           setNotice({
             kind: 'err',
-            text: `Sessão expirada — faça Login SSO.\n${lsMsg}`,
+            text: `Sessão expirada — reconecte com SSO.\n${lsMsg}`,
           })
         } else if (next?.session) {
           setNotice({
@@ -233,26 +256,91 @@ export function App() {
     }
   }
 
+  const closeAllSessions = useCallback(async (reason?: string) => {
+    for (const t of sessionTabs) {
+      try {
+        const { invoke } = await import('@tauri-apps/api/core')
+        await invoke('ssh_session_close', { sessionId: t.id })
+      } catch {
+        /* ignore */
+      }
+    }
+    setSessionTabs([])
+    setActiveSessionId(null)
+    if (reason) {
+      setNotice({ kind: 'info', text: reason })
+    }
+  }, [sessionTabs])
+
+  const saveWgUser = async () => {
+    const name = wgUserEdit.trim()
+    if (!name) {
+      setNotice({ kind: 'err', text: 'Informe o usuário Warpgate (ex.: uat-op-a).' })
+      return
+    }
+    setPending('wg-user')
+    try {
+      const r = await runLogged(['wg-user', name])
+      if (r.code !== 0) {
+        setNotice({ kind: 'err', text: r.stderr || r.stdout || 'Falha ao salvar wg-user' })
+        return
+      }
+      await refresh()
+      setNotice({
+        kind: 'ok',
+        text: `Usuário Warpgate salvo: ${name}. SSH/DB usarão este login no bastion.`,
+      })
+    } finally {
+      setPending(null)
+    }
+  }
+
+  const runDoctorCheck = async (): Promise<boolean> => {
+    setPending('doctor')
+    setShowLog(true)
+    setNotice({ kind: 'info', text: 'Rodando doctor…' })
+    try {
+      const r = await runLogged(['doctor', '--json'])
+      if (r.code !== 0) {
+        setDoctorOk(false)
+        setNotice({ kind: 'err', text: r.stderr || r.stdout || 'Doctor falhou' })
+        return false
+      }
+      const data = parseJSON<{ checks?: { ok?: boolean; name?: string }[] }>(r.stdout)
+      const fails = (data?.checks || []).filter((c) => c && c.ok === false)
+      if (fails.length) {
+        setDoctorOk(false)
+        setNotice({
+          kind: 'err',
+          text: `Doctor: falhas em ${fails.map((f) => f.name).join(', ')}`,
+        })
+        return false
+      }
+      setDoctorOk(true)
+      setNotice({ kind: 'ok', text: 'Doctor OK — bastion e catálogo saudáveis.' })
+      return true
+    } finally {
+      setPending(null)
+    }
+  }
+
+  const reconnectSso = async () => {
+    await closeAllSessions('Sessões embutidas encerradas por reauth.')
+    await loginOidc()
+  }
+
   const logout = async () => {
     setPending('logout')
     setNotice({ kind: 'info', text: 'Encerrando sessão…' })
     try {
       const r = await runLogged(['logout'])
-      // Close any embedded SSH PTYs before clearing OIDC/lab session.
-      for (const t of sessionTabs) {
-        try {
-          const { invoke } = await import('@tauri-apps/api/core')
-          await invoke('ssh_session_close', { sessionId: t.id })
-        } catch {
-          /* ignore */
-        }
-      }
-      setSessionTabs([])
-      setActiveSessionId(null)
+      await closeAllSessions()
+      setSessionExpired(false)
       await refresh()
       if (r.code === 0) {
-        setNotice({ kind: 'ok', text: 'Sessão encerrada. Faça login lab ou SSO para continuar.' })
+        setNotice({ kind: 'ok', text: 'Sessão encerrada. Entre com SSO para continuar.' })
         setUser('')
+        setWgUserEdit('')
       } else {
         setNotice({
           kind: 'err',
@@ -262,6 +350,12 @@ export function App() {
     } finally {
       setPending(null)
     }
+  }
+
+  const finishOnboarding = () => {
+    const next = patchAppPrefs({ onboardingDone: true })
+    setAppPrefs(next)
+    setShowOnboarding(false)
   }
 
   /** S1: open RDM tab; external launch remains available from the tab. */
@@ -436,175 +530,262 @@ export function App() {
       <div className="rdm-body">
       <aside className="rdm-sidebar">
       <main className="main main-sidebar">
+        {sessionExpired && sessionOn ? (
+          <div className="reconnect-banner" role="alert">
+            <div>
+              <strong>Sessão expirada</strong>
+              <p>O token SSO caiu. Sessões embutidas devem ser reabertas após reconectar.</p>
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              disabled={busy}
+              onClick={() => void reconnectSso()}
+            >
+              Reconectar SSO
+            </button>
+          </div>
+        ) : null}
+
         {!sessionOn ? (
           <div className="callout">
             <div className="callout-icon">
               <IconShield />
             </div>
             <div className="callout-body">
-              <strong>Bastion, not VPN.</strong> O acesso privilegiado passa pelo
-              ArchGate (Warpgate). Forti/OpenVPN ficam no VPS — não no seu Mac.
+              <strong>Bastion, not VPN.</strong> Entre com SSO ArchGate. Forti/OpenVPN do
+              cliente ficam no VPS — não no seu Mac.
             </div>
           </div>
         ) : null}
 
-        <section className="panel panel-identity">
-          <h3 className="panel-label">Identidade</h3>
-
-          {sessionOn ? (
-            <div className="session-summary" role="status">
-              <div className="session-summary-row">
-                <span className="k">Estado</span>
-                <span className="v ok">Logado ({authMode})</span>
-              </div>
-              <div className="session-summary-row">
-                <span className="k">Catálogo</span>
-                <span className="v mono">{catalogUser}</span>
-              </div>
-              <div className="session-summary-row">
-                <span className="k">SSH Warpgate</span>
-                <span className="v mono accent">
-                  {wgUser}
-                  <span className="dim">
-                    {' '}
-                    · {bastionHost}
-                    {bastionPort != null ? `:${bastionPort}` : ''}
-                  </span>
-                </span>
-              </div>
-              <div className="session-summary-row">
-                <span className="k">Conexões</span>
-                <span className="v mono">{connCount}</span>
-              </div>
-              {tokenExpiry ? (
-                <div className="session-summary-row">
-                  <span className="k">Token SSO</span>
-                  <span className="v mono">{tokenExpiry}</span>
-                </div>
-              ) : null}
+        <section className="panel panel-identity panel-identity-compact">
+          <div className="identity-head">
+            <div className="identity-avatar" aria-hidden>
+              {(catalogUser || wgUser || '?').slice(0, 1).toUpperCase()}
             </div>
-          ) : (
-            <p className="auth-hint">
-              {status?.need_login ? (
+            <div className="identity-meta">
+              {sessionOn ? (
                 <>
-                  Sessão SSO expirada (refresh falhou). Use <strong>Login SSO</strong> de
-                  novo. Lab só para homolog.
+                  <div className="identity-name" title={catalogUser}>
+                    {catalogUser}
+                    <span className="identity-badge">{authMode}</span>
+                  </div>
+                  <div className="identity-sub mono">
+                    WG <strong>{wgUser}</strong>
+                    <span className="dim">
+                      {' '}
+                      · {bastionHost}
+                      {bastionPort != null ? `:${bastionPort}` : ''} · {connCount} conn
+                    </span>
+                  </div>
+                  {tokenExpiry ? (
+                    <div className="identity-sub dim">Token até {tokenExpiry}</div>
+                  ) : null}
                 </>
               ) : (
                 <>
-                  Sem sessão. Use <strong>Login lab</strong> (homolog) ou{' '}
-                  <strong>Login SSO</strong> (Kanidm no browser).
+                  <div className="identity-name">Não autenticado</div>
+                  <div className="identity-sub">Use SSO (Kanidm) para carregar o catálogo</div>
                 </>
               )}
-            </p>
-          )}
+            </div>
+            <div className="identity-actions">
+              {!sessionOn ? (
+                <button
+                  className="btn btn-primary btn-sm"
+                  disabled={busy}
+                  onClick={() => void loginOidc()}
+                  aria-busy={pending === 'sso'}
+                >
+                  {pending === 'sso' ? 'SSO…' : 'Login SSO'}
+                </button>
+              ) : (
+                <button
+                  className="btn btn-ghost btn-sm"
+                  disabled={busy}
+                  onClick={() => void reconnectSso()}
+                  title="Renovar sessão SSO e limpar abas embutidas"
+                >
+                  Reconectar
+                </button>
+              )}
+              <div className="menu-wrap">
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  aria-expanded={actionsOpen}
+                  aria-haspopup="menu"
+                  onClick={() => setActionsOpen((v) => !v)}
+                >
+                  ⋯
+                </button>
+                {actionsOpen ? (
+                  <div className="menu-pop" role="menu">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={busy}
+                      onClick={() => {
+                        setActionsOpen(false)
+                        setNotice({ kind: 'info', text: 'Atualizando…' })
+                        void refresh().then((st) => {
+                          if (st?.session) {
+                            setNotice({
+                              kind: 'ok',
+                              text: `Ativo · ${st.user || '—'} · WG ${st.warpgate_user || '—'}`,
+                            })
+                          }
+                        })
+                      }}
+                    >
+                      Atualizar catálogo
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={busy}
+                      onClick={() => {
+                        setActionsOpen(false)
+                        void runDoctorCheck()
+                      }}
+                    >
+                      Doctor
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={busy || !sessionOn}
+                      onClick={() => {
+                        setActionsOpen(false)
+                        setPending('config')
+                        void runLogged(['config', 'apply'])
+                          .then((r) => {
+                            setNotice({
+                              kind: r.code === 0 ? 'ok' : 'err',
+                              text:
+                                r.code === 0
+                                  ? r.stdout.trim() || 'SSH config aplicado'
+                                  : r.stderr || 'Falha SSH config',
+                            })
+                          })
+                          .finally(() => setPending(null))
+                      }}
+                    >
+                      Aplicar SSH config
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setActionsOpen(false)
+                        setPrefsTarget(null)
+                        setPrefsOpen(true)
+                      }}
+                    >
+                      Preferências do terminal
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setActionsOpen(false)
+                        setShowAdvanced((v) => !v)
+                      }}
+                    >
+                      {showAdvanced ? 'Ocultar avançado' : 'Avançado / homolog'}
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={busy || !sessionOn}
+                      onClick={() => {
+                        setActionsOpen(false)
+                        void logout()
+                      }}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
 
-          <div className="auth-row">
-            <input
-              className="field"
-              value={user}
-              onChange={(e) => setUser(e.target.value)}
-              placeholder="usuário do catálogo lab (ex.: edson)"
-              spellCheck={false}
-              aria-label="Usuário do catálogo lab"
-              autoComplete="username"
-              disabled={busy}
-            />
-            <button
-              className="btn btn-ghost"
-              disabled={busy}
-              onClick={() => void loginLab()}
-              aria-busy={pending === 'lab'}
-              title="Homologação: token lab local + catálogo BFF (não é identidade corporativa)"
-            >
-              {pending === 'lab' ? 'Entrando…' : 'Lab (homolog)'}
-            </button>
-            <button
-              className="btn btn-primary"
-              disabled={busy}
-              onClick={() => void loginOidc()}
-              aria-busy={pending === 'sso'}
-              title="Produção: Kanidm OIDC no browser (refresh automático)"
-            >
-              {pending === 'sso' ? 'Aguardando SSO…' : 'SSO (Kanidm)'}
-            </button>
-          </div>
-          <div className="tool-row">
-            <button
-              className="btn btn-ghost btn-sm"
-              disabled={busy}
-              onClick={() => {
-                setNotice({ kind: 'info', text: 'Atualizando status e catálogo…' })
-                void refresh().then((st) => {
-                  if (st?.session) {
-                    setNotice({
-                      kind: 'ok',
-                      text: `Sessão ativa · ${st.user || '—'} · ${st.connections ?? 0} conexões · WG ${st.warpgate_user || '—'}`,
-                    })
-                  } else {
-                    setNotice({
-                      kind: 'info',
-                      text: 'Sem sessão ativa. Faça Login lab ou SSO.',
-                    })
-                  }
-                })
-              }}
-            >
-              Atualizar
-            </button>
-            <button
-              className="btn btn-ghost btn-sm"
-              disabled={busy || !sessionOn}
-              onClick={() => {
-                setPending('config')
-                setNotice({ kind: 'info', text: 'Aplicando SSH config…' })
-                void runLogged(['config', 'apply'])
-                  .then((r) => {
-                    if (r.code === 0) {
-                      setNotice({ kind: 'ok', text: r.stdout.trim() || 'SSH config aplicado.' })
-                    } else {
-                      setNotice({
-                        kind: 'err',
-                        text: r.stderr || r.stdout || 'Falha no SSH config',
-                      })
-                    }
-                  })
-                  .finally(() => setPending(null))
-              }}
-            >
-              SSH config
-            </button>
-            <button
-              className="btn btn-ghost btn-sm"
-              disabled={busy}
-              onClick={() => {
-                setPending('doctor')
-                setShowLog(true)
-                setNotice({ kind: 'info', text: 'Rodando doctor…' })
-                void runLogged(['doctor', '--json'])
-                  .then((r) => {
-                    if (r.code === 0) {
-                      setNotice({ kind: 'ok', text: 'Doctor concluído — veja o console.' })
-                    } else {
-                      setNotice({
-                        kind: 'err',
-                        text: r.stderr || r.stdout || 'Doctor falhou',
-                      })
-                    }
-                  })
-                  .finally(() => setPending(null))
-              }}
-            >
-              Doctor
-            </button>
-            <button
-              className="btn btn-ghost btn-sm"
-              disabled={busy || !sessionOn}
-              onClick={() => void logout()}
-            >
-              {pending === 'logout' ? 'Saindo…' : 'Logout'}
-            </button>
-          </div>
+          {sessionOn ? (
+            <div className="wg-user-row">
+              <label htmlFor="wg-user-field">
+                Usuário Warpgate
+                <span className="dim"> (SSH/DB no bastion)</span>
+              </label>
+              <div className="prefs-row">
+                <input
+                  id="wg-user-field"
+                  className="field"
+                  value={wgUserEdit}
+                  onChange={(e) => setWgUserEdit(e.target.value)}
+                  placeholder="ex.: uat-op-a ou seu.login"
+                  spellCheck={false}
+                  disabled={busy}
+                />
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  disabled={busy || !wgUserEdit.trim()}
+                  onClick={() => void saveWgUser()}
+                >
+                  Salvar
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {showAdvanced || homologMode ? (
+            <div className="advanced-box">
+              <div className="advanced-title">Avançado · homologação</div>
+              <label className="prefs-check">
+                <input
+                  type="checkbox"
+                  checked={homologMode}
+                  onChange={(e) => {
+                    const next = patchAppPrefs({ homologMode: e.target.checked })
+                    setAppPrefs(next)
+                  }}
+                />
+                Mostrar login lab (não usar em produção)
+              </label>
+              {homologMode ? (
+                <div className="auth-row" style={{ marginTop: 8 }}>
+                  <input
+                    className="field"
+                    value={user}
+                    onChange={(e) => setUser(e.target.value)}
+                    placeholder="usuário catálogo lab"
+                    spellCheck={false}
+                    disabled={busy}
+                  />
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    disabled={busy}
+                    onClick={() => void loginLab()}
+                  >
+                    {pending === 'lab' ? '…' : 'Lab'}
+                  </button>
+                </div>
+              ) : null}
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                style={{ marginTop: 8 }}
+                onClick={() => {
+                  setShowOnboarding(true)
+                  setAppPrefs(patchAppPrefs({ onboardingDone: false }))
+                }}
+              >
+                Reabrir introdução
+              </button>
+            </div>
+          ) : null}
         </section>
 
         {notice ? (
@@ -718,10 +899,28 @@ export function App() {
             setPrefsTarget(target)
             setPrefsOpen(true)
           }}
+          warpgateUser={wgUser}
+          showPasswordTip={showWgTip}
+          onDismissPasswordTip={() => {
+            setAppPrefs(patchAppPrefs({ wgPasswordTipDismissed: true }))
+          }}
           busy={busy}
         />
       </section>
       </div>
+
+      {showOnboarding ? (
+        <FirstRunWizard
+          sessionOn={sessionOn}
+          connCount={connCount}
+          doctorOk={doctorOk}
+          busy={busy}
+          onSso={() => void loginOidc()}
+          onDoctor={() => void runDoctorCheck()}
+          onSkip={finishOnboarding}
+          onFinish={finishOnboarding}
+        />
+      ) : null}
 
       <TerminalPrefsPanel
         open={prefsOpen}

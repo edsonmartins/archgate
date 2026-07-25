@@ -13,6 +13,9 @@ type Props = {
   onExternal: (tab: SessionTab) => void
   onSessionState: (id: string, state: SessionState, note?: string) => void
   onPrefs?: (target: string) => void
+  warpgateUser?: string
+  showPasswordTip?: boolean
+  onDismissPasswordTip?: () => void
   busy?: boolean
 }
 
@@ -24,6 +27,9 @@ export function SessionWorkspace({
   onExternal,
   onSessionState,
   onPrefs,
+  warpgateUser,
+  showPasswordTip,
+  onDismissPasswordTip,
   busy,
 }: Props) {
   if (tabs.length === 0) {
@@ -125,6 +131,9 @@ export function SessionWorkspace({
                   sessionId={tab.id}
                   target={tab.connection.target}
                   active={isActive}
+                  warpgateUser={warpgateUser}
+                  showPasswordTip={isActive && showPasswordTip}
+                  onDismissPasswordTip={onDismissPasswordTip}
                   onState={(state, note) => onSessionState(tab.id, state, note)}
                 />
               ) : tab.kind === 'guac' ? (
@@ -139,6 +148,9 @@ export function SessionWorkspace({
                   sessionId={tab.id}
                   target={tab.connection.target}
                   active={isActive}
+                  warpgateUser={warpgateUser}
+                  showPasswordTip={isActive && showPasswordTip}
+                  onDismissPasswordTip={onDismissPasswordTip}
                   onState={(state, note) => onSessionState(tab.id, state, note)}
                 />
               ) : tab.kind === 'web' ? (

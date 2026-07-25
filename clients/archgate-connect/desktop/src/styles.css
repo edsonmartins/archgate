@@ -614,6 +614,340 @@ button {
   }
 }
 
+/* —— Onda 1: identity compact + reconnect + onboarding —— */
+.panel-identity-compact {
+  padding-bottom: 12px;
+}
+
+.identity-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.identity-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: linear-gradient(145deg, var(--signal-dim), var(--gate-dim));
+  border: 1px solid var(--gate-line);
+  flex-shrink: 0;
+}
+
+.identity-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.identity-name {
+  font-weight: 650;
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.identity-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--ok-dim);
+  color: var(--ok);
+  border: 1px solid var(--ok-line);
+}
+
+.identity-sub {
+  font-size: 0.72rem;
+  color: var(--ink-3);
+  margin-top: 2px;
+  line-height: 1.35;
+}
+
+.identity-sub strong {
+  color: var(--signal);
+  font-weight: 600;
+}
+
+.identity-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.menu-wrap {
+  position: relative;
+}
+
+.menu-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 40;
+  min-width: 200px;
+  padding: 4px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--bg-raised);
+  box-shadow: var(--shadow-panel);
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-pop button {
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.menu-pop button:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--ink);
+}
+
+.menu-pop button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.wg-user-row {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.wg-user-row label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+
+.advanced-box {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: var(--r-sm);
+  border: 1px dashed var(--amber-line);
+  background: var(--amber-dim);
+}
+
+.advanced-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--amber);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.reconnect-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--err-line);
+  background: var(--err-dim);
+}
+
+.reconnect-banner strong {
+  display: block;
+  color: var(--err);
+  font-size: 0.85rem;
+}
+
+.reconnect-banner p {
+  margin: 2px 0 0;
+  font-size: 0.72rem;
+  color: var(--ink-2);
+}
+
+.wg-tip {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--signal-dim);
+  border-bottom: 1px solid var(--line-focus);
+  flex-shrink: 0;
+}
+
+.wg-tip-body strong {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--signal);
+  margin-bottom: 2px;
+}
+
+.wg-tip-body p {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--ink-2);
+  line-height: 1.4;
+}
+
+.wg-tip-body code {
+  font-family: var(--mono);
+  color: var(--ink);
+  font-size: 0.7rem;
+}
+
+.onboard-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(2, 6, 14, 0.78);
+  backdrop-filter: blur(10px);
+}
+
+.onboard-card {
+  width: min(440px, 100%);
+  padding: 22px 20px 16px;
+  border-radius: var(--r);
+  border: 1px solid var(--line-strong);
+  background: var(--bg-panel);
+  box-shadow: var(--shadow-panel), 0 28px 80px rgba(0, 0, 0, 0.5);
+}
+
+.onboard-brand {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.onboard-brand h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+
+.onboard-sub {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--ink-3);
+  line-height: 1.4;
+}
+
+.onboard-steps {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.onboard-steps li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  opacity: 0.55;
+}
+
+.onboard-steps li.active {
+  opacity: 1;
+  border-color: var(--line-focus);
+  background: var(--signal-dim);
+}
+
+.onboard-steps li.done {
+  opacity: 0.85;
+  border-color: var(--ok-line);
+}
+
+.onboard-n {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  flex-shrink: 0;
+}
+
+.onboard-steps li.active .onboard-n {
+  background: var(--signal);
+  color: #041018;
+  border-color: transparent;
+}
+
+.onboard-steps li.done .onboard-n {
+  background: var(--ok-dim);
+  color: var(--ok);
+  border-color: var(--ok-line);
+}
+
+.onboard-steps strong {
+  display: block;
+  font-size: 0.85rem;
+}
+
+.onboard-steps p {
+  margin: 2px 0 0;
+  font-size: 0.72rem;
+  color: var(--ink-3);
+}
+
+.onboard-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.onboard-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.onboard-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: var(--ink-3);
+}
+
+.onboard-tip svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
 .app::before {
   content: '';
   pointer-events: none;

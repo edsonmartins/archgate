@@ -183,6 +183,18 @@ function mockArchgate(args: string[]): RunResult {
     }
   }
 
+  if (cmd === 'wg-user' || cmd === 'warpgate-user') {
+    const name = args[1] || 'uat-op-a'
+    if (json) {
+      return {
+        code: 0,
+        stdout: JSON.stringify({ warpgate_user: name, stored: true }) + '\n',
+        stderr: '',
+      }
+    }
+    return { code: 0, stdout: `warpgate_user saved: ${name}\n`, stderr: '' }
+  }
+
   if (cmd === 'db' && json) {
     return {
       code: 0,

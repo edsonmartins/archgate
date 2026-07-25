@@ -219,6 +219,36 @@ func TestIsCloudflareOnlyHost(t *testing.T) {
 	}
 }
 
+func TestWgUserSetAndGet(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("ARCHGATE_CONFIG_DIR", dir)
+	t.Setenv("ARCHGATE_MOCK", "1")
+	t.Setenv("ARCHGATE_KEYCHAIN", "file")
+	t.Setenv("ARCHGATE_WG_USER", "")
+
+	if err := Execute([]string{"login", "--lab", "--user", "tester"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := Execute([]string{"wg-user", "custom-op"}); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Creds.WarpgateUser != "custom-op" {
+		t.Fatalf("stored=%q", cfg.Creds.WarpgateUser)
+	}
+	out := captureStdout(t, func() {
+		if err := Execute([]string{"wg-user", "--json"}); err != nil {
+			t.Fatal(err)
+		}
+	})
+	if !strings.Contains(out, "custom-op") {
+		t.Fatalf("json: %s", out)
+	}
+}
+
 func TestManagerPathOK(t *testing.T) {
 	ok := []string{"/dashboard", "/sites", "/sites/wizard", "/gateways", "/identities"}
 	for _, p := range ok {

@@ -8,6 +8,7 @@ import {
   useApplyTerminalOptions,
   useTerminalAppearance,
 } from '../prefs/useTerminalAppearance'
+import { WgPasswordTip } from './WgPasswordTip'
 
 type PrintSsh = {
   host: string
@@ -21,6 +22,9 @@ type Props = {
   sessionId: string
   target: string
   active: boolean
+  warpgateUser?: string
+  showPasswordTip?: boolean
+  onDismissPasswordTip?: () => void
   onState: (state: 'connecting' | 'connected' | 'error' | 'closed', note?: string) => void
 }
 
@@ -29,7 +33,15 @@ function isTauri(): boolean {
   return !!(w.__TAURI_INTERNALS__ || w.__TAURI__)
 }
 
-export function SshTerminal({ sessionId, target, active, onState }: Props) {
+export function SshTerminal({
+  sessionId,
+  target,
+  active,
+  warpgateUser,
+  showPasswordTip,
+  onDismissPasswordTip,
+  onState,
+}: Props) {
   const hostRef = useRef<HTMLDivElement>(null)
   const termRef = useRef<Terminal | null>(null)
   const fitRef = useRef<FitAddon | null>(null)
@@ -218,6 +230,13 @@ export function SshTerminal({ sessionId, target, active, onState }: Props) {
   return (
     <div className="ssh-terminal-wrap">
       {banner ? <div className="ssh-terminal-banner">{banner}</div> : null}
+      {showPasswordTip && onDismissPasswordTip ? (
+        <WgPasswordTip
+          kind="ssh"
+          warpgateUser={warpgateUser || 'operador'}
+          onDismiss={onDismissPasswordTip}
+        />
+      ) : null}
       <div ref={hostRef} className="ssh-terminal-host" />
     </div>
   )

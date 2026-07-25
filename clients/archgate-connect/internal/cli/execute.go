@@ -74,6 +74,8 @@ func Execute(args []string) error {
 		return cmdAuthHeader(jsonOut)
 	case "print-open":
 		return cmdPrintOpen(rest, jsonOut)
+	case "wg-user", "warpgate-user":
+		return cmdWgUser(rest, jsonOut)
 	default:
 		return fmt.Errorf("unknown command %q — try archgate help", cmd)
 	}
@@ -104,6 +106,7 @@ Uso:
   archgate open-manager          Alias de manager
   archgate auth-header [--json]  Token Bearer p/ BFF (desktop embutido)
   archgate print-open <target>   URL embutível (Guac/HTTP/Oracle) JSON
+  archgate wg-user [name]        Ver/definir usuário Warpgate (SSH/DB)
   archgate config apply|remove   ~/.ssh/config.d/archgate
   archgate version
 

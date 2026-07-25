@@ -45,3 +45,73 @@ func labWarpgateUser() string {
 	}
 	return defaultLabWarpgateUser
 }
+
+// cmdWgUser gets or sets credentials.warpgate_user (desktop Onda 1 / F1).
+//
+//	archgate wg-user              # print resolved user
+//	archgate wg-user uat-op-a     # persist
+//	archgate wg-user --clear      # remove stored value
+func cmdWgUser(args []string, jsonOut bool) error {
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	if len(args) == 0 {
+		resolved, rerr := resolveWarpgateUser(cfg)
+		stored := cfg.Creds.WarpgateUser
+		if jsonOut {
+			return printJSON(map[string]any{
+				"warpgate_user":        resolved,
+				"stored_warpgate_user": stored,
+				"env_override":         strings.TrimSpace(os.Getenv("ARCHGATE_WG_USER")) != "",
+				"error": func() any {
+					if rerr != nil {
+						return rerr.Error()
+					}
+					return nil
+				}(),
+			})
+		}
+		if rerr != nil {
+			fmt.Printf("warpgate_user: (not set)\n")
+			fmt.Printf("hint: archgate wg-user uat-op-a\n")
+			return rerr
+		}
+		fmt.Printf("warpgate_user: %s\n", resolved)
+		if stored != "" && stored != resolved {
+			fmt.Printf("stored:        %s\n", stored)
+		}
+		if strings.TrimSpace(os.Getenv("ARCHGATE_WG_USER")) != "" {
+			fmt.Printf("source:        ARCHGATE_WG_USER env\n")
+		} else if stored != "" {
+			fmt.Printf("source:        credentials\n")
+		} else {
+			fmt.Printf("source:        OIDC username\n")
+		}
+		return nil
+	}
+	if args[0] == "--clear" || args[0] == "clear" {
+		cfg.Creds.WarpgateUser = ""
+		if err := config.SaveCredentials(&cfg.Creds); err != nil {
+			return err
+		}
+		if jsonOut {
+			return printJSON(map[string]any{"cleared": true})
+		}
+		fmt.Println("warpgate_user cleared (will use OIDC username or ARCHGATE_WG_USER)")
+		return nil
+	}
+	name := util.StripAt(strings.TrimSpace(args[0]))
+	if name == "" || strings.ContainsAny(name, " \t\n") {
+		return fmt.Errorf("invalid warpgate user %q", args[0])
+	}
+	cfg.Creds.WarpgateUser = name
+	if err := config.SaveCredentials(&cfg.Creds); err != nil {
+		return err
+	}
+	if jsonOut {
+		return printJSON(map[string]any{"warpgate_user": name, "stored": true})
+	}
+	fmt.Printf("warpgate_user saved: %s\n", name)
+	return nil
+}

@@ -8,6 +8,7 @@ import {
   useApplyTerminalOptions,
   useTerminalAppearance,
 } from '../prefs/useTerminalAppearance'
+import { WgPasswordTip } from './WgPasswordTip'
 
 type DbInfo = {
   host: string
@@ -23,6 +24,9 @@ type Props = {
   sessionId: string
   target: string
   active: boolean
+  warpgateUser?: string
+  showPasswordTip?: boolean
+  onDismissPasswordTip?: () => void
   onState: (state: 'connecting' | 'connected' | 'error' | 'closed', note?: string) => void
 }
 
@@ -32,7 +36,15 @@ function isTauri(): boolean {
 }
 
 /** Embedded psql via PTY against Warpgate PG bastion (password interactive). */
-export function DbTerminal({ sessionId, target, active, onState }: Props) {
+export function DbTerminal({
+  sessionId,
+  target,
+  active,
+  warpgateUser,
+  showPasswordTip,
+  onDismissPasswordTip,
+  onState,
+}: Props) {
   const hostRef = useRef<HTMLDivElement>(null)
   const termRef = useRef<Terminal | null>(null)
   const fitRef = useRef<FitAddon | null>(null)
@@ -205,6 +217,13 @@ export function DbTerminal({ sessionId, target, active, onState }: Props) {
   return (
     <div className="ssh-terminal-wrap">
       {banner ? <div className="ssh-terminal-banner">{banner}</div> : null}
+      {showPasswordTip && onDismissPasswordTip ? (
+        <WgPasswordTip
+          kind="db"
+          warpgateUser={warpgateUser || 'operador'}
+          onDismiss={onDismissPasswordTip}
+        />
+      ) : null}
       <div ref={hostRef} className="ssh-terminal-host" />
     </div>
   )
