@@ -115,3 +115,5 @@ UnifiedUI OIDC lab, Oracle JDBC real, NetBird, HA Raft, agent-control live, SIEM
 | 2026-07-24 | **F0.4** Este plano versionado |
 
 Ver também: [`PLAN-IMPLEMENTACAO-RESTANTE.md`](./PLAN-IMPLEMENTACAO-RESTANTE.md), [`PLAN-HOMOLOGACAO-MVP.md`](./PLAN-HOMOLOGACAO-MVP.md), `archgate-devops/docs/RESIDUAL-SPRINT1.md`.
+
+**Validação Rio Quality (checklist por tipo de acesso):** [`runbooks/sites/VALIDACAO-RIO-QUALITY.md`](./runbooks/sites/VALIDACAO-RIO-QUALITY.md).

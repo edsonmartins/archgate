@@ -41,6 +41,8 @@ Guia: [conectividade-vpn-clientes.md](./conectividade-vpn-clientes.md).
 | Site / slug | Tenant Kanidm | Conectividade | Targets Warpgate | Guac | Ficha |
 |-------------|---------------|---------------|------------------|------|-------|
 | Rio Quality (lab) | `tenant_rio_quality` | `tunnel_agent` (overlay Swarm + Postgres `.110`) | `rio-lab-ssh`, `rio-lab-postgres` | `lab-ssh-browser` (shared lab) | [lab-rio-quality.yaml](./lab-rio-quality.yaml) |
+
+**Validação piloto Rio (dual peer + targets reais):** [VALIDACAO-RIO-QUALITY.md](./VALIDACAO-RIO-QUALITY.md).
 | Grupo Marra (lab) | `tenant_grupo_marra` | `tunnel_agent` (mesmo runtime) | `marra-lab-ssh`, `marra-lab-postgres` | — | [lab-grupo-marra.yaml](./lab-grupo-marra.yaml) |
 | **Piloto connector** | `tenant_rio_quality` | **`tunnel_agent` + LAN isolada** (`archgate-site-piloto`) | **`piloto-lab-ssh`** via connector | — | [lab-piloto-connector.yaml](./lab-piloto-connector.yaml) |
 | Lab genérico | (roles admin/operators) | `tunnel_agent` | `lab-ssh`, `lab-postgres` | `lab-ssh-browser` | (sem ficha tenant) |
