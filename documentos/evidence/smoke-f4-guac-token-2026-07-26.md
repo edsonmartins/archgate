@@ -83,6 +83,15 @@ Não aplicável neste host (Guac exposto direto). Script `oauth2-proxy-deploy.sh
 | Catálogo Connect Bearer | **PASS** |
 | Túnel WS via Traefik (h1) | **PASS** |
 
+## Automação
+
+```bash
+bash deploy/validation/smoke-f4-guac-ws.sh
+# → SMOKE_F4_GUAC_WS_PASS (catalog + mint + WS 101 + first frame)
+```
+
+Reexecutado 2026-07-26: **PASS=4 FAIL=0**, `ws_status=101`, `first_bytes=45`.
+
 ## Commits
 
 | Repo | SHA | Nota |

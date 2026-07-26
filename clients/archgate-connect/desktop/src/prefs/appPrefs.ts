@@ -2,6 +2,8 @@
 
 const KEY = 'archgate.connect.appPrefs.v1'
 
+export type AppTheme = 'dark' | 'light'
+
 export type AppPrefs = {
   version: 1
   /** Show lab login controls (homolog). Default false = SSO-first. */
@@ -10,6 +12,8 @@ export type AppPrefs = {
   onboardingDone: boolean
   /** User dismissed the Warpgate password tip (global). */
   wgPasswordTipDismissed: boolean
+  /** App chrome theme (V10). Terminal theme is separate. */
+  theme: AppTheme
 }
 
 export function defaultAppPrefs(): AppPrefs {
@@ -18,6 +22,7 @@ export function defaultAppPrefs(): AppPrefs {
     homologMode: false,
     onboardingDone: false,
     wgPasswordTipDismissed: false,
+    theme: 'dark',
   }
 }
 
@@ -26,11 +31,13 @@ export function loadAppPrefs(): AppPrefs {
     const raw = localStorage.getItem(KEY)
     if (!raw) return defaultAppPrefs()
     const p = JSON.parse(raw) as Partial<AppPrefs>
+    const theme: AppTheme = p.theme === 'light' ? 'light' : 'dark'
     return {
       ...defaultAppPrefs(),
       homologMode: !!p.homologMode,
       onboardingDone: !!p.onboardingDone,
       wgPasswordTipDismissed: !!p.wgPasswordTipDismissed,
+      theme,
     }
   } catch {
     return defaultAppPrefs()

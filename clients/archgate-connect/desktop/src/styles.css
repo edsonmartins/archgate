@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-:root {
+:root,
+[data-theme='dark'] {
   color-scheme: dark;
   --bg-void: #05070c;
   --bg-base: #0a0e17;
@@ -40,6 +41,43 @@
   --font: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* V10 — light chrome (terminals keep their own theme prefs) */
+[data-theme='light'] {
+  color-scheme: light;
+  --bg-void: #e8edf5;
+  --bg-base: #f4f7fb;
+  --bg-raised: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-hover: #e8eef8;
+  --bg-active: #dce6f5;
+  --line: rgba(15, 23, 42, 0.1);
+  --line-strong: rgba(15, 23, 42, 0.16);
+  --line-focus: rgba(2, 132, 199, 0.45);
+  --ink: #0f172a;
+  --ink-2: #475569;
+  --ink-3: #64748b;
+  --ink-4: #94a3b8;
+  --signal: #0284c7;
+  --signal-dim: rgba(2, 132, 199, 0.1);
+  --signal-glow: rgba(2, 132, 199, 0.2);
+  --gate: #0891b2;
+  --gate-dim: rgba(8, 145, 178, 0.1);
+  --gate-line: rgba(8, 145, 178, 0.25);
+  --amber: #d97706;
+  --amber-dim: rgba(217, 119, 6, 0.1);
+  --amber-line: rgba(217, 119, 6, 0.25);
+  --violet: #7c3aed;
+  --violet-dim: rgba(124, 58, 237, 0.1);
+  --violet-line: rgba(124, 58, 237, 0.25);
+  --ok: #059669;
+  --ok-dim: rgba(5, 150, 105, 0.1);
+  --ok-line: rgba(5, 150, 105, 0.28);
+  --err: #e11d48;
+  --err-dim: rgba(225, 29, 72, 0.1);
+  --err-line: rgba(225, 29, 72, 0.28);
+  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 10px 28px rgba(15, 23, 42, 0.08);
 }
 
 * {

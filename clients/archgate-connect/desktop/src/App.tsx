@@ -634,8 +634,14 @@ export function App() {
         ? `Ativo · ${catalogUser}`
         : 'Offline'
 
+  // V10 — app chrome theme (persisted)
+  useEffect(() => {
+    document.documentElement.dataset.theme = appPrefs.theme
+    document.documentElement.style.colorScheme = appPrefs.theme
+  }, [appPrefs.theme])
+
   return (
-    <div className="app app-rdm">
+    <div className={`app app-rdm theme-${appPrefs.theme}`}>
       <div className={`busy-bar ${busy ? 'on' : ''}`} aria-hidden />
 
       <header className="topbar">
@@ -649,6 +655,18 @@ export function App() {
           </div>
         </div>
         <div className="topbar-actions">
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => {
+              const next = appPrefs.theme === 'dark' ? 'light' : 'dark'
+              setAppPrefs(patchAppPrefs({ theme: next }))
+            }}
+            title={appPrefs.theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+            aria-label="Alternar tema"
+          >
+            {appPrefs.theme === 'dark' ? '☀' : '☾'}
+          </button>
           <button
             type="button"
             className="btn btn-ghost btn-sm"
@@ -817,6 +835,17 @@ export function App() {
                       }}
                     >
                       Aplicar SSH config
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setActionsOpen(false)
+                        const next = appPrefs.theme === 'dark' ? 'light' : 'dark'
+                        setAppPrefs(patchAppPrefs({ theme: next }))
+                      }}
+                    >
+                      Tema {appPrefs.theme === 'dark' ? 'claro' : 'escuro'}
                     </button>
                     <button
                       type="button"
