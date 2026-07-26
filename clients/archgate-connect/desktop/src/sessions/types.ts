@@ -50,7 +50,7 @@ export function newSessionTab(c: Connection): SessionTab {
       : kind === 'guac'
         ? 'Display RDP/VNC embutido (Guacamole)…'
         : kind === 'db'
-          ? 'Terminal psql embutido (Warpgate PG)…'
+          ? 'Terminal DB embutido (psql/mysql via Warpgate)…'
           : 'Painel web embutido…'
   return {
     id: `${c.target}-${Date.now()}`,

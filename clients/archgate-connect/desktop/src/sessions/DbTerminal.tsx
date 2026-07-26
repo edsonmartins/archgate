@@ -11,12 +11,17 @@ import {
 import { WgPasswordTip } from './WgPasswordTip'
 
 type DbInfo = {
+  engine?: string
   host: string
   port: number
-  database: string
+  database?: string
   username: string
   sslmode?: string
+  program?: string
+  args?: string[]
   psql?: string
+  mysql?: string
+  command?: string
   note?: string
 }
 
@@ -35,7 +40,12 @@ function isTauri(): boolean {
   return !!(w.__TAURI_INTERNALS__ || w.__TAURI__)
 }
 
-/** Embedded psql via PTY against Warpgate PG bastion (password interactive). */
+function isMySQL(info: DbInfo): boolean {
+  const e = (info.engine || '').toLowerCase()
+  return e === 'mysql' || e === 'mariadb' || !!info.mysql
+}
+
+/** Embedded psql/mysql via PTY against Warpgate DB bastion (password interactive). */
 export function DbTerminal({
   sessionId,
   target,
@@ -79,7 +89,7 @@ export function DbTerminal({
     termRef.current = term
     fitRef.current = fitAddon
 
-    term.writeln('\x1b[90mArchGate Connect · Postgres embutido (Warpgate bastion)\x1b[0m')
+    term.writeln('\x1b[90mArchGate Connect · DB embutido (Warpgate bastion)\x1b[0m')
     term.writeln(`\x1b[90mAlvo: ${target}\x1b[0m`)
     term.writeln('')
 
@@ -88,7 +98,7 @@ export function DbTerminal({
     let disposed = false
 
     const start = async () => {
-      onState('connecting', 'Resolvendo bastion PG…')
+      onState('connecting', 'Resolvendo bastion DB…')
       const r = await runArchgate(['db', target, '--json'])
       if (disposed) return
       if (r.code !== 0) {
@@ -110,10 +120,23 @@ export function DbTerminal({
         return
       }
 
-      term.writeln(`\x1b[90m→ ${info.psql || `psql ${info.host}:${info.port}`}\x1b[0m`)
+      const mysql = isMySQL(info)
+      const label = mysql ? 'MySQL' : 'Postgres'
+      const cmdHint =
+        info.command ||
+        info.mysql ||
+        info.psql ||
+        `${mysql ? 'mysql' : 'psql'} ${info.host}:${info.port}`
+
+      term.writeln(`\x1b[90m→ ${label} · ${cmdHint}\x1b[0m`)
       term.writeln(
         '\x1b[33mSenha: credencial Warpgate do operador (não a senha do banco).\x1b[0m',
       )
+      if (mysql) {
+        term.writeln(
+          '\x1b[90mRequer mysql client no PATH e bastion com mysql.enable (porta 33306).\x1b[0m',
+        )
+      }
       term.writeln('')
 
       if (!isTauri()) {
@@ -126,22 +149,42 @@ export function DbTerminal({
       const { listen } = await import('@tauri-apps/api/event')
       fitRef.current?.fit()
 
-      const conn = `host=${info.host} port=${info.port} user=${info.username} dbname=${info.database || 'postgres'} sslmode=${info.sslmode || 'require'}`
+      let program = info.program || (mysql ? 'mysql' : 'psql')
+      let args: string[] =
+        info.args && info.args.length > 0
+          ? info.args
+          : mysql
+            ? [
+                '-h',
+                info.host,
+                '-P',
+                String(info.port || 33306),
+                '-u',
+                info.username,
+                '-p',
+                '--ssl-mode=REQUIRED',
+              ]
+            : [
+                `host=${info.host} port=${info.port} user=${info.username} dbname=${info.database || 'postgres'} sslmode=${info.sslmode || 'require'}`,
+              ]
+
       try {
         await invoke('pty_session_open', {
           sessionId,
-          program: 'psql',
-          args: [conn],
+          program,
+          args,
           cols: term.cols,
           rows: term.rows,
         })
         openedRef.current = true
-        onState('connected', `psql · ${info.username}@${info.host}`)
+        onState('connected', `${program} · ${info.username}@${info.host}`)
         setBanner(null)
       } catch (e) {
         const msg = String(e)
-        term.writeln(`\x1b[31mFalha PTY psql: ${msg}\x1b[0m`)
-        term.writeln('\x1b[90mInstale psql no PATH ou use “Abrir externo”.\x1b[0m')
+        term.writeln(`\x1b[31mFalha PTY ${program}: ${msg}\x1b[0m`)
+        term.writeln(
+          `\x1b[90mInstale ${program} no PATH ou use “Abrir externo” / copiar comando.\x1b[0m`,
+        )
         onState('error', msg)
         setBanner(msg)
         return

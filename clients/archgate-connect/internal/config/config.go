@@ -18,6 +18,9 @@ type Bastion struct {
 	PGHost      string `json:"pg_host"`
 	PGPort      int    `json:"pg_port"`
 	PGDatabase  string `json:"pg_database"`
+	// MySQL via Warpgate protocol proxy (default listen 33306; may be disabled on bastion).
+	MySQLHost string `json:"mysql_host"`
+	MySQLPort int    `json:"mysql_port"`
 	HTTPBase    string `json:"http_base"`
 	GuacBase    string `json:"guac_base"`
 	ConsoleBase string `json:"console_base"`
@@ -74,6 +77,8 @@ func DefaultBastion() Bastion {
 		PGHost:      env("ARCHGATE_WG_PG_HOST", "217.196.60.108"),
 		PGPort:      envInt("ARCHGATE_WG_PG_PORT", 55432),
 		PGDatabase:  env("ARCHGATE_WG_PG_DB", "archgate_lab"),
+		MySQLHost:   env("ARCHGATE_WG_MYSQL_HOST", env("ARCHGATE_WG_SSH_HOST", "217.196.60.108")),
+		MySQLPort:   envInt("ARCHGATE_WG_MYSQL_PORT", 33306),
 		HTTPBase:    env("ARCHGATE_WG_HTTP_BASE", "https://wg.archgate.com.br"),
 		GuacBase:    env("ARCHGATE_GUAC_BASE", "https://guac.archgate.com.br"),
 		ConsoleBase: env("ARCHGATE_CONSOLE_BASE", "https://console.archgate.com.br"),

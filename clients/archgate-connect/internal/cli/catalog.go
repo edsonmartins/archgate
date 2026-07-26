@@ -60,6 +60,8 @@ func cmdStatus(jsonOut bool) error {
 			"ssh_port":     cfg.Bastion.SSHPort,
 			"pg_host":      cfg.Bastion.PGHost,
 			"pg_port":      cfg.Bastion.PGPort,
+			"mysql_host":   cfg.Bastion.MySQLHost,
+			"mysql_port":   cfg.Bastion.MySQLPort,
 			"console_base": cfg.Bastion.ConsoleBase,
 		},
 		"console_base": cfg.Bastion.ConsoleBase,

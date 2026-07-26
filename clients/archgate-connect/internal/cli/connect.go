@@ -258,16 +258,74 @@ func cmdDB(args []string, jsonOut bool) error {
 		return err
 	}
 	proxyUser := fmt.Sprintf("%s:%s", user, conn.Target)
+	proto := strings.ToLower(conn.Protocol)
+	isMySQL := proto == "mysql" || proto == "mariadb"
+
+	if isMySQL {
+		host := cfg.Bastion.MySQLHost
+		if host == "" {
+			host = cfg.Bastion.SSHHost
+		}
+		port := cfg.Bastion.MySQLPort
+		if port <= 0 {
+			port = 33306
+		}
+		// mysql CLI: password interactive (-p). Warpgate uses user=operator:target.
+		cmdLine := fmt.Sprintf(
+			`mysql -h %s -P %d -u %s -p --ssl-mode=REQUIRED`,
+			host, port, proxyUser,
+		)
+		if jsonOut {
+			return printJSON(map[string]any{
+				"engine":   "mysql",
+				"host":     host,
+				"port":     port,
+				"username": proxyUser,
+				"sslmode":  "REQUIRED",
+				"program":  "mysql",
+				"args": []string{
+					"-h", host,
+					"-P", strconv.Itoa(port),
+					"-u", proxyUser,
+					"-p",
+					"--ssl-mode=REQUIRED",
+				},
+				"command": cmdLine,
+				"mysql":   cmdLine,
+				"note":    "Password is your Warpgate/operator credential, not the database password. Bastion must have mysql.enable=true (port 33306).",
+			})
+		}
+		fmt.Println("MySQL via Warpgate bastion (not target IP)")
+		fmt.Printf("  Host:     %s\n", host)
+		fmt.Printf("  Port:     %d\n", port)
+		fmt.Printf("  Username: %s\n", proxyUser)
+		fmt.Printf("  Password: <credencial do operador no Warpgate>\n")
+		fmt.Printf("  SSL:      REQUIRED\n")
+		fmt.Printf("\n%s\n", cmdLine)
+		if clipboard {
+			if err := util.CopyClipboard(cmdLine + "\n"); err != nil {
+				fmt.Fprintf(os.Stderr, "warn: clipboard: %v\n", err)
+			} else {
+				fmt.Println("(copiado para o clipboard)")
+			}
+		}
+		return nil
+	}
+
 	psql := fmt.Sprintf(`psql "host=%s port=%d user=%s dbname=%s sslmode=require"`,
 		cfg.Bastion.PGHost, cfg.Bastion.PGPort, proxyUser, cfg.Bastion.PGDatabase)
 	if jsonOut {
 		return printJSON(map[string]any{
+			"engine":   "postgres",
 			"host":     cfg.Bastion.PGHost,
 			"port":     cfg.Bastion.PGPort,
 			"database": cfg.Bastion.PGDatabase,
 			"username": proxyUser,
 			"sslmode":  "require",
+			"program":  "psql",
+			"args":     []string{fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=require", cfg.Bastion.PGHost, cfg.Bastion.PGPort, proxyUser, cfg.Bastion.PGDatabase)},
 			"psql":     psql,
+			"command":  psql,
 			"note":     "Password is your Warpgate/operator credential, not the database password",
 		})
 	}

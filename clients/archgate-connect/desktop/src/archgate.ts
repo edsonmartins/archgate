@@ -138,9 +138,58 @@ function mockArchgate(args: string[]): RunResult {
   }
 
   if (cmd === 'db') {
+    if (json) {
+      const mysql = /mysql|maria/i.test(target)
+      if (mysql) {
+        return {
+          code: 0,
+          stdout:
+            JSON.stringify({
+              engine: 'mysql',
+              host: '217.196.60.108',
+              port: 33306,
+              username: `uat-op-a:${target}`,
+              sslmode: 'REQUIRED',
+              program: 'mysql',
+              args: [
+                '-h',
+                '217.196.60.108',
+                '-P',
+                '33306',
+                '-u',
+                `uat-op-a:${target}`,
+                '-p',
+                '--ssl-mode=REQUIRED',
+              ],
+              command: `mysql -h 217.196.60.108 -P 33306 -u uat-op-a:${target} -p --ssl-mode=REQUIRED`,
+              mysql: `mysql -h 217.196.60.108 -P 33306 -u uat-op-a:${target} -p --ssl-mode=REQUIRED`,
+            }) + '\n',
+          stderr: '',
+        }
+      }
+      return {
+        code: 0,
+        stdout:
+          JSON.stringify({
+            engine: 'postgres',
+            host: '217.196.60.108',
+            port: 55432,
+            database: 'archgate_lab',
+            username: `uat-op-a:${target}`,
+            sslmode: 'require',
+            program: 'psql',
+            args: [
+              `host=217.196.60.108 port=55432 user=uat-op-a:${target} dbname=archgate_lab sslmode=require`,
+            ],
+            psql: `psql "host=217.196.60.108 port=55432 user=uat-op-a:${target} dbname=archgate_lab sslmode=require"`,
+            command: `psql "host=217.196.60.108 port=55432 user=uat-op-a:${target} dbname=archgate_lab sslmode=require"`,
+          }) + '\n',
+        stderr: '',
+      }
+    }
     return {
       code: 0,
-      stdout: `Postgres via Warpgate bastion\n  Username: uat-op-a:${target}\n`,
+      stdout: `DB via Warpgate bastion\n  Username: uat-op-a:${target}\n`,
       stderr: '',
     }
   }
@@ -193,22 +242,6 @@ function mockArchgate(args: string[]): RunResult {
       }
     }
     return { code: 0, stdout: `warpgate_user saved: ${name}\n`, stderr: '' }
-  }
-
-  if (cmd === 'db' && json) {
-    return {
-      code: 0,
-      stdout:
-        JSON.stringify({
-          host: '217.196.60.108',
-          port: 55432,
-          database: 'archgate_lab',
-          username: `uat-op-a:${target}`,
-          sslmode: 'require',
-          psql: `psql "host=217.196.60.108 port=55432 user=uat-op-a:${target} dbname=archgate_lab sslmode=require"`,
-        }) + '\n',
-      stderr: '',
-    }
   }
 
   return { code: 0, stdout: `${cmd} ok\n`, stderr: '' }

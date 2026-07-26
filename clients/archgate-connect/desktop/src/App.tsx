@@ -400,7 +400,7 @@ export function App() {
           : tab.kind === 'guac'
             ? `RDP/VNC embutido «${c.target}» (Guacamole no app).`
             : tab.kind === 'db'
-              ? `DB embutido «${c.target}» — senha Warpgate no psql se pedida.`
+              ? `DB embutido «${c.target}» — senha Warpgate no cliente SQL (psql/mysql).`
               : `Painel embutido «${c.target}».`,
     })
   }
@@ -418,8 +418,12 @@ export function App() {
     }
     let text = r.stdout.trim()
     try {
-      const j = JSON.parse(r.stdout) as { command?: string; psql?: string }
-      text = j.command || j.psql || text
+      const j = JSON.parse(r.stdout) as {
+        command?: string
+        psql?: string
+        mysql?: string
+      }
+      text = j.command || j.mysql || j.psql || text
     } catch {
       /* plain */
     }
@@ -650,8 +654,13 @@ export function App() {
             <IconGate />
           </div>
           <div className="brand-text">
-            <h1>ArchGate Connect</h1>
-            <p className="subtitle">Bastion · sessões embutidas (RDM-lite)</p>
+            <h1>
+              ArchGate Connect
+              <span className="brand-version" title="desktop package">
+                0.2.0
+              </span>
+            </h1>
+            <p className="subtitle">IntegrAllTech · bastion · RDM-lite</p>
           </div>
         </div>
         <div className="topbar-actions">

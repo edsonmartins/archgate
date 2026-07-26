@@ -105,7 +105,7 @@ export function ConnectionList({
                     <button
                       type="button"
                       className="icon-btn"
-                      title="Copiar comando SSH/psql"
+                      title="Copiar comando SSH/psql/mysql"
                       aria-label="Copiar"
                       onClick={(e) => {
                         e.stopPropagation()
