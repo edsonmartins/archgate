@@ -8,6 +8,8 @@ type Props = {
   connection: Connection
   active: boolean
   onState: (state: 'connecting' | 'connected' | 'error' | 'closed', note?: string) => void
+  fullscreen?: boolean
+  onToggleFullscreen?: () => void
 }
 
 type GuacClient = {
@@ -20,11 +22,27 @@ type GuacClient = {
   onerror: ((status: { code?: number; message?: string }) => void) | null
 }
 
+function hasRealGuacToken(tunnel: TunnelSession | null | undefined): boolean {
+  if (!tunnel?.connectData || !tunnel.tunnelUrl) return false
+  const d = tunnel.connectData
+  return (
+    (/(?:^|&)token=/.test(d) || d.includes('token=')) &&
+    (d.includes('GUAC_ID=') || d.includes('GUAC_DATA_SOURCE='))
+  )
+}
+
 /**
  * Embedded RDP/VNC/SSH-browser via Guacamole inside Connect (not system browser).
- * Prefer websocket tunnel from BFF; fall back to in-app iframe SSO to Guac UI.
+ * Prefer websocket tunnel + real BFF token (F4); fall back to iframe SSO.
  */
-export function GuacSession({ sessionId: _sessionId, connection, active, onState }: Props) {
+export function GuacSession({
+  sessionId: _sessionId,
+  connection,
+  active,
+  onState,
+  fullscreen,
+  onToggleFullscreen,
+}: Props) {
   const hostRef = useRef<HTMLDivElement>(null)
   const clientRef = useRef<GuacClient | null>(null)
   const [mode, setMode] = useState<'loading' | 'ws' | 'iframe' | 'error'>('loading')
@@ -35,7 +53,7 @@ export function GuacSession({ sessionId: _sessionId, connection, active, onState
   useEffect(() => {
     let disposed = false
     const start = async () => {
-      onState('connecting', 'Pedindo túnel Guacamole ao BFF…')
+      onState('connecting', 'Pedindo token Guacamole ao BFF…')
       setMode('loading')
       setError(null)
 
@@ -47,11 +65,10 @@ export function GuacSession({ sessionId: _sessionId, connection, active, onState
           protocol: connection.protocol || 'rdp',
         })
       } catch (e) {
-        // Fall through to print-open / iframe
         if (!disposed) {
           setBanner(
             e instanceof Error
-              ? `BFF: ${e.message} — usando Guac embutido (iframe SSO).`
+              ? `BFF: ${e.message} — tentando Guac embutido (iframe).`
               : 'BFF indisponível — iframe Guac.',
           )
         }
@@ -59,13 +76,17 @@ export function GuacSession({ sessionId: _sessionId, connection, active, onState
 
       if (disposed) return
 
-      // Prefer iframe when BFF says so, or when websocket URL empty.
+      const realToken = hasRealGuacToken(tunnel)
+      const preferWs =
+        realToken ||
+        (tunnel?.embedMode === 'websocket' && !!tunnel.tunnelUrl && !!tunnel.connectData)
       const preferIframe =
-        tunnel?.embedMode === 'iframe' ||
-        !tunnel?.tunnelUrl ||
-        (tunnel?.embedUrl && !tunnel.connectData)
+        !preferWs &&
+        (tunnel?.embedMode === 'iframe' ||
+          !tunnel?.tunnelUrl ||
+          (tunnel?.embedUrl && !tunnel.connectData))
 
-      if (preferIframe || !tunnel?.tunnelUrl) {
+      if (preferIframe || !preferWs) {
         let url = tunnel?.embedUrl || ''
         if (!url) {
           try {
@@ -78,13 +99,17 @@ export function GuacSession({ sessionId: _sessionId, connection, active, onState
         if (disposed) return
         setIframeUrl(url)
         setMode('iframe')
-        onState('connected', `Guac embutido · ${url}`)
-        setBanner('Sessão no app (iframe). Faça SSO se pedido — não é browser externo.')
+        onState('connected', `Guac iframe · ${connection.target}`)
+        setBanner(
+          realToken
+            ? null
+            : 'Sessão no app (iframe SSO). Token WS indisponível — não é browser externo.',
+        )
         return
       }
 
-      // WebSocket tunnel + guacamole-common-js
-      if (!hostRef.current) return
+      // WebSocket tunnel + guacamole-common-js with real BFF token
+      if (!hostRef.current || !tunnel) return
       hostRef.current.innerHTML = ''
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -119,12 +144,15 @@ export function GuacSession({ sessionId: _sessionId, connection, active, onState
         client.onerror = (status) => {
           if (disposed) return
           const msg = status?.message || `Guacamole error ${status?.code ?? '?'}`
-          // Fallback iframe if WS fails
           void (async () => {
             try {
-              const po = await printOpenUrl(connection.target)
+              let fallback = tunnel?.embedUrl || ''
+              if (!fallback) {
+                const po = await printOpenUrl(connection.target)
+                fallback = po.url || po.guac_base || 'https://guac.archgate.com.br/'
+              }
               if (disposed) return
-              setIframeUrl(po.url || 'https://guac.archgate.com.br/')
+              setIframeUrl(fallback)
               setMode('iframe')
               setBanner(`WS falhou (${msg}) — iframe embutido.`)
               onState('connected', 'Guac iframe (fallback)')
@@ -137,6 +165,7 @@ export function GuacSession({ sessionId: _sessionId, connection, active, onState
         }
 
         setMode('ws')
+        setBanner(realToken ? 'Túnel Guacamole (token BFF)' : null)
         client.connect(tunnel.connectData)
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e)
@@ -165,7 +194,24 @@ export function GuacSession({ sessionId: _sessionId, connection, active, onState
   }, [active])
 
   return (
-    <div className="guac-session-wrap">
+    <div className={`guac-session-wrap ${fullscreen ? 'guac-fullscreen' : ''}`}>
+      <div className="guac-toolbar">
+        <span className="guac-toolbar-mode dim">
+          {mode === 'ws' ? 'WS' : mode === 'iframe' ? 'iframe' : mode}
+          {fullscreen ? ' · fullscreen' : ''}
+        </span>
+        {onToggleFullscreen ? (
+          <button
+            type="button"
+            className="icon-btn guac-fs-btn"
+            onClick={onToggleFullscreen}
+            title={fullscreen ? 'Sair da tela cheia (Esc)' : 'Tela cheia (Guac)'}
+            aria-label={fullscreen ? 'Sair da tela cheia' : 'Tela cheia'}
+          >
+            {fullscreen ? '⊡' : '⛶'}
+          </button>
+        ) : null}
+      </div>
       {banner ? <div className="ssh-terminal-banner">{banner}</div> : null}
       {error ? (
         <div className="session-placeholder">

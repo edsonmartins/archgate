@@ -370,6 +370,58 @@ button {
   position: relative;
 }
 
+.guac-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 4px 8px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(8, 12, 20, 0.9);
+}
+
+.guac-toolbar-mode {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-right: auto;
+}
+
+.guac-session-wrap.guac-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: #000;
+}
+
+.guac-session-wrap.guac-fullscreen .guac-toolbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  opacity: 0.15;
+  transition: opacity 0.15s ease;
+}
+
+.guac-session-wrap.guac-fullscreen .guac-toolbar:hover,
+.guac-session-wrap.guac-fullscreen .guac-toolbar:focus-within {
+  opacity: 1;
+}
+
+.session-workspace-fs {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  background: #05080f;
+}
+
+.session-body-fs {
+  flex: 1;
+  min-height: 0;
+}
+
 .guac-host {
   flex: 1;
   min-height: 0;

@@ -59,12 +59,21 @@ export async function requestTunnelSession(req: {
     embed_url?: string
     embed_mode?: 'websocket' | 'iframe'
     expires_in?: number
+    launch?: { engine?: string; target?: string; protocol?: string }
   }
+  // Prefer websocket when BFF returned a real Guac token (token=…&GUAC_ID=…).
+  const connectData = data.connect_data || ''
+  const hasToken =
+    connectData.includes('token=') &&
+    (connectData.includes('GUAC_ID=') || connectData.includes('GUAC_DATA_SOURCE='))
+  const embedMode =
+    data.embed_mode ||
+    (hasToken && data.tunnel_url ? 'websocket' : data.embed_url ? 'iframe' : undefined)
   return {
     tunnelUrl: data.tunnel_url || '',
-    connectData: data.connect_data || '',
+    connectData,
     embedUrl: data.embed_url,
-    embedMode: data.embed_mode,
+    embedMode,
     connectionId: req.connectionId,
     target: req.target,
     expiresInSec: data.expires_in,

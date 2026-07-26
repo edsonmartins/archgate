@@ -17,7 +17,7 @@
 | Desktop multi-aba | Feito |
 | SSH embutido (xterm + PTY) | Feito |
 | DB embutido (psql PTY) | Feito |
-| Guac/Web embutido (iframe/WS) | Parcial (token Guac real pendente) |
+| Guac/Web embutido (iframe/WS) | Feito (token BFF real + iframe fallback) |
 | Prefs terminal global + por target | Feito |
 | Tray macOS | Feito |
 | Notarize / auto-update | Pendente (org) |
@@ -45,9 +45,9 @@
 | **F9** | Badge pending apply | Feito (via description) |
 | **F10** | Copiar SSH/psql | Feito |
 | **V3–V6** | Lista + chrome sessão polish | Feito (parcial) |
-| **F4** | Guac token REST real | Pendente |
-| **F13** | Notificações nativas | Pendente |
-| **V11** | Chrome Guac fullscreen | Pendente |
+| **F4** | Guac token REST real | Feito (2026-07-26) — header-auth mint + connect_data; WS skip oauth2-proxy |
+| **F13** | Notificações nativas | Feito (Web Notification: sessão / SSO) |
+| **V11** | Chrome Guac fullscreen | Feito (⛶ / Esc) |
 
 ## Onda 3 — Ship
 
@@ -63,3 +63,4 @@ Vault local de senhas de alvo · FreeRDP nativo · VPN cliente no notebook · fu
 |------|------|
 | 2026-07-25 | Roadmap criado; Onda 1 implementada (F1, F3, V1, V2, V8, V12) |
 | 2026-07-26 | Onda 2 parcial: favoritos, grupos, ⌘K, copiar, chrome sessão |
+| 2026-07-26 | Onda 2: F4 token Guac, F13 notify, V11 fullscreen; redeploy console + oauth2-proxy skip `/websocket-tunnel` |

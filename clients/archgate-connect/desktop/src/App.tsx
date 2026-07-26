@@ -21,6 +21,7 @@ import { FirstRunWizard } from './onboarding/FirstRunWizard'
 import { loadAppPrefs, patchAppPrefs, type AppPrefs } from './prefs/appPrefs'
 import { TerminalPrefsPanel } from './prefs/TerminalPrefsPanel'
 import { protocolMeta, type Connection } from './protocol'
+import { notifySession } from './notify'
 import { SessionWorkspace } from './sessions/SessionWorkspace'
 import { newSessionTab, type SessionState, type SessionTab } from './sessions/types'
 
@@ -158,6 +159,7 @@ export function App() {
               'Sessão SSO expirada. Use Reconectar SSO para renovar.',
           })
           setConns([])
+          notifySession('token', next.user || 'operador', 'SSO expirado — reconecte')
         } else if (next.session) {
           setSessionExpired(false)
         }
@@ -432,8 +434,14 @@ export function App() {
   }
 
   const updateSessionState = (id: string, state: SessionState, note?: string) => {
-    setSessionTabs((prev) =>
-      prev.map((t) =>
+    setSessionTabs((prev) => {
+      const tab = prev.find((t) => t.id === id)
+      if (tab && state !== tab.state) {
+        if (state === 'connected') notifySession('connected', tab.connection.target, note)
+        else if (state === 'closed') notifySession('closed', tab.connection.target, note)
+        else if (state === 'error') notifySession('error', tab.connection.target, note)
+      }
+      return prev.map((t) =>
         t.id === id
           ? {
               ...t,
@@ -441,8 +449,8 @@ export function App() {
               note: note ?? t.note,
             }
           : t,
-      ),
-    )
+      )
+    })
   }
 
   const closeSessionTab = (id: string) => {

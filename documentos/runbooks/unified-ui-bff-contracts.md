@@ -68,14 +68,19 @@ Resposta:
 
 ```json
 {
-  "tunnel_url": "wss://app.archgate.com.br/api/unified/v1/tunnel",
-  "connect_data": "<opaque-or-query-string-for-Client.connect>",
-  "expires_in": 120
+  "tunnel_url": "wss://guac.archgate.com.br/websocket-tunnel",
+  "connect_data": "token=<authToken>&GUAC_DATA_SOURCE=postgresql&GUAC_ID=<id>&GUAC_TYPE=c",
+  "expires_in": 120,
+  "embed_url": "https://guac.archgate.com.br/?token=…#/client/…",
+  "embed_mode": "websocket"
 }
 ```
 
-- BFF monta o handshake com guacd / Guacamole auth token **server-side**.  
-- SPA nunca recebe token admin, senha de alvo ou JWT de serviço.  
+- BFF emite **authToken do operador** via header-auth interno (`X-Forwarded-User` = username Kanidm; ADR-007A) — **não** usa `guacadmin`.  
+- `connect_data` é a query string de `Guacamole.Client.connect()`.  
+- `embed_mode: "websocket"` quando o mint OK; `"iframe"` se Guac inacessível / ACL sem conexão.  
+- SPA/Connect nunca recebe token admin, senha de alvo ou JWT de serviço.  
+- **oauth2-proxy:** `SKIP_AUTH_ROUTES=^/websocket-tunnel` (token Guac ainda obrigatório no túnel).  
 - Lab: sem BFF → erro claro; `VITE_GUAC_DEMO=1` só para chrome local.
 
 ## Princípios

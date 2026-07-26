@@ -102,6 +102,8 @@ docker service create \
   --env "OAUTH2_PROXY_SSL_INSECURE_SKIP_VERIFY=true" \
   --env "OAUTH2_PROXY_SET_XAUTHREQUEST=true" \
   --env "OAUTH2_PROXY_PASS_USER_HEADERS=true" \
+  --env "OAUTH2_PROXY_SKIP_AUTH_ROUTES=^/websocket-tunnel" \
+  --env "OAUTH2_PROXY_SKIP_AUTH_PREFLIGHT=true" \
   --label traefik.enable=true \
   --label traefik.docker.network=archgate-public \
   --label "traefik.http.routers.guacamole.rule=Host(\`${DOMAIN_GUAC}\`)" \

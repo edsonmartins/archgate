@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { SessionTab, SessionState } from './types'
 import { kindLabel } from './types'
 import { SshTerminal } from './SshTerminal'
@@ -32,6 +33,27 @@ export function SessionWorkspace({
   onDismissPasswordTip,
   busy,
 }: Props) {
+  const [fullscreenId, setFullscreenId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!fullscreenId) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setFullscreenId(null)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [fullscreenId])
+
+  // Drop fullscreen if tab closed
+  useEffect(() => {
+    if (fullscreenId && !tabs.some((t) => t.id === fullscreenId)) {
+      setFullscreenId(null)
+    }
+  }, [tabs, fullscreenId])
+
   if (tabs.length === 0) {
     return (
       <div className="session-workspace empty">
@@ -47,103 +69,122 @@ export function SessionWorkspace({
     )
   }
 
+  const fs = !!fullscreenId
+
   return (
-    <div className="session-workspace">
-      <div className="session-tabs" role="tablist" aria-label="Sessões abertas">
-        {tabs.map((t) => (
-          <div
-            key={t.id}
-            className={`session-tab ${t.id === activeId ? 'active' : ''}`}
-            role="tab"
-            aria-selected={t.id === activeId}
-          >
-            <button type="button" className="session-tab-label" onClick={() => onSelect(t.id)}>
-              <span className={`tab-badge kind-${t.kind}`}>{kindLabel(t.kind)}</span>
-              <span className="tab-title" title={t.connection.target}>
-                {t.connection.target}
-              </span>
-              {t.state === 'connected' ? <span className="tab-live" title="Conectado" /> : null}
-            </button>
-            <button
-              type="button"
-              className="session-tab-close"
-              aria-label={`Fechar ${t.connection.target}`}
-              onClick={() => onClose(t.id)}
+    <div className={`session-workspace ${fs ? 'session-workspace-fs' : ''}`}>
+      {!fs ? (
+        <div className="session-tabs" role="tablist" aria-label="Sessões abertas">
+          {tabs.map((t) => (
+            <div
+              key={t.id}
+              className={`session-tab ${t.id === activeId ? 'active' : ''}`}
+              role="tab"
+              aria-selected={t.id === activeId}
             >
-              ×
-            </button>
-          </div>
-        ))}
-      </div>
+              <button type="button" className="session-tab-label" onClick={() => onSelect(t.id)}>
+                <span className={`tab-badge kind-${t.kind}`}>{kindLabel(t.kind)}</span>
+                <span className="tab-title" title={t.connection.target}>
+                  {t.connection.target}
+                </span>
+                {t.state === 'connected' ? <span className="tab-live" title="Conectado" /> : null}
+              </button>
+              <button
+                type="button"
+                className="session-tab-close"
+                aria-label={`Fechar ${t.connection.target}`}
+                onClick={() => onClose(t.id)}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       {tabs.map((tab) => {
         const isActive = tab.id === activeId
+        const isFs = fullscreenId === tab.id
         const filled =
           tab.kind === 'ssh' || tab.kind === 'guac' || tab.kind === 'db' || tab.kind === 'web'
+        if (fs && !isFs) return null
         return (
           <div
             key={tab.id}
-            className="session-body"
+            className={`session-body ${isFs ? 'session-body-fs' : ''}`}
             role="tabpanel"
-            hidden={!isActive}
-            style={{ display: isActive ? 'flex' : 'none' }}
+            hidden={!isActive && !isFs}
+            style={{ display: isActive || isFs ? 'flex' : 'none' }}
           >
-            <div className="session-chrome">
-              <div className="session-chrome-meta">
-                <div className="session-breadcrumb">
-                  {tab.connection.site ? (
-                    <span className="crumb-site">{tab.connection.site}</span>
-                  ) : null}
-                  {tab.connection.site ? <span className="crumb-sep">›</span> : null}
-                  <strong>{tab.connection.target}</strong>
-                  <span className={`tab-badge kind-${tab.kind}`}>{kindLabel(tab.kind)}</span>
+            {!isFs ? (
+              <div className="session-chrome">
+                <div className="session-chrome-meta">
+                  <div className="session-breadcrumb">
+                    {tab.connection.site ? (
+                      <span className="crumb-site">{tab.connection.site}</span>
+                    ) : null}
+                    {tab.connection.site ? <span className="crumb-sep">›</span> : null}
+                    <strong>{tab.connection.target}</strong>
+                    <span className={`tab-badge kind-${tab.kind}`}>{kindLabel(tab.kind)}</span>
+                  </div>
+                  <span className="dim session-chrome-status" title={tab.note}>
+                    {tab.connection.protocol} · {tab.connection.engine} · {tab.state}
+                    {tab.note ? ` · ${tab.note}` : ''}
+                  </span>
                 </div>
-                <span className="dim session-chrome-status" title={tab.note}>
-                  {tab.connection.protocol} · {tab.connection.engine} · {tab.state}
-                  {tab.note ? ` · ${tab.note}` : ''}
-                </span>
-              </div>
-              <div className="session-chrome-actions">
-                {onPrefs && (tab.kind === 'ssh' || tab.kind === 'db') ? (
+                <div className="session-chrome-actions">
+                  {tab.kind === 'guac' ? (
+                    <button
+                      type="button"
+                      className="icon-btn"
+                      onClick={() => setFullscreenId(tab.id)}
+                      title="Tela cheia Guac"
+                      aria-label="Tela cheia"
+                    >
+                      ⛶
+                    </button>
+                  ) : null}
+                  {onPrefs && (tab.kind === 'ssh' || tab.kind === 'db') ? (
+                    <button
+                      type="button"
+                      className="icon-btn"
+                      onClick={() => onPrefs(tab.connection.target)}
+                      title="Preferências do terminal"
+                      aria-label="Preferências"
+                    >
+                      ⚙
+                    </button>
+                  ) : null}
                   <button
                     type="button"
                     className="icon-btn"
-                    onClick={() => onPrefs(tab.connection.target)}
-                    title="Preferências do terminal"
-                    aria-label="Preferências"
+                    disabled={busy}
+                    onClick={() => onExternal(tab)}
+                    title="Abrir externo (fallback)"
+                    aria-label="Externo"
                   >
-                    ⚙
+                    ↗
                   </button>
-                ) : null}
-                <button
-                  type="button"
-                  className="icon-btn"
-                  disabled={busy}
-                  onClick={() => onExternal(tab)}
-                  title="Abrir externo (fallback)"
-                  aria-label="Externo"
-                >
-                  ↗
-                </button>
-                <button
-                  type="button"
-                  className="icon-btn"
-                  onClick={() => onClose(tab.id)}
-                  title="Fechar aba (⌘W)"
-                  aria-label="Fechar"
-                >
-                  ×
-                </button>
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    onClick={() => onClose(tab.id)}
+                    title="Fechar aba (⌘W)"
+                    aria-label="Fechar"
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : null}
             <div className={`session-surface ${filled ? 'filled' : ''} kind-${tab.kind}`}>
               {tab.kind === 'ssh' ? (
                 <SshTerminal
                   sessionId={tab.id}
                   target={tab.connection.target}
-                  active={isActive}
+                  active={isActive || isFs}
                   warpgateUser={warpgateUser}
-                  showPasswordTip={isActive && showPasswordTip}
+                  showPasswordTip={(isActive || isFs) && showPasswordTip}
                   onDismissPasswordTip={onDismissPasswordTip}
                   onState={(state, note) => onSessionState(tab.id, state, note)}
                 />
@@ -151,23 +192,27 @@ export function SessionWorkspace({
                 <GuacSession
                   sessionId={tab.id}
                   connection={tab.connection}
-                  active={isActive}
+                  active={isActive || isFs}
+                  fullscreen={isFs}
+                  onToggleFullscreen={() =>
+                    setFullscreenId((cur) => (cur === tab.id ? null : tab.id))
+                  }
                   onState={(state, note) => onSessionState(tab.id, state, note)}
                 />
               ) : tab.kind === 'db' ? (
                 <DbTerminal
                   sessionId={tab.id}
                   target={tab.connection.target}
-                  active={isActive}
+                  active={isActive || isFs}
                   warpgateUser={warpgateUser}
-                  showPasswordTip={isActive && showPasswordTip}
+                  showPasswordTip={(isActive || isFs) && showPasswordTip}
                   onDismissPasswordTip={onDismissPasswordTip}
                   onState={(state, note) => onSessionState(tab.id, state, note)}
                 />
               ) : tab.kind === 'web' ? (
                 <WebSession
                   connection={tab.connection}
-                  active={isActive}
+                  active={isActive || isFs}
                   onState={(state, note) => onSessionState(tab.id, state, note)}
                 />
               ) : (
