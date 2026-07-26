@@ -6,12 +6,15 @@ Connect embute `mysql` CLI contra o proxy MySQL do Warpgate (`operator:target`),
 
 | Item | Valor |
 |------|--------|
-| Warpgate | `mysql.enable: **false**` |
-| Listen planejado | `[::]:33306` |
+| Warpgate | `mysql.enable: **true**` (ativado 2026-07-26) |
+| Listen | `[::]:33306` publicado no host |
+| UFW | `33306/tcp` allow |
+| Lab target | `lab-mysql` → `archgate-lab-mysql:3306` |
+| Site SoT | `rio_quality_lab` + protocol `mysql` |
 | PG | `55432` (ativo) |
 | SSH | `2222` (ativo) |
 
-Enquanto `enable: false`, o CLI ainda emite o comando MySQL, mas a conexão TCP falha até o bastion ser ligado.
+Greeting público esperado: `8.0.3-Warpgate` no TCP `:33306`.
 
 ## Ativar no VPS
 

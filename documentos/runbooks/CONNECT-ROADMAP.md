@@ -55,7 +55,7 @@
 |----|------|--------|
 | **F5** | Notarize + auto-update | Bloqueado org (falta Developer ID Application) — runbook pronto |
 | **V10** | Theme app dark/light | Feito (2026-07-26) |
-| **F15** | MySQL embutido (CLI + PTY) | Feito no cliente (2026-07-26); bastion WG `mysql.enable` ainda off |
+| **F15** | MySQL embutido (CLI + PTY) | Feito — cliente + bastion `:33306` + target `lab-mysql` (2026-07-26) |
 | **F16–F17** | Oracle / HTTP embutidos | Parcial (iframe web/oracle) |
 | **F20** | Multi-OS (Win/Linux) | Parcial (docs + CLI; desktop macOS first) |
 | **V17** | Marca / packaging polish | Feito parcial (versão + IntegrAllTech na topbar) |
@@ -76,3 +76,4 @@ Vault local de senhas de alvo · FreeRDP nativo · VPN cliente no notebook · fu
 | 2026-07-26 | Smoke F4 Hostinger: mint PASS + WS Traefik h1 PASS — evidence `smoke-f4-guac-token-2026-07-26.md` |
 | 2026-07-26 | Onda 3 start: V10 theme; smoke-f4-guac-ws.sh; F5 ainda bloqueado sem Developer ID |
 | 2026-07-26 | F15 MySQL embutido (CLI/JSON/PTY) + V17 marca; runbook warpgate-mysql-bastion.md |
+| 2026-07-26 | F15 bastion: WG mysql.enable + UFW 33306 + lab-mysql + catalog protocol fix |
