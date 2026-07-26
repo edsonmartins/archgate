@@ -64,3 +64,4 @@ Vault local de senhas de alvo · FreeRDP nativo · VPN cliente no notebook · fu
 | 2026-07-25 | Roadmap criado; Onda 1 implementada (F1, F3, V1, V2, V8, V12) |
 | 2026-07-26 | Onda 2 parcial: favoritos, grupos, ⌘K, copiar, chrome sessão |
 | 2026-07-26 | Onda 2: F4 token Guac, F13 notify, V11 fullscreen; redeploy console + oauth2-proxy skip `/websocket-tunnel` |
+| 2026-07-26 | Smoke F4 Hostinger: mint PASS + WS Traefik h1 PASS — evidence `smoke-f4-guac-token-2026-07-26.md` |
