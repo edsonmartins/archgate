@@ -32,6 +32,7 @@ Reutilizar o console em `console.archgate.com.br` (auth OIDC, RBAC, proxy server
 | **Clientes / Sites** | Ficha do cliente, stack VPN, connector, targets inventário |
 | **Acesso (gateways)** | Targets Warpgate, roles, (depois) conexões Guacamole |
 | **Segredos** | Leases/policies OpenBao (visão admin; emissão operacional depois) |
+| **Contas da org** | Inventário + checkout de contas IntegrAllTech (GCP/Play/Apple/produtos) — ver [ADR-013](./ADR-013-org-credential-broker.md) |
 | **Plataforma** | Saúde dos serviços, links de runbook, estado de deploy (`/platform`) |
 
 UIs stock Warpgate/Guacamole/OpenBao **permanecem** como “console avançado do componente” (como usar a API AWS diretamente), **não** como fluxo principal de configuração.
