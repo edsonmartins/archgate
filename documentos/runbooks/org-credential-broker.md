@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |-------|--------|
-| Status | OCB-0 + **OCB-1 checkout** live; dual-control P0 = OCB-2 |
+| Status | OCB-0 + OCB-1 + **OCB-2 dual-control** live |
 | ADR | [ADR-013](../../adr/ADR-013-org-credential-broker.md) |
 | OpenSpec | `openspec/changes/add-org-credential-broker/` |
 | Superfície | ArchGate Manager (`console.archgate.com.br`) |
@@ -67,7 +67,17 @@ POST /api/org/v1/accounts/:id/checkout
 
 Requisitos: `OPENBAO_APP_TOKEN` no console com read/write em `secret/data/org/*`.
 
-P0 dual-control **formal** (segundo aprovador) = OCB-2; até lá o checkout P0 é permitido e auditado.
+### Dual-control P0 (OCB-2)
+
+1. Conta com `requires_dual_control` (default P0) → checkout fica **pending** (sem secret)  
+2. Outro admin com `org_accounts:approve` vê a fila **Aprovações pendentes**  
+3. **Aprovar** → secret revelado ao aprovador (one-shot); **Negar** encerra  
+4. **Self-approve proibido** (mesmo principal)  
+5. Solicitante pode **Cancelar meu pedido** (check-in)
+
+```http
+POST /api/org/v1/checkouts/:id/approve
+```
 
 ## Offboarding
 

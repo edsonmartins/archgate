@@ -24,11 +24,12 @@
 
 ## OCB-2 — Dual-control P0
 
-- [ ] 2.1 Fluxo `pending` → approve/deny por `org_accounts:approve`  
-- [ ] 2.2 Bloqueio self-approve  
-- [ ] 2.3 Notificação (e-mail/Slack webhook opcional)  
-- [ ] 2.4 UI fila “aprovações pendentes”  
-- [ ] 2.5 Evidence smoke dual-control  
+- [x] 2.1 Fluxo `pending` → approve/deny por `org_accounts:approve`  
+- [x] 2.2 Bloqueio self-approve  
+- [ ] 2.3 Notificação (e-mail/Slack webhook opcional) — residual  
+- [x] 2.4 UI fila “aprovações pendentes”  
+- [x] 2.5 Unit tests dual-control + REST approve  
+
 
 ## OCB-3 — Keys e rotação
 
