@@ -1,6 +1,9 @@
-# Org Credential Broker — inventário exemplo (OCB-0)
+# Org Credential Broker — inventário exemplo (OCB-0 + OCB-4)
 # Importação via UI/API quando disponível; até lá use o seed do Manager.
 # NUNCA coloque passwords neste arquivo (git).
+#
+# federation_status: password_only | oidc_primary | oidc_only | api_key_primary | external_idp
+# Ver: org-product-oidc-federation.md
 
 accounts:
   - slug: apple-appstore-integrall
@@ -8,20 +11,23 @@ accounts:
     category: store
     criticality: P0
     url: https://appstoreconnect.apple.com
-    auth_kind: password
+    auth_kind: api_key
+    federation_status: api_key_primary
     owner_group: archguard_super_admins
     secret_ref: secret/data/org/store/apple-appstore
     requires_dual_control: true
-    notes: Prefer individual users + API key; shared owner dual-control.
+    notes: Usuários individuais + App Store Connect API key no OpenBao.
 
   - slug: google-play-integrall
     name: Google Play Console · IntegrAllTech
     category: store
     criticality: P0
     url: https://play.google.com/console
-    auth_kind: password
+    auth_kind: api_key
+    federation_status: external_idp
     owner_group: archguard_super_admins
     secret_ref: secret/data/org/store/google-play
+    notes: Google IAM individual; SA/API no OpenBao.
 
   - slug: gcp-integrall-placeholder
     name: Google Cloud · (preencher projeto)
@@ -29,42 +35,75 @@ accounts:
     criticality: P0
     url: https://console.cloud.google.com
     auth_kind: oidc
+    federation_status: external_idp
     owner_group: archguard_super_admins
     secret_ref: secret/data/org/cloud/gcp-placeholder
+    notes: Workspace SSO + SA keys no OpenBao.
 
   - slug: vendax-admin
-    name: Vendax · admin
+    name: Vendax · admin (break-glass)
     category: product_admin
     product: vendax
     criticality: P1
-    auth_kind: password
+    auth_kind: oidc
+    federation_status: oidc_primary
+    oidc_client_id: vendax-admin
     owner_group: archguard_users
     secret_ref: secret/data/org/product/vendax-admin
+    notes: Meta SSO Kanidm; password só break-glass dual-control.
 
   - slug: archflow-admin
-    name: ArchFlow · admin
+    name: ArchFlow · admin (break-glass)
     category: product_admin
     product: archflow
     criticality: P1
+    auth_kind: oidc
+    federation_status: oidc_primary
+    oidc_client_id: archflow-admin
+    owner_group: archguard_users
     secret_ref: secret/data/org/product/archflow-admin
 
+  - slug: archguard-admin-breakglass
+    name: ArchGuard/Manager · break-glass
+    category: product_admin
+    product: archguard
+    criticality: P0
+    auth_kind: oidc
+    federation_status: oidc_primary
+    oidc_client_id: archguard-console
+    owner_group: archguard_super_admins
+    secret_ref: secret/data/org/product/archguard-breakglass
+    notes: Já OIDC (archguard-console); secret = break-glass local se existir.
+
   - slug: brainsentry-admin
-    name: BrainSentry · admin
+    name: BrainSentry · admin (break-glass)
     category: product_admin
     product: brainsentry
     criticality: P1
+    auth_kind: oidc
+    federation_status: oidc_primary
+    oidc_client_id: brainsentry-admin
+    owner_group: archguard_users
     secret_ref: secret/data/org/product/brainsentry-admin
 
   - slug: gestor-admin
-    name: Gestor RQ · admin
+    name: Gestor RQ · admin (break-glass)
     category: product_admin
     product: gestor
     criticality: P1
+    auth_kind: oidc
+    federation_status: oidc_primary
+    oidc_client_id: gestor-admin
+    owner_group: archguard_users
     secret_ref: secret/data/org/product/gestor-admin
 
   - slug: alcada-admin
-    name: Alçada · admin
+    name: Alçada · admin (break-glass)
     category: product_admin
     product: alcada
     criticality: P1
+    auth_kind: oidc
+    federation_status: oidc_primary
+    oidc_client_id: alcada-admin
+    owner_group: archguard_users
     secret_ref: secret/data/org/product/alcada-admin

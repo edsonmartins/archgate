@@ -40,9 +40,10 @@
 
 ## OCB-4 — Federar produtos
 
-- [ ] 4.1 Inventário de produtos com senha admin ainda necessária  
-- [ ] 4.2 Plano OIDC Kanidm por produto (Vendax, Gestor, …)  
-- [ ] 4.3 Marcar contas `auth_kind=oidc` e arquivar password break-glass  
+- [x] 4.1 Inventário + matriz no runbook `org-product-oidc-federation.md`  
+- [x] 4.2 Plano OIDC Kanidm por produto (client ids + checklist)  
+- [x] 4.3 Metadados `federation_status` + `oidc_client_id`; seed `oidc_primary` / break-glass  
+- [ ] 4.4 Implementar clients OIDC em cada codebase de produto (fora do console — por squad)
 
 ## OCB-5 — Connect (opcional)
 

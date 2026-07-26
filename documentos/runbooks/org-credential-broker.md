@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |-------|--------|
-| Status | OCB-0…**OCB-3** live (dual-control + rotação/API key + webhook opcional) |
+| Status | OCB-0…**OCB-4** (federação: metadados + plano OIDC; implementação por produto residual) |
 | ADR | [ADR-013](../../adr/ADR-013-org-credential-broker.md) |
 | OpenSpec | `openspec/changes/add-org-credential-broker/` |
 | Superfície | ArchGate Manager (`console.archgate.com.br`) |
@@ -86,6 +86,15 @@ POST /api/org/v1/checkouts/:id/approve
 3. Cole a nova key/senha  
 4. Marque **Marcar como rotação** → grava OpenBao + `rotated_at` no inventário  
 5. Prefira keys de serviço (GCP SA, Play API, App Store Connect API) em vez de senha humana  
+
+### Federação OIDC (OCB-4)
+
+Ver [org-product-oidc-federation.md](./org-product-oidc-federation.md).
+
+- Campo **Federação** no inventário: `password_only` → `oidc_primary` → `oidc_only`  
+- `oidc_client_id` = client Kanidm proposto  
+- Produtos: secret no OpenBao = **break-glass** até SSO live  
+- Lojas (Apple/Play/GCP): preferir IAM individual + API key, não OIDC Kanidm  
 
 ### Webhook dual-control (opcional)
 
