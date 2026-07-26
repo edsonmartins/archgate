@@ -3,9 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | Status | OCB-0…**OCB-5** (federação + deep-link Connect; OIDC por produto residual 4.4) |
-| ADR | [ADR-013](../../adr/ADR-013-org-credential-broker.md) |
+| ADR | [ADR-013](../../adr/ADR-013-org-credential-broker.md) · [ADR-009](../../adr/ADR-009-control-plane-admin-console.md) (console estilo AWS) |
 | OpenSpec | `openspec/changes/add-org-credential-broker/` |
-| Superfície | ArchGate Manager (`console.archgate.com.br`) |
+| Superfície | **Só** ArchGate Manager (`console.archgate.com.br`) — sem UI Kanidm/OpenBao no dia a dia |
 
 ## Objetivo
 
@@ -98,8 +98,11 @@ Ver [org-product-oidc-federation.md](./org-product-oidc-federation.md).
 
 ### Webhook dual-control (opcional)
 
+**Alvo (estilo AWS):** configurar no Manager (Settings), não por SSH/env no dia a dia.  
+**Hoje (gap residual):** env do serviço console até existir UI:
+
 ```bash
-# no serviço console
+# bootstrap / plataforma — não é o happy path do admin
 ORG_CHECKOUT_WEBHOOK_URL=https://hooks.slack.com/services/…
 # ou endpoint genérico JSON { event, text, checkout_id, … }
 ```

@@ -23,13 +23,29 @@ O OpenBao e o Manager já existem para **segredos de plataforma**; falta um **m�
 
 ## Decisão
 
+### 0. Console único (ADR-009 — metáfora AWS Console)
+
+O **ArchGate Manager** é o **único console operacional**, no mesmo espírito da **AWS Console**:
+
+| AWS | ArchGate |
+|-----|----------|
+| Console (UI + API) | **ArchGate Manager** (`console.archgate.com.br` + `/api/…`) |
+| IAM | Módulo identidade (Kanidm **atrás** do BFF) |
+| Secrets Manager / Parameter Store | OpenBao **atrás** do BFF |
+| CLI (opcional) | Connect / `archgate` — **sem** vault local de org |
+
+**Regra:** o admin/operador **não** precisa de UI/CLI do Kanidm, OpenBao, Warpgate stock, etc. no fluxo normal.  
+Esses componentes são **backends** (como serviços AWS por trás do Console). UIs stock = “advanced / break-glass de plataforma”, não o happy path ([ADR-009](./ADR-009-control-plane-admin-console.md)).
+
+Bootstrap de instalação (deploy scripts, tokens de serviço) é **ops de plataforma 1×**, análogo a provisionar a conta AWS — não o dia a dia.
+
 ### 1. Novo módulo no **ArchGate Manager**: Org Accounts / Credential Broker
 
 | Superfície | Papel |
 |------------|--------|
-| **ArchGate Manager** | Catálogo, checkout, aprovação, admin de contas org |
-| **OpenBao** | SoT do material secreto (`secret/data/org/…`) |
-| **Kanidm** | Quem pode ver / checkar / aprovar (grupos + permissions) |
+| **ArchGate Manager** | **Única** UI/API: catálogo, checkout, aprovação, store/rotate secret, audit |
+| **OpenBao** | Backend de material secreto (`secret/data/org/…`) — **sem** uso diário da UI OpenBao |
+| **Kanidm** | Backend de identidade/RBAC/OIDC clients — **via** Identidades / Grupos / OAuth2 no Manager |
 | **ArchGate Connect** | **Não** é o vault; deep-link `archgate org-accounts` → Manager (sem storage local) |
 
 ### 2. Separar bolsos de segredo
@@ -77,10 +93,11 @@ Warpgate HTTPS / inject **apenas** onde o alvo for HTTP interno ou compatível.
 |---|------------|
 | C1 | Token/root OpenBao **nunca** no browser |
 | C2 | Connect **não** persiste senhas org no disco/keychain do app |
-| C3 | Offboarding Kanidm revoga checkout e UI |
+| C3 | Offboarding (via Manager) revoga login + fecha checkouts org |
 | C4 | Toda reveal/checkout auditável |
 | C5 | P0 exige dual-control ou waiver documentado |
-| C6 | Inventário SoT no control plane (PG), não planilha como verdade |
+| C6 | Inventário SoT no control plane, não planilha como verdade |
+| C7 | **Console-only:** operação OCB/RBAC/secret write **não** exige UI/CLI de IdP ou OpenBao; se exigir, é gap de produto no Manager |
 
 ## Fases de entrega
 
