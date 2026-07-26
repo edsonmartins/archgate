@@ -56,3 +56,11 @@
 - [x] A2 Nenhuma senha P0 em git/YAML; secret_ref + OpenBao; waiver residual = path vazio até store secret  
 - [x] A3 ADR-013 marcado **Aceito**  
 
+## Manager-only ops (AWS Console)
+
+- [x] M1 Settings do broker no Manager (webhook HTTPS, TTL default/max) — SQLite, sem env no dia a dia  
+- [x] M2 Health card (backend secrets, write probe, inventário P0)  
+- [x] M3 Ensure path no store secret + erros amigáveis (sem “abra o OpenBao”)  
+- [x] M4 Runbook operacional console-only  
+
+
