@@ -12,14 +12,15 @@
 
 ## OCB-1 — OpenBao + checkout
 
-- [ ] 1.1 Paths e policies OpenBao `secret/data/org/{cloud,store,product}/*`  
-- [ ] 1.2 Server proxy: read/write KV com app token (nunca no browser)  
-- [ ] 1.3 `POST …/checkout` com reason + TTL + `OrgCheckout`  
-- [ ] 1.4 Reveal one-shot + audit activity_log  
-- [ ] 1.5 UI: botão checkout, modal motivo/TTL, exibir secret com copy + auto-hide  
-- [ ] 1.6 `POST …/checkin` + job/TTL expire status  
-- [ ] 1.7 Runbook `documentos/runbooks/org-credential-broker.md`  
-- [ ] 1.8 Testes unit/integration (RBAC, sem secret em list, audit)  
+- [x] 1.1 Paths convencionados `secret/data/org/{cloud,store,product}/*` (policy OpenBao ops)  
+- [x] 1.2 Server: `readSecretData` / `writeSecretData` (app token, never browser)  
+- [x] 1.3 `checkoutOrgAccountFn` + REST `POST …/accounts/$id/checkout` + table `org_checkouts`  
+- [x] 1.4 Reveal one-shot + `recordActivity` (keys only, never values)  
+- [x] 1.5 UI checkout modal + copy + check-in; admin “store secret”  
+- [x] 1.6 check-in + expireDueCheckouts on read  
+- [x] 1.7 Runbook atualizado  
+- [x] 1.8 Unit: org-checkouts + org-accounts seed (sqlite)  
+
 
 ## OCB-2 — Dual-control P0
 

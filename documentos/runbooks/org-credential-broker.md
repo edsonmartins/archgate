@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |-------|--------|
-| Status | OCB-0 live (metadados); checkout OCB-1 pendente |
+| Status | OCB-0 + **OCB-1 checkout** live; dual-control P0 = OCB-2 |
 | ADR | [ADR-013](../../adr/ADR-013-org-credential-broker.md) |
 | OpenSpec | `openspec/changes/add-org-credential-broker/` |
 | Superfície | ArchGate Manager (`console.archgate.com.br`) |
@@ -50,14 +50,24 @@ GET  /api/org/v1/accounts
 POST /api/org/v1/accounts
 ```
 
-## Operação (quando OCB-1+ estiver live)
+## OCB-1 — Checkout
 
 1. Login Manager (SSO Kanidm)  
-2. **Contas da org** → selecionar conta  
-3. **Checkout** → motivo + TTL  
-4. P0: aguardar aprovação de segundo admin  
+2. **Contas da org**  
+3. Admin (cadeado): **gravar secret** no OpenBao (password/api_key) se ainda vazio  
+4. **Checkout** → motivo (≥3 chars) + TTL (5 min–8 h)  
 5. Copiar secret; usar no portal; **não** colar no Slack  
-6. Check-in ou esperar expirar  
+6. **Check-in** ou esperar `expires_at`  
+7. Auditoria: menu **Auditoria** (action “Checkout conta org”)  
+
+```http
+POST /api/org/v1/accounts/:id/checkout
+{ "reason": "release iOS", "ttl_seconds": 3600 }
+```
+
+Requisitos: `OPENBAO_APP_TOKEN` no console com read/write em `secret/data/org/*`.
+
+P0 dual-control **formal** (segundo aprovador) = OCB-2; até lá o checkout P0 é permitido e auditado.
 
 ## Offboarding
 
