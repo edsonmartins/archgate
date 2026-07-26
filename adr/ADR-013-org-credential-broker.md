@@ -1,6 +1,6 @@
 # ADR-013 — Org Credential Broker (contas da IntegrAllTech)
 
-- **Status:** Proposto (aguardando aceite de produto)
+- **Status:** Aceito (direção de produto; OCB-0 em implementação)
 - **Data:** 2026-07-26
 - **Relacionado:** [CONSTITUTION](../CONSTITUTION.md) §2 · [ADR-009](./ADR-009-control-plane-admin-console.md) Manager · [ADR-009A](./ADR-009A-archgate-manager-produto.md) · OpenBao (CP-4) · [ADR-008A](./ADR-008A-archgate-connect-cliente-operador.md) Connect (fora do happy path)
 - **OpenSpec:** `openspec/changes/add-org-credential-broker/`

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |-------|--------|
-| Status | Spec (pré-implementação) |
+| Status | OCB-0 live (metadados); checkout OCB-1 pendente |
 | ADR | [ADR-013](../../adr/ADR-013-org-credential-broker.md) |
 | OpenSpec | `openspec/changes/add-org-credential-broker/` |
 | Superfície | ArchGate Manager (`console.archgate.com.br`) |
@@ -33,6 +33,21 @@ secret/data/org/store/apple-appstore
 secret/data/org/store/google-play
 secret/data/org/cloud/gcp-…
 secret/data/org/product/vendax-…
+```
+
+## OCB-0 — Manager
+
+1. Login `https://console.archgate.com.br`  
+2. Menu **Acesso → Contas da org**  
+3. Seed automático na primeira listagem (admin/read)  
+4. CRUD metadados; campo `secret_ref` = path OpenBao (valor do secret **não** aparece)  
+5. Template inventário: `documentos/runbooks/org-accounts.inventory.example.yaml`  
+
+API:
+
+```http
+GET  /api/org/v1/accounts
+POST /api/org/v1/accounts
 ```
 
 ## Operação (quando OCB-1+ estiver live)

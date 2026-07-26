@@ -1,0 +1,70 @@
+# Org Credential Broker — inventário exemplo (OCB-0)
+# Importação via UI/API quando disponível; até lá use o seed do Manager.
+# NUNCA coloque passwords neste arquivo (git).
+
+accounts:
+  - slug: apple-appstore-integrall
+    name: App Store Connect · IntegrAllTech
+    category: store
+    criticality: P0
+    url: https://appstoreconnect.apple.com
+    auth_kind: password
+    owner_group: archguard_super_admins
+    secret_ref: secret/data/org/store/apple-appstore
+    requires_dual_control: true
+    notes: Prefer individual users + API key; shared owner dual-control.
+
+  - slug: google-play-integrall
+    name: Google Play Console · IntegrAllTech
+    category: store
+    criticality: P0
+    url: https://play.google.com/console
+    auth_kind: password
+    owner_group: archguard_super_admins
+    secret_ref: secret/data/org/store/google-play
+
+  - slug: gcp-integrall-placeholder
+    name: Google Cloud · (preencher projeto)
+    category: cloud
+    criticality: P0
+    url: https://console.cloud.google.com
+    auth_kind: oidc
+    owner_group: archguard_super_admins
+    secret_ref: secret/data/org/cloud/gcp-placeholder
+
+  - slug: vendax-admin
+    name: Vendax · admin
+    category: product_admin
+    product: vendax
+    criticality: P1
+    auth_kind: password
+    owner_group: archguard_users
+    secret_ref: secret/data/org/product/vendax-admin
+
+  - slug: archflow-admin
+    name: ArchFlow · admin
+    category: product_admin
+    product: archflow
+    criticality: P1
+    secret_ref: secret/data/org/product/archflow-admin
+
+  - slug: brainsentry-admin
+    name: BrainSentry · admin
+    category: product_admin
+    product: brainsentry
+    criticality: P1
+    secret_ref: secret/data/org/product/brainsentry-admin
+
+  - slug: gestor-admin
+    name: Gestor RQ · admin
+    category: product_admin
+    product: gestor
+    criticality: P1
+    secret_ref: secret/data/org/product/gestor-admin
+
+  - slug: alcada-admin
+    name: Alçada · admin
+    category: product_admin
+    product: alcada
+    criticality: P1
+    secret_ref: secret/data/org/product/alcada-admin

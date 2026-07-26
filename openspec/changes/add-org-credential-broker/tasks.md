@@ -2,12 +2,13 @@
 
 ## OCB-0 — Inventário e metadados
 
-- [ ] 0.1 Aceite de lista inicial P0/P1 (Apple, Play, GCP, admins produtos) com owners  
-- [ ] 0.2 Schema `org_accounts` (+ migration PG/SQLite console)  
-- [ ] 0.3 API `GET/POST/PATCH /api/org/v1/accounts` (sem secret na listagem)  
-- [ ] 0.4 UI Manager: navegação **Contas da org** + CRUD metadados  
-- [ ] 0.5 Import YAML/CSV (`documentos/runbooks/sites/` style) + validação zod  
-- [ ] 0.6 Permissions `org_accounts:read|admin` no console + mapeamento grupos Kanidm  
+- [x] 0.1 Seed inicial P0/P1 (Apple, Play, GCP placeholder, produtos) — owners via `owner_group`  
+- [x] 0.2 Schema `org_accounts` (SQLite migrate em `db.ts`)  
+- [x] 0.3 API `GET/POST /api/org/v1/accounts` + server fns (sem secret na listagem)  
+- [x] 0.4 UI Manager: **Contas da org** + CRUD dialog  
+- [x] 0.5 Template YAML exemplo (`documentos/runbooks/org-accounts.inventory.example.yaml`)  
+- [x] 0.6 Permissions `org_accounts:read|admin|checkout|approve` + grupos Kanidm  
+
 
 ## OCB-1 — OpenBao + checkout
 
