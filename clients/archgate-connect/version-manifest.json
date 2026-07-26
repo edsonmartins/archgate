@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "product": "archgate-connect",
+  "channel": "stable",
+  "latest": {
+    "version": "0.2.0",
+    "notes": "Onda 2+3: Guac token, MySQL E2E, theme, catalog RDM-lite",
+    "released_at": "2026-07-26",
+    "macos": {
+      "dmg": null,
+      "app_min_os": "12.0",
+      "signed": false,
+      "notarized": false
+    }
+  },
+  "download_page": "https://github.com/edsonmartins/archgate/releases",
+  "runbooks": {
+    "notarize": "documentos/runbooks/archgate-connect-macos-notarize.md",
+    "auto_update": "documentos/runbooks/archgate-connect-auto-update.md",
+    "multi_os": "documentos/runbooks/archgate-connect-windows-linux.md"
+  },
+  "notes": "Until Developer ID + notarize, operators install ad-hoc builds from trusted host. Auto-update binary channel remains disabled (signed:false)."
+}

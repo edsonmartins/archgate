@@ -73,6 +73,7 @@ xcrun stapler validate "dist/ArchGate Connect.app"
 - Cannot complete notarize on CI/laptop without Team credentials  
 - Document this runbook; run steps when identity is issued  
 - Continue shipping **unsigned/ad-hoc** only to operators who already trust the build host  
+- **Auto-update (F5):** check-only no app — ver [archgate-connect-auto-update.md](./archgate-connect-auto-update.md). Plugin Tauri updater só após notarize.
 
 ## Security notes
 

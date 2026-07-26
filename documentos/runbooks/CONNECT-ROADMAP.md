@@ -53,14 +53,19 @@
 
 | ID | Item | Status |
 |----|------|--------|
-| **F5** | Notarize + auto-update | Bloqueado org (falta Developer ID Application) — runbook pronto |
+| **F5** | Notarize + auto-update | Notarize bloqueado (Developer ID); **check-only** no app + manifest + runbook |
 | **V10** | Theme app dark/light | Feito (2026-07-26) |
 | **F15** | MySQL embutido (CLI + PTY) | **Feito** — E2E PASS SELECT via WG (2026-07-26) |
 | **F16–F17** | Oracle / HTTP embutidos | Melhorado (WebSession BFF embed + chrome Oracle) |
-| **F20** | Multi-OS (Win/Linux) | Parcial (docs + CLI; desktop macOS first) |
+| **F20** | Multi-OS (Win/Linux) | CLI multi-OS feito; desktop macOS first (docs atualizados) |
 | **V17** | Marca / packaging polish | Feito parcial (versão + IntegrAllTech na topbar) |
 
-Smoke F4 E2E: `bash deploy/validation/smoke-f4-guac-ws.sh`
+Smokes:
+
+```bash
+bash deploy/validation/smoke-onda3-connect.sh
+bash deploy/validation/smoke-f4-guac-ws.sh
+```
 
 ## Fora de escopo próximo
 
@@ -78,3 +83,4 @@ Vault local de senhas de alvo · FreeRDP nativo · VPN cliente no notebook · fu
 | 2026-07-26 | F15 MySQL embutido (CLI/JSON/PTY) + V17 marca; runbook warpgate-mysql-bastion.md |
 | 2026-07-26 | F15 bastion: WG mysql.enable + UFW 33306 + lab-mysql + catalog protocol fix |
 | 2026-07-26 | F15 E2E PASS (cleartext + MySQL 8.0 native); F16 WebSession BFF embed |
+| 2026-07-26 | F5 scaffold: version-manifest + Verificar atualização; smoke-onda3-connect.sh |

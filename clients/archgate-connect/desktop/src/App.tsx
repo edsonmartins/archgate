@@ -24,6 +24,7 @@ import { protocolMeta, type Connection } from './protocol'
 import { notifySession } from './notify'
 import { SessionWorkspace } from './sessions/SessionWorkspace'
 import { newSessionTab, type SessionState, type SessionTab } from './sessions/types'
+import { APP_VERSION, checkForUpdate } from './updateCheck'
 
 type Status = {
   user?: string
@@ -657,7 +658,7 @@ export function App() {
             <h1>
               ArchGate Connect
               <span className="brand-version" title="desktop package">
-                0.2.0
+                {APP_VERSION}
               </span>
             </h1>
             <p className="subtitle">IntegrAllTech · bastion · RDM-lite</p>
@@ -855,6 +856,47 @@ export function App() {
                       }}
                     >
                       Tema {appPrefs.theme === 'dark' ? 'claro' : 'escuro'}
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={busy}
+                      onClick={() => {
+                        setActionsOpen(false)
+                        setPending('update')
+                        void checkForUpdate()
+                          .then((r) => {
+                            if (r.error) {
+                              setNotice({
+                                kind: 'err',
+                                text: `Atualização: ${r.error}`,
+                              })
+                              return
+                            }
+                            if (r.updateAvailable) {
+                              setNotice({
+                                kind: 'info',
+                                text: `Nova versão ${r.latest} (atual ${r.current}).${
+                                  r.notarized
+                                    ? ''
+                                    : ' Build ainda não notarizado — baixe de host confiável.'
+                                }${r.downloadPage ? ` ${r.downloadPage}` : ''}${
+                                  r.notes ? `\n${r.notes}` : ''
+                                }`,
+                              })
+                            } else {
+                              setNotice({
+                                kind: 'ok',
+                                text: `Connect ${r.current} está em dia${
+                                  r.signed ? ' (canal assinado)' : ' (canal ad-hoc)'
+                                }.`,
+                              })
+                            }
+                          })
+                          .finally(() => setPending(null))
+                      }}
+                    >
+                      Verificar atualização
                     </button>
                     <button
                       type="button"

@@ -1,7 +1,16 @@
-# ArchGate Connect — Windows / Linux (CLI best-effort)
+# ArchGate Connect — Windows / Linux (CLI + desktop roadmap)
 
 > **ADR-008A:** macOS first (desktop tray). CLI is multi-OS; tray Windows/Linux is residual.  
 > **Bastion, not VPN** — never install customer Forti/OpenVPN as the Connect happy path.
+
+| Superfície | macOS | Linux | Windows |
+|------------|-------|-------|---------|
+| CLI `archgate` | Feito | Feito | Feito |
+| Desktop Tauri (RDM) | Feito (0.2.x) | Residual (build experimental) | Residual |
+| Keychain / secret store | Keychain | libsecret / file | Credential Manager |
+| MySQL client (F15) | `brew install mysql-client` | `mysql-client` distro | MySQL Shell / PATH |
+| Postgres client | `brew install libpq` | `postgresql-client` | PATH |
+| Notarize / SmartScreen | Developer ID | N/A (sigstore/GPG later) | Authenticode later |
 
 ## Build CLI
 
@@ -88,7 +97,28 @@ archgate logout
 |----|------|
 | macOS | `pbcopy` |
 | Linux | `wl-copy` or `xclip -selection clipboard` |
-| Windows | not yet — use printed `psql` line |
+| Windows | not yet — use printed `psql`/`mysql` line |
+
+### MySQL via bastion (F15)
+
+```bash
+# same on Linux/macOS once mysql client is on PATH
+archgate db lab-mysql --json
+mysql -h $ARCHGATE_WG_MYSQL_HOST -P 33306 -u 'OPERADOR:lab-mysql' -p \
+  --ssl-mode=REQUIRED --enable-cleartext-plugin
+```
+
+Windows: install MySQL Shell or Oracle MySQL client; same flags if the CLI supports them.
+
+### Desktop experimental (Linux)
+
+```bash
+cd clients/archgate-connect/desktop
+# need webkitgtk + rust; not CI-gated yet
+npm install && npm run tauri build
+```
+
+Do **not** ship Linux/Windows desktop as production until macOS notarize path is green.
 
 ## Browser open
 
