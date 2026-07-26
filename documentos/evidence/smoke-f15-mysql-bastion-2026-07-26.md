@@ -54,4 +54,19 @@ Desktop: Connect → `lab-mysql` → aba DB (requer `mysql` CLI no PATH do Mac).
 | Cliente MySQL embutido | **PASS** (código) |
 | Bastion WG MySQL on | **PASS** |
 | Target + catálogo | **PASS** |
-| Sessão SQL autenticada E2E | **PENDING** (precisa senha WG operador + client mysql no Mac) |
+| Sessão SQL autenticada E2E | **PASS** (2026-07-26) |
+
+### E2E (Mac → WG:33306 → lab-mysql)
+
+```text
+mysql -h 217.196.60.108 -P 33306 -u 'uat-op-a:lab-mysql' -p \
+  --ssl-mode=REQUIRED --enable-cleartext-plugin \
+  -e "SELECT 1; SELECT USER();"
+→ ok=1, USER=archgate_lab@172.19.0.17
+→ MYSQL_E2E_PASS
+```
+
+Notas:
+- Warpgate autenticou o operador (`UserAuthenticated` uat-op-a).
+- Alvo lab usa **MySQL 8.0** + `mysql_native_password` (WG 0.26 não faz handshake `caching_sha2` do 8.4).
+- Client precisa `--enable-cleartext-plugin` (auth `mysql_clear_password` no proxy).

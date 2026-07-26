@@ -271,8 +271,9 @@ func cmdDB(args []string, jsonOut bool) error {
 			port = 33306
 		}
 		// mysql CLI: password interactive (-p). Warpgate uses user=operator:target.
+		// --enable-cleartext-plugin is required for Warpgate MySQL auth (mysql_clear_password).
 		cmdLine := fmt.Sprintf(
-			`mysql -h %s -P %d -u %s -p --ssl-mode=REQUIRED`,
+			`mysql -h %s -P %d -u %s -p --ssl-mode=REQUIRED --enable-cleartext-plugin`,
 			host, port, proxyUser,
 		)
 		if jsonOut {
@@ -289,10 +290,11 @@ func cmdDB(args []string, jsonOut bool) error {
 					"-u", proxyUser,
 					"-p",
 					"--ssl-mode=REQUIRED",
+					"--enable-cleartext-plugin",
 				},
 				"command": cmdLine,
 				"mysql":   cmdLine,
-				"note":    "Password is your Warpgate/operator credential, not the database password. Bastion must have mysql.enable=true (port 33306).",
+				"note":    "Password is your Warpgate/operator credential, not the database password. Bastion must have mysql.enable=true (port 33306). Requires --enable-cleartext-plugin.",
 			})
 		}
 		fmt.Println("MySQL via Warpgate bastion (not target IP)")

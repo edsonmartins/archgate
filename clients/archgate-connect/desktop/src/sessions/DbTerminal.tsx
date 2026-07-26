@@ -163,6 +163,7 @@ export function DbTerminal({
                 info.username,
                 '-p',
                 '--ssl-mode=REQUIRED',
+                '--enable-cleartext-plugin',
               ]
             : [
                 `host=${info.host} port=${info.port} user=${info.username} dbname=${info.database || 'postgres'} sslmode=${info.sslmode || 'require'}`,

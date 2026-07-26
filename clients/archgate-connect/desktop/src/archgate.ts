@@ -160,9 +160,10 @@ function mockArchgate(args: string[]): RunResult {
                 `uat-op-a:${target}`,
                 '-p',
                 '--ssl-mode=REQUIRED',
+                '--enable-cleartext-plugin',
               ],
-              command: `mysql -h 217.196.60.108 -P 33306 -u uat-op-a:${target} -p --ssl-mode=REQUIRED`,
-              mysql: `mysql -h 217.196.60.108 -P 33306 -u uat-op-a:${target} -p --ssl-mode=REQUIRED`,
+              command: `mysql -h 217.196.60.108 -P 33306 -u uat-op-a:${target} -p --ssl-mode=REQUIRED --enable-cleartext-plugin`,
+              mysql: `mysql -h 217.196.60.108 -P 33306 -u uat-op-a:${target} -p --ssl-mode=REQUIRED --enable-cleartext-plugin`,
             }) + '\n',
           stderr: '',
         }

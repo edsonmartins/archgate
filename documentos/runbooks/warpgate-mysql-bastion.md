@@ -16,6 +16,22 @@ Connect embute `mysql` CLI contra o proxy MySQL do Warpgate (`operator:target`),
 
 Greeting público esperado: `8.0.3-Warpgate` no TCP `:33306`.
 
+### Compatibilidade auth do alvo
+
+| Backend | Warpgate 0.26 |
+|---------|----------------|
+| MySQL 8.0 + `mysql_native_password` | **OK** (lab) |
+| MySQL 8.4 `caching_sha2_password` | **Falha** handshake alvo (error 1251) |
+
+Lab: container `mysql:8.0` com `--default-authentication-plugin=mysql_native_password`.
+
+Cliente operador:
+
+```bash
+mysql -h HOST -P 33306 -u 'OPERADOR:lab-mysql' -p \
+  --ssl-mode=REQUIRED --enable-cleartext-plugin
+```
+
 ## Ativar no VPS
 
 1. Em `warpgate.yaml` (container `/data/warpgate.yaml`):

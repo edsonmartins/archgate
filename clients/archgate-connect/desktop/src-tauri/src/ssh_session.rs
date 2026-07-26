@@ -1,13 +1,51 @@
-//! Embedded interactive sessions via local PTY (SSH, psql, …).
+//! Embedded interactive sessions via local PTY (SSH, psql, mysql, …).
 //! Auth (password/agent/key) is interactive in the terminal — no secret storage here.
 
 use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::io::{Read, Write};
+use std::path::PathBuf;
 use std::sync::Mutex;
 use std::thread;
 use tauri::{AppHandle, Emitter, State};
+
+/// Resolve a client binary for GUI apps (Homebrew paths not always on PATH).
+fn resolve_program(program: &str) -> String {
+    if program.contains('/') {
+        return program.to_string();
+    }
+    let candidates: &[&str] = match program {
+        "mysql" => &[
+            "/opt/homebrew/opt/mysql-client/bin/mysql",
+            "/opt/homebrew/bin/mysql",
+            "/usr/local/opt/mysql-client/bin/mysql",
+            "/usr/local/bin/mysql",
+            "/usr/bin/mysql",
+        ],
+        "mariadb" => &[
+            "/opt/homebrew/bin/mariadb",
+            "/usr/local/bin/mariadb",
+            "/usr/bin/mariadb",
+        ],
+        "psql" => &[
+            "/opt/homebrew/opt/libpq/bin/psql",
+            "/opt/homebrew/bin/psql",
+            "/usr/local/opt/libpq/bin/psql",
+            "/usr/local/bin/psql",
+            "/usr/bin/psql",
+        ],
+        "ssh" => &["/usr/bin/ssh", "/opt/homebrew/bin/ssh"],
+        _ => &[],
+    };
+    for c in candidates {
+        if PathBuf::from(c).is_file() {
+            return (*c).to_string();
+        }
+    }
+    // Fall back to bare name (PATH / later env PATH enrichment).
+    program.to_string()
+}
 
 pub struct SshSessions {
     inner: Mutex<HashMap<String, LiveSession>>,
@@ -73,7 +111,25 @@ fn spawn_pty(
         })
         .map_err(|e| format!("PTY: {e}"))?;
 
-    let mut cmd = CommandBuilder::new(program);
+    // Prefer resolved path so GUI apps find Homebrew clients (mysql/psql/ssh).
+    let program_path = resolve_program(program);
+    let mut cmd = CommandBuilder::new(&program_path);
+    // Ensure Homebrew paths for nested lookups (macOS GUI has minimal PATH).
+    if let Ok(path) = std::env::var("PATH") {
+        let extra = "/opt/homebrew/bin:/opt/homebrew/opt/mysql-client/bin:/opt/homebrew/opt/libpq/bin:/usr/local/bin";
+        if !path.contains("mysql-client") {
+            cmd.env("PATH", format!("{extra}:{path}"));
+        }
+    } else {
+        cmd.env(
+            "PATH",
+            "/opt/homebrew/bin:/opt/homebrew/opt/mysql-client/bin:/opt/homebrew/opt/libpq/bin:/usr/local/bin:/usr/bin:/bin",
+        );
+    }
+    // Warpgate MySQL uses mysql_clear_password; some clients need this env as well.
+    if program == "mysql" || program == "mariadb" {
+        cmd.env("LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN", "1");
+    }
     for a in args {
         cmd.arg(a);
     }
@@ -81,7 +137,7 @@ fn spawn_pty(
     let child = pair
         .slave
         .spawn_command(cmd)
-        .map_err(|e| format!("{program} spawn: {e}"))?;
+        .map_err(|e| format!("{program} spawn ({program_path}): {e}"))?;
     drop(pair.slave);
 
     let mut reader = pair
