@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |-------|--------|
-| Status | OCB-0 + OCB-1 + **OCB-2 dual-control** live |
+| Status | OCB-0…**OCB-3** live (dual-control + rotação/API key + webhook opcional) |
 | ADR | [ADR-013](../../adr/ADR-013-org-credential-broker.md) |
 | OpenSpec | `openspec/changes/add-org-credential-broker/` |
 | Superfície | ArchGate Manager (`console.archgate.com.br`) |
@@ -78,6 +78,24 @@ Requisitos: `OPENBAO_APP_TOKEN` no console com read/write em `secret/data/org/*`
 ```http
 POST /api/org/v1/checkouts/:id/approve
 ```
+
+### Rotação / API key (OCB-3)
+
+1. Contas da org → cadeado na linha  
+2. Escolha `auth_kind` = `api_key` (ou password)  
+3. Cole a nova key/senha  
+4. Marque **Marcar como rotação** → grava OpenBao + `rotated_at` no inventário  
+5. Prefira keys de serviço (GCP SA, Play API, App Store Connect API) em vez de senha humana  
+
+### Webhook dual-control (opcional)
+
+```bash
+# no serviço console
+ORG_CHECKOUT_WEBHOOK_URL=https://hooks.slack.com/services/…
+# ou endpoint genérico JSON { event, text, checkout_id, … }
+```
+
+Disparado quando um checkout P0 fica `pending`.
 
 ## Offboarding
 

@@ -26,16 +26,17 @@
 
 - [x] 2.1 Fluxo `pending` → approve/deny por `org_accounts:approve`  
 - [x] 2.2 Bloqueio self-approve  
-- [ ] 2.3 Notificação (e-mail/Slack webhook opcional) — residual  
+- [x] 2.3 Notificação opcional `ORG_CHECKOUT_WEBHOOK_URL` (Slack/JSON)  
 - [x] 2.4 UI fila “aprovações pendentes”  
 - [x] 2.5 Unit tests dual-control + REST approve  
 
 
 ## OCB-3 — Keys e rotação
 
-- [ ] 3.1 `auth_kind=api_key` UX dedicada  
-- [ ] 3.2 Rotação assistida (write novo secret + marca `rotated_at`)  
-- [ ] 3.3 Preferir service account / API key nos runbooks GCP/Play/Apple  
+- [x] 3.1 `auth_kind=api_key` UX dedicada no store secret  
+- [x] 3.2 Rotação assistida (`rotate` + `rotated_at`)  
+- [x] 3.3 Runbook: preferir API key / SA  
+
 
 ## OCB-4 — Federar produtos
 
