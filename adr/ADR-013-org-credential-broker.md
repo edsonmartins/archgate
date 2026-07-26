@@ -1,9 +1,11 @@
 # ADR-013 — Org Credential Broker (contas da IntegrAllTech)
 
-- **Status:** Aceito (direção de produto; OCB-0 em implementação)
+- **Status:** Aceito
 - **Data:** 2026-07-26
+- **Implementação:** OCB-0…OCB-5 no Manager + Connect deep-link; residual 4.4 = OIDC por produto (squads)
 - **Relacionado:** [CONSTITUTION](../CONSTITUTION.md) §2 · [ADR-009](./ADR-009-control-plane-admin-console.md) Manager · [ADR-009A](./ADR-009A-archgate-manager-produto.md) · OpenBao (CP-4) · [ADR-008A](./ADR-008A-archgate-connect-cliente-operador.md) Connect (fora do happy path)
 - **OpenSpec:** `openspec/changes/add-org-credential-broker/`
+- **Runbook:** [org-credential-broker.md](../documentos/runbooks/org-credential-broker.md)
 
 ## Contexto
 
@@ -28,7 +30,7 @@ O OpenBao e o Manager já existem para **segredos de plataforma**; falta um **m�
 | **ArchGate Manager** | Catálogo, checkout, aprovação, admin de contas org |
 | **OpenBao** | SoT do material secreto (`secret/data/org/…`) |
 | **Kanidm** | Quem pode ver / checkar / aprovar (grupos + permissions) |
-| **ArchGate Connect** | **Não** é o vault; opcionalmente deep-link futuro só com role e sem storage local |
+| **ArchGate Connect** | **Não** é o vault; deep-link `archgate org-accounts` → Manager (sem storage local) |
 
 ### 2. Separar bolsos de segredo
 
@@ -118,11 +120,23 @@ Warpgate HTTPS / inject **apenas** onde o alvo for HTTP interno ou compatível.
 
 ## Aceite
 
-- [ ] Produto / security: dual-control P0 e lista inicial de contas  
-- [ ] Ops: paths OpenBao e policy app token  
-- [ ] Eng: OpenSpec `add-org-credential-broker` em implementação por ondas OCB-0…  
+- [x] Produto / security: dual-control P0 e lista inicial de contas (seed + UI)  
+- [x] Ops: paths OpenBao `secret/data/org/…` + write/checkout server-side (app token)  
+- [x] Eng: OpenSpec OCB-0…OCB-5 entregues no control plane  
+- [x] A1 Offboarding: sessão expirada → 401; revoke person fecha checkouts org  
+- [x] A2 Inventário P0 com `secret_ref`; sem senha em git/YAML (valores só OpenBao)  
+- [x] A3 Este ADR marcado **Aceito** após implementação  
+
+**Residual (não bloqueia aceite do ADR):**
+
+| Item | Dono |
+|------|------|
+| OCB-4.4 clients OIDC em cada produto | squads de produto |
+| Material secret real nos paths OpenBao (migração operacional) | ops / owners |
+| Webhook Slack `ORG_CHECKOUT_WEBHOOK_URL` | ops (opcional) |
 
 ## Referências
 
 - OpenSpec: `openspec/changes/add-org-credential-broker/`  
-- Runbook (a criar na implementação): `documentos/runbooks/org-credential-broker.md`
+- Runbook: `documentos/runbooks/org-credential-broker.md`  
+- Federação: `documentos/runbooks/org-product-oidc-federation.md`

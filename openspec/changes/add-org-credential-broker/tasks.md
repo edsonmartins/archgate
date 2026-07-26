@@ -52,6 +52,7 @@
 
 ## Aceite transversal
 
-- [ ] A1 Offboarding: user disabled → 401/403 no módulo  
-- [ ] A2 Nenhuma senha P0 só em chat/planilha (waiver se residual)  
-- [ ] A3 ADR-013 marcado Aceito após review  
+- [x] A1 Offboarding: sessão expirada → 401; revoke fecha org checkouts (`forceCloseCheckoutsForPrincipal`)  
+- [x] A2 Nenhuma senha P0 em git/YAML; secret_ref + OpenBao; waiver residual = path vazio até store secret  
+- [x] A3 ADR-013 marcado **Aceito**  
+

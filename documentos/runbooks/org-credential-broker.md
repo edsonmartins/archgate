@@ -106,10 +106,36 @@ ORG_CHECKOUT_WEBHOOK_URL=https://hooks.slack.com/services/…
 
 Disparado quando um checkout P0 fica `pending`.
 
-## Offboarding
+## Offboarding (A1)
 
-Desabilitar pessoa no Kanidm → perde Manager e checkout.  
-Rotacionar secrets P0 se a pessoa tinha acesso ativo recente (runbook de incidente).
+1. Manager → Pessoas → **Revogar acesso** (ou Kanidm `account_expire`)  
+2. Efeitos:
+   - Login / refresh OIDC falha → sem cookie válido  
+   - `requireSession` rejeita sessão **expirada** → **401** em `/api/org/v1/*`  
+   - Checkouts **active/pending** do principal são **forçados a check-in**  
+3. Rotacionar secrets P0 se a pessoa tinha reveal recente (incidente)
+
+## Aceite A2 — sem senha P0 só em chat/planilha
+
+| Controle | Estado |
+|----------|--------|
+| Inventário no Manager (seed + UI) | SoT de metadados |
+| YAML exemplo / git | **sem** password values |
+| Secret material | só OpenBao `secret/data/org/…` via store secret / rotate |
+| Connect | sem vault local (OCB-5) |
+| Dual-control P0 | obrigatório no checkout |
+
+**Waiver residual (ops):** paths `secret_ref` podem existir no inventário **antes** do valor ser gravado no OpenBao. Até o store secret, checkout falha (sem material) — isso é preferível a planilha. Owners devem completar write OpenBao por conta P0.
+
+Checklist ops:
+
+```text
+[ ] apple-appstore-integrall → secret/data/org/store/apple-appstore
+[ ] google-play-integrall    → secret/data/org/store/google-play
+[ ] gcp-integrall-placeholder → secret/data/org/cloud/gcp-placeholder
+[ ] archguard break-glass    → secret/data/org/product/archguard-breakglass
+[ ] produtos (vendax…)       → secret/data/org/product/* (só break-glass)
+```
 
 ## Break-glass
 
