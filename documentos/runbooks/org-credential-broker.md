@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |-------|--------|
-| Status | OCB-0…**OCB-4** (federação: metadados + plano OIDC; implementação por produto residual) |
+| Status | OCB-0…**OCB-5** (federação + deep-link Connect; OIDC por produto residual 4.4) |
 | ADR | [ADR-013](../../adr/ADR-013-org-credential-broker.md) |
 | OpenSpec | `openspec/changes/add-org-credential-broker/` |
 | Superfície | ArchGate Manager (`console.archgate.com.br`) |
@@ -115,6 +115,15 @@ Rotacionar secrets P0 se a pessoa tinha acesso ativo recente (runbook de inciden
 
 Conta owner Apple/GCP: dual-control + recovery codes em path separado com `requires_dual_control=true`.
 
-## Relação com Connect
+## Relação com Connect (OCB-5)
 
-Connect **não** armazena essas senhas. Acesso a infra de cliente continua bastion-first (sites/targets).
+Connect **não** armazena senhas/API keys da org (nem local vault).
+
+Deep-link para o Manager (browser; permissão `org_accounts:*` no Manager):
+
+```bash
+archgate org-accounts              # → console…/org-accounts
+archgate manager --path /org-accounts
+```
+
+No desktop: menu ⋯ → **Contas da org**. Checkout/reveal continua só no Manager + OpenBao.

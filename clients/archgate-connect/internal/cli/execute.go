@@ -66,6 +66,9 @@ func Execute(args []string) error {
 		return cmdOpen(rest)
 	case "manager", "open-manager":
 		return cmdManager(rest)
+	case "org-accounts", "org":
+		// OCB-5: deep-link Manager "Contas da org" — never stores org secrets here.
+		return cmdManager(append([]string{"--path", "/org-accounts"}, rest...))
 	case "config":
 		return cmdConfig(rest)
 	case "print-ssh":
@@ -104,6 +107,8 @@ Uso:
   archgate open <target>         Browser (Guac / Oracle UI / HTTP)
   archgate manager [--path /x]   Abre ArchGate Manager (admin) no browser
   archgate open-manager          Alias de manager
+  archgate org-accounts          Manager → Contas da org (OCB; sem vault local)
+  archgate org                   Alias de org-accounts
   archgate auth-header [--json]  Token Bearer p/ BFF (desktop embutido)
   archgate print-open <target>   URL embutível (Guac/HTTP/Oracle) JSON
   archgate wg-user [name]        Ver/definir usuário Warpgate (SSH/DB)

@@ -250,7 +250,7 @@ func TestWgUserSetAndGet(t *testing.T) {
 }
 
 func TestManagerPathOK(t *testing.T) {
-	ok := []string{"/dashboard", "/sites", "/sites/wizard", "/gateways", "/identities"}
+	ok := []string{"/dashboard", "/sites", "/sites/wizard", "/gateways", "/identities", "/org-accounts"}
 	for _, p := range ok {
 		if !managerPathOK(p) {
 			t.Fatalf("expected ok path %q", p)
@@ -283,6 +283,24 @@ func TestHelpListsManager(t *testing.T) {
 	})
 	if !strings.Contains(out, "archgate manager") {
 		t.Fatalf("help missing manager: %s", out)
+	}
+	if !strings.Contains(out, "archgate org-accounts") {
+		t.Fatalf("help missing org-accounts: %s", out)
+	}
+}
+
+func TestOrgAccountsHelpPath(t *testing.T) {
+	// org-accounts is an alias that forces --path /org-accounts; --help still works via manager.
+	out := captureStdout(t, func() {
+		if err := Execute([]string{"org-accounts", "--help"}); err != nil {
+			t.Fatal(err)
+		}
+	})
+	if !strings.Contains(out, "usage: archgate manager") {
+		t.Fatalf("org-accounts help: %s", out)
+	}
+	if !strings.Contains(out, "/org-accounts") {
+		t.Fatalf("org-accounts help should mention path: %s", out)
 	}
 }
 

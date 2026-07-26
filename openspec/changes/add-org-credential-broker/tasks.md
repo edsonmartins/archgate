@@ -47,8 +47,8 @@
 
 ## OCB-5 — Connect (opcional)
 
-- [ ] 5.1 Deep link Manager “Contas da org” se role permitir  
-- [ ] 5.2 **Não** implementar storage de secret no Connect  
+- [x] 5.1 Deep link Manager “Contas da org” (`archgate org-accounts` + menu desktop) — role enforced no Manager  
+- [x] 5.2 **Não** implementar storage de secret no Connect (só browser → Manager/OpenBao)  
 
 ## Aceite transversal
 

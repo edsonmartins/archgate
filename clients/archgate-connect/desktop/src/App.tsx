@@ -827,6 +827,52 @@ export function App() {
                     <button
                       type="button"
                       role="menuitem"
+                      disabled={busy}
+                      onClick={() => {
+                        setActionsOpen(false)
+                        setPending('manager')
+                        void runLogged(['manager'])
+                          .then((r) => {
+                            setNotice({
+                              kind: r.code === 0 ? 'ok' : 'err',
+                              text:
+                                r.code === 0
+                                  ? r.stdout.trim() || 'Abrindo Manager…'
+                                  : r.stderr || 'Falha ao abrir Manager',
+                            })
+                          })
+                          .finally(() => setPending(null))
+                      }}
+                    >
+                      ArchGate Manager
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={busy}
+                      title="Checkout de credenciais da org no Manager (OpenBao). Connect não guarda senhas."
+                      onClick={() => {
+                        setActionsOpen(false)
+                        setPending('org-accounts')
+                        void runLogged(['org-accounts'])
+                          .then((r) => {
+                            setNotice({
+                              kind: r.code === 0 ? 'ok' : 'err',
+                              text:
+                                r.code === 0
+                                  ? r.stdout.trim() ||
+                                    'Abrindo Contas da org no Manager…'
+                                  : r.stderr || 'Falha ao abrir Contas da org',
+                            })
+                          })
+                          .finally(() => setPending(null))
+                      }}
+                    >
+                      Contas da org
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
                       disabled={busy || !sessionOn}
                       onClick={() => {
                         setActionsOpen(false)

@@ -47,6 +47,7 @@ ssh archgate-rio-aws-api-b
 archgate doctor
 archgate manager                 # abre ArchGate Manager (admin) no browser
 archgate manager --path /sites
+archgate org-accounts            # Manager → Contas da org (OCB; sem vault no Connect)
 archgate logout
 ```
 

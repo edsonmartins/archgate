@@ -199,6 +199,25 @@ function mockArchgate(args: string[]): RunResult {
     return { code: 0, stdout: `→ open https://console.archgate.com.br/sites\n`, stderr: '' }
   }
 
+  if (cmd === 'manager' || cmd === 'open-manager') {
+    const pathIdx = args.indexOf('--path')
+    const path =
+      pathIdx >= 0 && args[pathIdx + 1] ? args[pathIdx + 1] : args.find((a) => a.startsWith('/')) || '/dashboard'
+    return {
+      code: 0,
+      stdout: `→ ArchGate Manager  https://console.archgate.com.br${path}\n`,
+      stderr: '',
+    }
+  }
+
+  if (cmd === 'org-accounts' || cmd === 'org') {
+    return {
+      code: 0,
+      stdout: `→ ArchGate Manager  https://console.archgate.com.br/org-accounts\n`,
+      stderr: '',
+    }
+  }
+
   if (cmd === 'logout') {
     return { code: 0, stdout: 'Logged out.\n', stderr: '' }
   }

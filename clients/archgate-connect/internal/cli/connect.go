@@ -386,7 +386,7 @@ func cmdManager(args []string) error {
 			path = args[i+1]
 			i++
 		case "--help", "-h":
-			fmt.Println("usage: archgate manager [--path /dashboard|/sites|/gateways|…]")
+			fmt.Println("usage: archgate manager [--path /dashboard|/sites|/org-accounts|/gateways|…]")
 			return nil
 		default:
 			// bare path argument
