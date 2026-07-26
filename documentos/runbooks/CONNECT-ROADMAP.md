@@ -37,7 +37,17 @@
 
 ## Onda 2 — RDM de verdade
 
-F4 Guac token REST · F6–F10 favoritos/grupos/atalhos/health · F13 notificações · V3–V7 catálogo e chrome de sessão · V11 chrome Guac.
+| ID | Item | Status |
+|----|------|--------|
+| **F6** | Favoritos + recentes | Feito (2026-07-26) |
+| **F7** | Agrupar por site (+ pins) | Feito |
+| **F8** | Atalhos ⌘K / Enter / ⌘W / ⌘1–9 | Feito |
+| **F9** | Badge pending apply | Feito (via description) |
+| **F10** | Copiar SSH/psql | Feito |
+| **V3–V6** | Lista + chrome sessão polish | Feito (parcial) |
+| **F4** | Guac token REST real | Pendente |
+| **F13** | Notificações nativas | Pendente |
+| **V11** | Chrome Guac fullscreen | Pendente |
 
 ## Onda 3 — Ship
 
@@ -52,3 +62,4 @@ Vault local de senhas de alvo · FreeRDP nativo · VPN cliente no notebook · fu
 | Data | Nota |
 |------|------|
 | 2026-07-25 | Roadmap criado; Onda 1 implementada (F1, F3, V1, V2, V8, V12) |
+| 2026-07-26 | Onda 2 parcial: favoritos, grupos, ⌘K, copiar, chrome sessão |

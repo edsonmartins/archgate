@@ -90,8 +90,15 @@ export function SessionWorkspace({
           >
             <div className="session-chrome">
               <div className="session-chrome-meta">
-                <strong>{tab.connection.target}</strong>
-                <span className="dim">
+                <div className="session-breadcrumb">
+                  {tab.connection.site ? (
+                    <span className="crumb-site">{tab.connection.site}</span>
+                  ) : null}
+                  {tab.connection.site ? <span className="crumb-sep">›</span> : null}
+                  <strong>{tab.connection.target}</strong>
+                  <span className={`tab-badge kind-${tab.kind}`}>{kindLabel(tab.kind)}</span>
+                </div>
+                <span className="dim session-chrome-status" title={tab.note}>
                   {tab.connection.protocol} · {tab.connection.engine} · {tab.state}
                   {tab.note ? ` · ${tab.note}` : ''}
                 </span>
@@ -100,28 +107,32 @@ export function SessionWorkspace({
                 {onPrefs && (tab.kind === 'ssh' || tab.kind === 'db') ? (
                   <button
                     type="button"
-                    className="btn btn-sm btn-ghost"
+                    className="icon-btn"
                     onClick={() => onPrefs(tab.connection.target)}
-                    title="Fonte e cores deste terminal"
+                    title="Preferências do terminal"
+                    aria-label="Preferências"
                   >
-                    Preferências
+                    ⚙
                   </button>
                 ) : null}
                 <button
                   type="button"
-                  className="btn btn-sm btn-ssh"
+                  className="icon-btn"
                   disabled={busy}
                   onClick={() => onExternal(tab)}
-                  title="Fallback: Terminal.app / browser do sistema"
+                  title="Abrir externo (fallback)"
+                  aria-label="Externo"
                 >
-                  Abrir externo
+                  ↗
                 </button>
                 <button
                   type="button"
-                  className="btn btn-sm btn-ghost"
+                  className="icon-btn"
                   onClick={() => onClose(tab.id)}
+                  title="Fechar aba (⌘W)"
+                  aria-label="Fechar"
                 >
-                  Fechar aba
+                  ×
                 </button>
               </div>
             </div>

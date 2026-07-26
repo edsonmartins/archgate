@@ -8,6 +8,15 @@ import {
   IconSearch,
   IconShield,
 } from './icons'
+import {
+  loadCatalogPrefs,
+  pushRecent,
+  toggleFavorite,
+  togglePin,
+  type CatalogPrefs,
+} from './catalog/catalogPrefs'
+import { CommandPalette } from './catalog/CommandPalette'
+import { ConnectionList, type ConnSection } from './catalog/ConnectionList'
 import { FirstRunWizard } from './onboarding/FirstRunWizard'
 import { loadAppPrefs, patchAppPrefs, type AppPrefs } from './prefs/appPrefs'
 import { TerminalPrefsPanel } from './prefs/TerminalPrefsPanel'
@@ -88,10 +97,15 @@ export function App() {
   const [showOnboarding, setShowOnboarding] = useState(
     () => !loadAppPrefs().onboardingDone,
   )
+  const [catalogPrefs, setCatalogPrefs] = useState<CatalogPrefs>(() => loadCatalogPrefs())
+  const [selectedTarget, setSelectedTarget] = useState<string | null>(null)
+  const [paletteOpen, setPaletteOpen] = useState(false)
 
   const busy = busyCount > 0
   const homologMode = appPrefs.homologMode
   const showWgTip = !appPrefs.wgPasswordTipDismissed
+  const favSet = useMemo(() => new Set(catalogPrefs.favorites), [catalogPrefs.favorites])
+  const pinSet = useMemo(() => new Set(catalogPrefs.pins), [catalogPrefs.pins])
 
   const withBusy = useCallback(async <T,>(fn: () => Promise<T>): Promise<T> => {
     setBusyCount((n) => n + 1)
@@ -363,6 +377,7 @@ export function App() {
     const existing = sessionTabs.find((t) => t.connection.target === c.target)
     if (existing) {
       setActiveSessionId(existing.id)
+      setSelectedTarget(c.target)
       setNotice({ kind: 'info', text: `Aba já aberta: ${c.target}` })
       return
     }
@@ -373,6 +388,8 @@ export function App() {
     const tab = newSessionTab(c)
     setSessionTabs((prev) => [...prev, tab])
     setActiveSessionId(tab.id)
+    setSelectedTarget(c.target)
+    setCatalogPrefs(pushRecent(catalogPrefs, c.target))
     setNotice({
       kind: 'ok',
       text:
@@ -384,6 +401,34 @@ export function App() {
               ? `DB embutido «${c.target}» — senha Warpgate no psql se pedida.`
               : `Painel embutido «${c.target}».`,
     })
+  }
+
+  const copyConnection = async (c: Connection) => {
+    const p = (c.protocol || '').toLowerCase()
+    const args =
+      p === 'postgres' || p === 'postgresql' || p === 'mysql'
+        ? ['db', c.target, '--json']
+        : ['print-ssh', c.target, '--json']
+    const r = await runArchgate(args)
+    if (r.code !== 0) {
+      setNotice({ kind: 'err', text: r.stderr || r.stdout || 'Falha ao copiar' })
+      return
+    }
+    let text = r.stdout.trim()
+    try {
+      const j = JSON.parse(r.stdout) as { command?: string; psql?: string }
+      text = j.command || j.psql || text
+    } catch {
+      /* plain */
+    }
+    try {
+      await navigator.clipboard.writeText(text)
+      setNotice({ kind: 'ok', text: `Copiado: ${text.slice(0, 80)}${text.length > 80 ? '…' : ''}` })
+    } catch {
+      setNotice({ kind: 'err', text: 'Clipboard indisponível — veja o log' })
+      setLog(text)
+      setShowLog(true)
+    }
   }
 
   const updateSessionState = (id: string, state: SessionState, note?: string) => {
@@ -458,17 +503,108 @@ export function App() {
   }
 
   const visible = useMemo(() => {
-    if (!filter.trim()) return conns
-    const q = filter.toLowerCase()
-    return conns.filter(
-      (c) =>
-        c.target.toLowerCase().includes(q) ||
-        c.site.toLowerCase().includes(q) ||
-        c.protocol.toLowerCase().includes(q) ||
-        (c.tenant || '').toLowerCase().includes(q) ||
-        (c.name || '').toLowerCase().includes(q),
-    )
+    let list = conns
+    if (filter.trim()) {
+      const q = filter.toLowerCase()
+      list = conns.filter(
+        (c) =>
+          c.target.toLowerCase().includes(q) ||
+          c.site.toLowerCase().includes(q) ||
+          c.protocol.toLowerCase().includes(q) ||
+          (c.tenant || '').toLowerCase().includes(q) ||
+          (c.name || '').toLowerCase().includes(q) ||
+          (c.description || '').toLowerCase().includes(q),
+      )
+    }
+    return list
   }, [conns, filter])
+
+  const connSections: ConnSection[] = useMemo(() => {
+    const byTarget = new Map(visible.map((c) => [c.target, c]))
+    const sections: ConnSection[] = []
+    const take = (targets: string[]) =>
+      targets.map((t) => byTarget.get(t)).filter(Boolean) as Connection[]
+
+    const favItems = take(catalogPrefs.favorites.filter((t) => byTarget.has(t)))
+    if (favItems.length) {
+      sections.push({ key: 'fav', label: 'Favoritos', items: favItems })
+    }
+    const recentItems = take(
+      catalogPrefs.recents.filter(
+        (t) => byTarget.has(t) && !catalogPrefs.favorites.includes(t),
+      ),
+    )
+    if (recentItems.length) {
+      sections.push({ key: 'recent', label: 'Recentes', items: recentItems })
+    }
+
+    const used = new Set([
+      ...favItems.map((c) => c.target),
+      ...recentItems.map((c) => c.target),
+    ])
+    const rest = visible.filter((c) => !used.has(c.target))
+    // pins first within each site group
+    const bySite = new Map<string, Connection[]>()
+    for (const c of rest) {
+      const site = c.site || 'Outros'
+      const arr = bySite.get(site) || []
+      arr.push(c)
+      bySite.set(site, arr)
+    }
+    const siteKeys = Array.from(bySite.keys()).sort((a, b) => a.localeCompare(b))
+    for (const site of siteKeys) {
+      const items = (bySite.get(site) || []).slice().sort((a, b) => {
+        const ap = pinSet.has(a.target) ? 0 : 1
+        const bp = pinSet.has(b.target) ? 0 : 1
+        if (ap !== bp) return ap - bp
+        return a.target.localeCompare(b.target)
+      })
+      sections.push({ key: `site:${site}`, label: site, items })
+    }
+    return sections
+  }, [visible, catalogPrefs.favorites, catalogPrefs.recents, pinSet])
+
+  // Global keyboard shortcuts (Onda 2 / F8)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const meta = e.metaKey || e.ctrlKey
+      const tag = (e.target as HTMLElement)?.tagName
+      const inField = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+
+      if (meta && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setPaletteOpen(true)
+        return
+      }
+      if (meta && e.key === 'w' && !inField) {
+        e.preventDefault()
+        if (activeSessionId) closeSessionTab(activeSessionId)
+        return
+      }
+      if (meta && e.key >= '1' && e.key <= '9' && !inField) {
+        const i = Number(e.key) - 1
+        if (sessionTabs[i]) {
+          e.preventDefault()
+          setActiveSessionId(sessionTabs[i].id)
+          setSelectedTarget(sessionTabs[i].connection.target)
+        }
+        return
+      }
+      if (e.key === 'Enter' && !inField && selectedTarget && !paletteOpen) {
+        const c = conns.find((x) => x.target === selectedTarget)
+        if (c) {
+          e.preventDefault()
+          openSessionTab(c)
+        }
+      }
+      if (e.key === 'Escape') {
+        setPaletteOpen(false)
+        setActionsOpen(false)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [activeSessionId, sessionTabs, selectedTarget, conns, paletteOpen])
 
   const sessionOn = !!status?.session && status?.token_ok !== false && !status?.need_login
   const wgUser = status?.warpgate_user || '—'
@@ -822,11 +958,26 @@ export function App() {
               className="field"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              placeholder="Filtrar por target, site, protocolo…"
+              placeholder="Filtrar…  (⌘K busca e conecta)"
               spellCheck={false}
               aria-label="Filtrar conexões"
               disabled={!sessionOn && conns.length === 0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && visible[0]) {
+                  e.preventDefault()
+                  openSessionTab(visible[0])
+                }
+              }}
             />
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm search-cmdk"
+              title="Command palette (⌘K)"
+              disabled={!sessionOn || conns.length === 0}
+              onClick={() => setPaletteOpen(true)}
+            >
+              ⌘K
+            </button>
           </div>
 
           {!bootstrapped ? (
@@ -843,45 +994,31 @@ export function App() {
               </div>
               {sessionOn
                 ? 'Nenhuma conexão neste filtro.'
-                : 'Faça Lab (homolog) ou SSO (Kanidm) para carregar o catálogo.'}
+                : 'Entre com SSO para carregar o catálogo.'}
               <div className="hint">
-                Sessões <strong>embutidas</strong> no app (SSH, RDP/VNC/Guac, DB,
-                Web). “Abrir externo” só como fallback. Warpgate:{' '}
-                <strong>{wgUser}</strong>.
+                <kbd>⌘K</kbd> buscar · <kbd>Enter</kbd> conectar · Warpgate:{' '}
+                <strong>{wgUser}</strong>
               </div>
             </div>
           ) : (
-            <ul className="conn-list">
-              {visible.map((c) => {
-                const meta = protocolMeta(c.protocol)
-                const isConnecting = pending === `connect:${c.target}`
-                return (
-                  <li className={`conn-item ${meta.protoCls}`} key={c.id || c.target}>
-                    <div className={`conn-icon ${meta.iconCls}`} aria-hidden>
-                      {meta.badge}
-                    </div>
-                    <div className="conn-body">
-                      <div className="conn-name" title={c.target}>
-                        {c.target}
-                      </div>
-                      <div className="conn-meta">
-                        <span className="chip">{c.protocol}</span>
-                        <span className="chip">{c.engine}</span>
-                        {c.site ? <span className="chip-site">{c.site}</span> : null}
-                      </div>
-                    </div>
-                    <button
-                      className={`btn btn-sm btn-action ${meta.actionBtn}`}
-                      disabled={busy}
-                      onClick={() => openSessionTab(c)}
-                      aria-label={`Connect ${c.target}`}
-                    >
-                      {isConnecting ? '…' : 'Connect'}
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
+            <ConnectionList
+              sections={connSections}
+              activeTarget={
+                sessionTabs.find((t) => t.id === activeSessionId)?.connection.target || null
+              }
+              favorites={favSet}
+              pins={pinSet}
+              selectedTarget={selectedTarget}
+              busy={busy}
+              pendingTarget={
+                pending?.startsWith('connect:') ? pending.slice('connect:'.length) : null
+              }
+              onSelect={(c) => setSelectedTarget(c.target)}
+              onConnect={(c) => openSessionTab(c)}
+              onToggleFavorite={(t) => setCatalogPrefs(toggleFavorite(catalogPrefs, t))}
+              onTogglePin={(t) => setCatalogPrefs(togglePin(catalogPrefs, t))}
+              onCopy={(c) => void copyConnection(c)}
+            />
           )}
         </section>
       </main>
@@ -921,6 +1058,13 @@ export function App() {
           onFinish={finishOnboarding}
         />
       ) : null}
+
+      <CommandPalette
+        open={paletteOpen}
+        connections={conns}
+        onClose={() => setPaletteOpen(false)}
+        onConnect={(c) => openSessionTab(c)}
+      />
 
       <TerminalPrefsPanel
         open={prefsOpen}
