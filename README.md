@@ -72,7 +72,9 @@ Operador / agente
 | Rede | Alcance aos sites | Connector site (WG/OpenVPN/…) · NetBird (fase futura) |
 | Borda | TLS / roteamento | **Traefik** + Cloudflare Tunnel |
 
-Console de identidade e UI admin vivem no repositório irmão **`archguard`** (`archguard-console`); este monorepo concentra **produto ArchGate**, deploy, specs e runbooks.
+Console de identidade e UI admin (**ArchGate Manager**) vivem no repositório irmão **`../_archguard/archguard-console`**; este monorepo concentra **produto ArchGate**, deploy, specs e runbooks.
+
+> Atenção: `../archguard` é um fork legado do Casdoor e **não** é o console. O console em uso é `../_archguard/archguard-console` (corrigido na auditoria 2026-07-28).
 
 ---
 
@@ -203,7 +205,7 @@ WG_HOST=192.168.1.180 bash deploy/validation/smoke-operator-access.sh
 | Guacamole / guacd | 1.6.x |
 | OpenBao | 2.x |
 | PostgreSQL (externo) | 16.x |
-| Console | Node / TanStack Start (repo `archguard`) |
+| Console | Node / TanStack Start (repo `../_archguard/archguard-console`) |
 | Axis (lab) | Spring Boot :9031 |
 
 Detalhes e pins: [`deploy/versions.env`](./deploy/versions.env) · [`openspec/project.md`](./openspec/project.md).
@@ -234,7 +236,8 @@ Itens **fora** do aceite lab: peer VPN de cliente real em produção, UnifiedUI,
 
 Relacionados:
 
-- `../archguard` — console + integração Kanidm
+- `../_archguard/archguard-console` — ArchGate Manager (console) + BFF `/api/unified/v1/*` + integração Kanidm
+- `../archgate-devops` — compose de staging, scripts de deploy e ops
 - Mentors Axis — plano de controle de tenants (API Spring no lab)
 
 ---

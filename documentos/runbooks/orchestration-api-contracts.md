@@ -2,6 +2,34 @@
 
 Rascunho de API desejada (ADR-004). Implementação pode viver no console BFF ou serviço `orchestration`.
 
+## Autenticação (obrigatória)
+
+A API é **interna** — não é publicada na borda — e autentica toda rota:
+
+| Item | Regra |
+|------|-------|
+| Credencial | `Authorization: Bearer $ORCH_API_TOKEN` em **todas** as rotas |
+| Sem token configurado | O serviço responde **503** (fail-closed), não atende aberto |
+| Credencial inválida/ausente | **401** |
+| Webhooks | Além do bearer, `X-ArchGate-Signature: sha256=<HMAC-SHA256(ORCH_WEBHOOK_SECRET, body)>` |
+| Sondas | `GET /actuator/health` e `/actuator/info` permanecem abertos |
+
+```bash
+# assinatura do corpo exato enviado
+sign() { printf '%s' "$1" | openssl dgst -sha256 -hmac "$ORCH_WEBHOOK_SECRET" | sed 's/^.*= /sha256=/'; }
+
+BODY='{"event":"user.offboard","username":"dev.silva"}'
+curl -sS -X POST http://archgate-orchestration:8090/orchestration/v1/webhooks/axis \
+  -H "Authorization: Bearer $ORCH_API_TOKEN" \
+  -H "X-ArchGate-Signature: $(sign "$BODY")" \
+  -H 'Idempotency-Key: evt-123' \
+  -H 'Content-Type: application/json' -d "$BODY"
+```
+
+Contexto: até a auditoria de 2026-07-28 a API estava publicada em
+`orch.archgate.com.br` **sem autenticação alguma**. Ver
+`openspec/changes/add-unified-ui-and-orchestration/specs/orchestration/spec.md`.
+
 ## Operações
 
 ### `POST /orchestration/v1/users/provision`

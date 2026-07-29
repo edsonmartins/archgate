@@ -25,7 +25,7 @@ ArchGate é a plataforma de acesso privilegiado (bastion/gateway) da IntegrAllTe
 | Warpgate | Gateway SSH/HTTPS/K8s/MySQL/PostgreSQL | Open-source |
 | Apache Guacamole | Gateway RDP/VNC/SSH (browser) | Apache 2.0 |
 | NetBird | Malha WireGuard | BSD-3 |
-| ArchGuard | **Produto de identidade** (Kanidm + Console + AliasVault) — repo `../archguard` | Proprietário |
+| ArchGuard | **Produto de identidade** (Kanidm + Console + AliasVault) — repo `../_archguard` (console em `archguard-console`) | Proprietário |
 | Mentors Axis | Plano de controle / tenants (interno) | Proprietário |
 
 ### Fronteira ArchGuard × ArchGate (obrigatória)

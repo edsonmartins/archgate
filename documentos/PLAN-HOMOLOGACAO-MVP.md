@@ -9,7 +9,7 @@
 | Evidência lab | [`runbooks/sites/smoke-evidence-2026-07-11-aceite-piloto.md`](./runbooks/sites/smoke-evidence-2026-07-11-aceite-piloto.md) |
 | Matriz de features | [`MATRIZ_FUNCIONALIDADES.md`](./MATRIZ_FUNCIONALIDADES.md) |
 | Data de criação | 2026-07-11 |
-| Última atualização | **2026-07-18** — H1 done; residual H2/H3 em [`PLAN-IMPLEMENTACAO-RESTANTE.md`](./PLAN-IMPLEMENTACAO-RESTANTE.md) fase A |
+| Última atualização | **2026-07-29** — auditoria codebase × spec (§11); F3 reavaliado com evidência do `archgate-devops` |
 | Dono do plano | **Edson Martins** |
 | Cliente piloto #1 | **Rio Quality** |
 | Revisor UAT | **Edson Martins** |
@@ -239,22 +239,21 @@ _Quase: parte bastion ensaiável; parte browser + assinatura ainda com Edson._
 
 | Campo | Valor |
 |-------|--------|
-| Status | `blocked` (aguarda peer/janela **Rio Quality**) |
+| Status | `doing` — conectividade e targets reais **feitos**; falta o E2E do operador e a evidência (ver §11.2) |
 | Esforço típico | 1–3 semanas (calendário; depende do cliente) |
 | Depende de | F0.2, F2 (runbook pode ser atualizado com hosts reais) |
 | Risco principal | Janela de rede / peer no cliente |
 
 #### Tarefas
 
-- [ ] **F3.1** Preencher ficha do site piloto (YAML + admin `/sites`):
-  - stack VPN (`wireguard` | `openvpn` | `openfortivpn` | …);
-  - hosts alvos (SSH/PG);
-  - `inventariado=true`; stack ≠ `a_confirmar`.
-  - _Hoje: `rio_quality` / `lab_overlay` / inventariado=true — **lab**, não peer real._
-  - Refs: [`runbooks/sites/INVENTARIO.md`](./runbooks/sites/INVENTARIO.md), [`runbooks/onboarding-cliente-site.md`](./runbooks/onboarding-cliente-site.md).
-- [ ] **F3.2** Onboard **peer/connector real** no cliente (checklist `deploy/connector/onboarding-cliente-peer.md`).
-- [ ] **F3.3** Validar connector 1/1 e reachability bastion → rede do site (ping/SSH interno conforme stack).
-- [ ] **F3.4** Criar/apply **targets Warpgate** do site (console apply ou script) com secrets via `TARGET_SECRET_*` / fluxo seguro (sem senha no inventário).
+- [x] **F3.1** Preencher ficha do site piloto (YAML + admin `/sites`).
+  _Feito: `scripts/71-import-rio-site-console.sh`; ficha em `archgate-devops/inventory/clients/rio-quality.site.yaml`._
+- [x] **F3.2** Onboard **peer/connector real** no cliente.
+  _Feito: OpenVPN ativo (`tun0`, rota `10.0.0.0/16`) + unit openfortivpn no VPS._
+- [x] **F3.3** Validar connector 1/1 e reachability bastion → rede do site.
+  _Probes `10.0.25.18/62`, `10.0.31.102:22` OPEN — `archgate-devops/docs/RESIDUAL-SPRINT1.md`._
+- [x] **F3.4** Criar/apply **targets Warpgate** do site.
+  _`rio-aws-obs`, `rio-aws-api-a`, `rio-aws-api-b` com pubkey instalada (scripts 72/73). Residual: `authorized_keys` no gestor `192.168.0.214`._
 - [ ] **F3.5** **E2E operador → alvo real**:
   - SSH via WG com user do tenant correto;
   - (se no escopo) Postgres via WG `sslmode=require`.
@@ -442,7 +441,8 @@ Atualizar a cada sync.
 | F2.3 | F2 | Matriz RBAC | **done** | | HOMOLOGACAO-UAT §0.3 |
 | F2.5 | F2 | Endpoints | **done** | | |
 | F2.7 | F2 | Dry-run UAT auto | **done** | | SSH/PG/isol PASS |
-| F3.* | F3 | Peer real Rio | **blocked** | cliente | lab_overlay only |
+| F3.1–F3.4 | F3 | Peer + targets reais Rio | **done** | Edson | OpenVPN up; 3 targets AWS |
+| F3.5–F3.9 | F3 | E2E operador + evidência | todo | Edson | falta rodada UAT |
 | F4.1 | F4 | Backup PG | **done** | | dump 20260711-141705 |
 | F4.2 | F4 | Restore dry-run | **done** | | sites=6 |
 | F4.3 | F4 | Unseal runbook | **done** | | openbao-unseal-lab.md |
@@ -482,3 +482,43 @@ Atualizar a cada sync.
 | 2026-07-11 | F2.1: rascunho `runbooks/HOMOLOGACAO-UAT.md` |
 | 2026-07-11 | Execução: F0 fechado (Rio Quality + Edson); F1 smokes PASS; evidência homolog-prep; F3 blocked peer real |
 | 2026-07-11 | F2.7 dry-run auto (SSH/PG/isolamento uat-*); F4.2 restore PASS; F4.3 unseal runbook |
+
+
+---
+
+## 11. Auditoria codebase × spec — 2026-07-28/29
+
+Auditoria completa do repositório contra as specs, incluindo os repositórios
+irmãos `_archguard/archguard-console` e `archgate-devops`.
+
+### 11.1 Bloqueadores corrigidos
+
+| ID | Achado | Correção |
+|----|--------|----------|
+| P0-1 | `Bearer lab-<user>` forjável dava sessão com `tenant_rio_quality` no console público | Segredo compartilhado obrigatório, comparação em tempo constante, grupos sem tenant de cliente; deploy default `0` |
+| P0-2 | `/test-login` com senha hardcoded + rate limit desligado no staging | Senha só por env; rate limit com flag própria; deploy default `0` |
+| P0-3 | API de orquestração pública e anônima (`orch.archgate.com.br`) | Token de serviço fail-closed, HMAC nos webhooks, `traefik.enable=false` |
+| P1-1 | `npm run typecheck` do console vermelho (15 erros) → CI vermelha no `main` | Zerado; `npm run check` verde |
+| P1-2 | `agent-control` anônimo com `agent_id` autodeclarado; HITL contornável | Credenciais separadas agente/aprovador; identidade da credencial |
+| P1-3 | Backup da trilha de auditoria (SQLite WAL) podia sair inconsistente | Hot backup + sidecars WAL + `integrity_check` + dry-run de restore |
+| P1-4 | Zero E2E nas telas de control plane e no BFF | `control-plane.spec.ts` + `unified-bff.spec.ts` |
+| P1-5 | Nenhuma CI no monorepo | `.github/workflows/ci.yml` (Java, Go, UI, shell) |
+
+### 11.2 Bugs encontrados pelas novas verificações
+
+| Onde | Bug |
+|------|-----|
+| `deploy/postgres/provision-external.sh` | Heredoc sem `)` — script nunca executaria |
+| `deploy/mentors-axis/sync-tenants-cli.sh` | `&&` no topo abortava o script sob `set -e` |
+| `archguard-console/src/server/logger.ts` | `pino-pretty` ausente derrubava o dev server no boot (E2E não subia) |
+| `archguard-console/src/server/org-accounts.ts` | Backfill sem `name` lançava “name required” |
+| `_archguard/.github/workflows/e2e.yml` | Kanidm sem TLS — o job nunca subia |
+| `clients/archgate-connect/.../icons/` | `AppIcon.iconset` com nomes corrompidos; `iconutil` falhava |
+
+### 11.3 O que a auditoria **não** mudou
+
+- Peer/E2E de cliente real (F3.5–F3.9) continua pendente de rodada com revisor.
+- `ORCH_MODE` segue `mock`/`dry-run`; adapters live continuam não calibrados.
+- Oracle real, NetBird, HA e OpenBao HA seguem fora do MVP (§2.2).
+- Trilha de auditoria continua em SQLite de nó único — agora com backup
+  verificado; migração para Postgres é decisão de arquitetura em aberto.

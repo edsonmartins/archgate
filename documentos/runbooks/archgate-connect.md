@@ -35,7 +35,7 @@ OIDC (uma vez, secret da plataforma):
 
 ```bash
 archgate login                    # SSO browser PKCE
-archgate login --lab --user edson # homolog (BFF lab bearer)
+archgate login --lab --user edson # homolog (BFF lab bearer; exige ARCHGATE_CONNECT_LAB_TOKEN)
 
 archgate ls
 archgate ls --json
@@ -95,6 +95,7 @@ export ARCHGATE_WG_PG_HOST=217.196.60.108
 |-----|---------|-----|
 | `ARCHGATE_API_BASE` | `https://console.archgate.com.br/api` | BFF |
 | `ARCHGATE_MOCK` | `0` | `1` = catálogo mock |
+| `ARCHGATE_CONNECT_LAB_TOKEN` | — | Segredo compartilhado do caminho lab. Sem ele `login --lab` falha e o BFF recusa o bearer (auditoria 2026-07-28) |
 | `ARCHGATE_OIDC_*` | ver oidc.env | client confidential + PKCE |
 | `ARCHGATE_WG_SSH_HOST` | `wg.archgate.com.br` | host SSH bastion |
 | `ARCHGATE_WG_SSH_PORT` | `2222` | |

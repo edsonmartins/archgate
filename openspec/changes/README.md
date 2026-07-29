@@ -35,7 +35,7 @@ Sequência de mudanças que constroem a plataforma, na ordem de dependência. Ca
 - **ADR-005 (nome) — ACEITO:** produto = **ArchGate**; ArchGuard é o módulo de identidade. Ver `adr/ADR-005-nome-do-produto-archgate.md` (pendente checagem de marca/domínio).
 - **ADR-007 (Guacamole OIDC) — ACEITO:** implicit stock vs Kanidm; remediação proxy / 1.7 / UnifiedUI.
 - **ADR-008 (cliente operador híbrido multi-OS) — ACEITO:** ver `add-operator-client-access-standard` e `adr/ADR-008-cliente-operador-hibrido-multi-os.md`.
-- **ADR-013 (org credential broker) — PROPOSTO:** contas IntegrAllTech (cloud/lojas/produtos); ver `add-org-credential-broker`.
+- **ADR-013 (org credential broker) — ACEITO:** contas IntegrAllTech (cloud/lojas/produtos); ver `add-org-credential-broker`.
 - Em aberto: ADR-002 (step-ca), ADR-003 (persistência Warpgate — de fato PostgreSQL em uso), ADR-004 (fronteira ArchGuard × Mentors Axis — antes da Fase 4), ADR-006 (estratégia de frontend).
 
 ## Referência

@@ -1,6 +1,6 @@
 # ArchGate — Matriz de funcionalidades
 
-**Data de referência:** 2026-07-17  
+**Data de referência:** 2026-07-29 (auditoria codebase × spec)  
 **Ambiente validado:** lab/staging (`192.168.1.180`, Swarm)  
 **Fonte de verdade por pacote:** `openspec/changes/*/tasks.md`  
 **Plano do que falta até 100%:** [`PLAN-PRODUTO-100.md`](./PLAN-PRODUTO-100.md) · Homologação MVP: [`PLAN-HOMOLOGACAO-MVP.md`](./PLAN-HOMOLOGACAO-MVP.md)
@@ -154,6 +154,7 @@ Legenda de status:
 | Catálogo “minhas conexões” + RBAC tenant | **Parcial** | mock + client BFF |
 | Token sensível só server-side | **Parcial** | contrato BFF + design W4-UI05 |
 | Orquestração Mentors Axis (provision/grant/revoke) | **Parcial** | `services/orchestration` mock + live dry-run + webhooks |
+| Autenticação da API de orquestração | **Feito** | token de serviço fail-closed + HMAC no webhook; fora da borda pública (2026-07-29) |
 | Onboarding/offboarding one-shot multi-componente | **Parcial** | API mock; adapters live a calibrar |
 | Terraform provider Warpgate SoT | **Pendente** | |
 
@@ -168,8 +169,9 @@ Legenda de status:
 | RPO/RTO documentados | **Parcial** | `ha-rpo-rto.md` (assinatura pendente) |
 | Service account OpenSRE + on-behalf-of | **Parcial** | bootstrap script + audit fields |
 | Allow-list / JIT / rate limit agente | **Parcial** | policy YAML + agent-control |
-| HITL para ações mutantes | **Parcial** | API mock + testes |
-| Kill-switch + auditoria cadeia | **Parcial** | kill-switch + GET audit |
+| HITL para ações mutantes | **Parcial** | API mock + testes; credencial de aprovador separada da do agente (2026-07-29) |
+| Kill-switch + auditoria cadeia | **Parcial** | kill-switch + GET audit; exige credencial de aprovador |
+| Autenticação do plano agêntico | **Feito** | `agent_id` vem da credencial, nunca do corpo (2026-07-29) |
 | Inferência local (sem dado prod em SaaS) | **Parcial** | política escrita; flag cloud=false |
 
 ---
@@ -179,6 +181,9 @@ Legenda de status:
 | Item | Status | Nota |
 |------|--------|------|
 | Docker Swarm + Traefik TLS | **Feito** | staging |
+| CI do monorepo (Java + Go + UI + shell) | **Feito** | `.github/workflows/ci.yml` (2026-07-29) |
+| CI/E2E do console | **Feito** | typecheck+build+unit verdes; E2E do control plane e do BFF (2026-07-29) |
+| Bypasses de lab desligados por padrão no deploy | **Feito** | `ARCHGATE_LAB` / `ARCHGUARD_E2E_LOGIN` / `ARCHGATE_CONNECT_LAB` = 0 (2026-07-29) |
 | Bootstrap secrets fora do git | **Feito** | `/root/archgate/bootstrap.env` |
 | Domínios id / console / guac / warpgate | **Feito** | lab |
 | Scripts deploy + validation E2E | **Feito** | `deploy/**`, `deploy/validation/**` |
