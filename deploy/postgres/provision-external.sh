@@ -51,6 +51,7 @@ WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'guacamole')\gexec
 
 GRANT ALL PRIVILEGES ON DATABASE guacamole TO guacamole;
 EOSQL
+)
 
 SQL_WG=$(cat <<EOSQL
 GRANT ALL ON SCHEMA public TO warpgate;
