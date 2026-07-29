@@ -13,9 +13,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+    "archgate.agent.api-token=agent-token",
+    "archgate.agent.approver-token=approver-token",
+})
 @AutoConfigureMockMvc
 class AgentControllerTest {
+
+  private static final String AGENT = "Bearer agent-token";
+  private static final String APPROVER = "Bearer approver-token";
 
   @Autowired
   MockMvc mvc;
@@ -23,6 +29,7 @@ class AgentControllerTest {
   @Test
   void e2eReadHitlKill() throws Exception {
     mvc.perform(post("/agentic/v1/sessions/request")
+            .header("Authorization", AGENT)
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
@@ -37,6 +44,7 @@ class AgentControllerTest {
         .andExpect(jsonPath("$.status").value("issued"));
 
     MvcResult mut = mvc.perform(post("/agentic/v1/actions")
+            .header("Authorization", AGENT)
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
@@ -54,26 +62,34 @@ class AgentControllerTest {
     String approvalId = body.replaceAll("(?s).*\"approvalId\"\\s*:\\s*\"([^\"]+)\".*", "$1");
 
     mvc.perform(post("/agentic/v1/approvals/" + approvalId + "/approve")
+            .header("Authorization", APPROVER)
+            .header("X-ArchGate-Actor", "ops.human")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
-                {"approver":"ops.human","reason":"authorized"}
+                {"reason":"authorized"}
                 """))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.state").value("APPROVED"));
+        .andExpect(jsonPath("$.state").value("APPROVED"))
+        .andExpect(jsonPath("$.approver").value("ops.human"));
 
-    mvc.perform(get("/agentic/v1/audit").param("incident_id", "INC-E2E"))
+    mvc.perform(get("/agentic/v1/audit")
+            .header("Authorization", APPROVER)
+            .param("incident_id", "INC-E2E"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray());
 
     mvc.perform(post("/agentic/v1/kill-switch")
+            .header("Authorization", APPROVER)
+            .header("X-ArchGate-Actor", "secops")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
-                {"agent_id":"sa-opensre","reason":"e2e","actor":"secops"}
+                {"agent_id":"sa-opensre","reason":"e2e"}
                 """))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.killed").value(true));
 
-    mvc.perform(get("/agentic/v1/policy/cloud-llm"))
+    mvc.perform(get("/agentic/v1/policy/cloud-llm")
+            .header("Authorization", AGENT))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.allow_cloud_llm").value(false));
   }

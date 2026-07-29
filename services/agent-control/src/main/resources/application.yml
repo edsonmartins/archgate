@@ -15,6 +15,12 @@ archgate:
   agent:
     policy-path: ${AGENT_POLICY_PATH:../../deploy/agentic/policies/opensre-allowlist.yaml}
     default-agent-id: ${OPENSRE_AGENT_ID:sa-opensre}
+    # Credential presented by the agent (OpenSRE service account).
+    # No default: unset = the API answers 503 (audit 2026-07-28, P1-2).
+    api-token: ${AGENT_API_TOKEN:}
+    # Separate credential for HITL approval / deny / kill-switch. Holding the
+    # agent token must never be enough to approve the agent's own actions.
+    approver-token: ${AGENT_APPROVER_TOKEN:}
     max-requests-per-minute: ${AGENT_RATE_LIMIT:30}
     # When true, cloud LLM endpoints are rejected by policy gate
     allow-cloud-llm: ${AGENT_ALLOW_CLOUD_LLM:false}

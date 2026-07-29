@@ -4,11 +4,15 @@ import br.com.integralltech.archgate.agentcontrol.domain.Models.ActionResult;
 import br.com.integralltech.archgate.agentcontrol.domain.Models.ApprovalRequest;
 import br.com.integralltech.archgate.agentcontrol.domain.Models.AuditEvent;
 import br.com.integralltech.archgate.agentcontrol.domain.Models.SessionTicket;
+import br.com.integralltech.archgate.agentcontrol.security.Caller;
 import br.com.integralltech.archgate.agentcontrol.service.AgentControlService;
 import br.com.integralltech.archgate.agentcontrol.service.AuditLog;
 import br.com.integralltech.archgate.agentcontrol.service.KillSwitchRegistry;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,46 +59,80 @@ public class AgentController {
       String incident_id
   ) {}
 
-  public record ApprovalBody(String approver, String reason) {}
+  /**
+   * The approver is taken from the {@code X-ArchGate-Actor} header on an
+   * approver-authenticated request, so the body carries only the reason.
+   */
+  public record ApprovalBody(String reason) {}
 
+  /** Like {@link ApprovalBody}, the actor comes from the authenticated request. */
   public record KillBody(
       @NotBlank String agent_id,
-      String reason,
-      String actor
+      String reason
   ) {}
 
+  /**
+   * The agent identity is the authenticated credential's, never the body's.
+   * A request may echo its own {@code agent_id}, but a mismatch is a spoofing
+   * attempt and is refused (audit 2026-07-28, P1-2).
+   */
+  private static String authenticatedAgentId(HttpServletRequest http, String claimed) {
+    Caller caller = Caller.of(http);
+    if (claimed != null && !claimed.isBlank() && !claimed.equals(caller.agentId())) {
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          "agent_id does not match the presented credential");
+    }
+    return caller.agentId();
+  }
+
+  /** Approver identity is declared explicitly and required — never "unknown". */
+  private static String declaredApprover(HttpServletRequest http) {
+    String actor = http.getHeader("X-ArchGate-Actor");
+    if (actor == null || actor.isBlank()) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "X-ArchGate-Actor header is required to record the approver");
+    }
+    return actor.trim();
+  }
+
   @PostMapping("/sessions/request")
-  public SessionTicket requestSession(@Valid @RequestBody SessionRequest req) {
+  public SessionTicket requestSession(
+      @Valid @RequestBody SessionRequest req, HttpServletRequest http) {
     return service.requestSession(
-        req.agent_id(), req.action(), req.target(), req.incident_id(), req.mode()
+        authenticatedAgentId(http, req.agent_id()),
+        req.action(), req.target(), req.incident_id(), req.mode()
     );
   }
 
   @PostMapping("/actions")
-  public ActionResult action(@Valid @RequestBody ActionRequest req) {
+  public ActionResult action(
+      @Valid @RequestBody ActionRequest req, HttpServletRequest http) {
     return service.submitAction(
-        req.agent_id(), req.action(), req.target(), req.command(), req.incident_id()
+        authenticatedAgentId(http, req.agent_id()),
+        req.action(), req.target(), req.command(), req.incident_id()
     );
   }
 
   @PostMapping("/approvals/{id}/approve")
   public ApprovalRequest approve(
       @PathVariable String id,
-      @RequestBody(required = false) ApprovalBody body
+      @RequestBody(required = false) ApprovalBody body,
+      HttpServletRequest http
   ) {
-    String approver = body != null && body.approver() != null ? body.approver() : "unknown";
     String reason = body != null ? body.reason() : null;
-    return service.approve(id, approver, reason);
+    return service.approve(id, declaredApprover(http), reason);
   }
 
   @PostMapping("/approvals/{id}/deny")
   public ApprovalRequest deny(
       @PathVariable String id,
-      @RequestBody(required = false) ApprovalBody body
+      @RequestBody(required = false) ApprovalBody body,
+      HttpServletRequest http
   ) {
-    String approver = body != null && body.approver() != null ? body.approver() : "unknown";
     String reason = body != null ? body.reason() : null;
-    return service.deny(id, approver, reason);
+    return service.deny(id, declaredApprover(http), reason);
   }
 
   @GetMapping("/approvals/{id}")
@@ -105,8 +143,9 @@ public class AgentController {
   }
 
   @PostMapping("/kill-switch")
-  public Map<String, Object> kill(@Valid @RequestBody KillBody body) {
-    return service.killSwitch(body.agent_id(), body.reason(), body.actor());
+  public Map<String, Object> kill(
+      @Valid @RequestBody KillBody body, HttpServletRequest http) {
+    return service.killSwitch(body.agent_id(), body.reason(), declaredApprover(http));
   }
 
   @GetMapping("/kill-switch/{agentId}")
