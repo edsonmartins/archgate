@@ -34,11 +34,27 @@ func cmdLogin(args []string) error {
 	return loginOIDC()
 }
 
+// labBearer builds the lab bearer accepted by the BFF. The shared secret is
+// mandatory: the BFF refuses a bare "lab-<user>" so that the lab path can never
+// be exercised from the internet (audit 2026-07-28, P0-1).
+func labBearer(user string) (string, error) {
+	secret := os.Getenv("ARCHGATE_CONNECT_LAB_TOKEN")
+	if secret == "" {
+		return "", fmt.Errorf("lab login requires ARCHGATE_CONNECT_LAB_TOKEN " +
+			"(the same value configured on the console); use 'archgate login' for OIDC instead")
+	}
+	return "lab-" + user + ":" + secret, nil
+}
+
 func loginLab(user string) error {
 	wgUser := labWarpgateUser()
+	token, err := labBearer(user)
+	if err != nil {
+		return err
+	}
 	c := &config.Credentials{
 		Username:     user,
-		LabToken:     "lab-" + user,
+		LabToken:     token,
 		WarpgateUser: wgUser,
 	}
 	if err := config.SaveCredentials(c); err != nil {
