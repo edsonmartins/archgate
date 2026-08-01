@@ -46,15 +46,27 @@ else
   echo "==> config exists, skip setup"
 fi
 
-echo "==> patch SSO (Kanidm custom OIDC)"
-export DATA DOMAIN_WG KANIDM_DOMAIN WARPGATE_OIDC_CLIENT_SECRET
+echo "==> patch SSO (custom OIDC)"
+# Kanidm publishes one issuer per client; ArchGuard a single issuer for the
+# deployment. ARCHGATE_IDP selects which shape to write (default: kanidm, so an
+# existing install is untouched).
+ARCHGATE_IDP="${ARCHGATE_IDP:-kanidm}"
+ARCHGATE_IDP_URL="${ARCHGATE_IDP_URL:-https://${KANIDM_DOMAIN}}"
+export DATA DOMAIN_WG KANIDM_DOMAIN WARPGATE_OIDC_CLIENT_SECRET ARCHGATE_IDP ARCHGATE_IDP_URL
 python3 - <<'PY'
 import os, re, pathlib
 path = pathlib.Path(os.environ["DATA"]) / "warpgate.yaml"
 text = path.read_text()
 domain = os.environ["DOMAIN_WG"]
 secret = os.environ["WARPGATE_OIDC_CLIENT_SECRET"]
-issuer = f"https://{os.environ['KANIDM_DOMAIN']}/oauth2/openid/warpgate"
+idp = os.environ.get("ARCHGATE_IDP", "kanidm")
+idp_url = os.environ["ARCHGATE_IDP_URL"].rstrip("/")
+issuer = idp_url if idp == "archguard" else f"{idp_url}/oauth2/openid/warpgate"
+
+# Warpgate matches group values from the claim EXACTLY. ArchGuard qualifies them
+# as "<org>/<name>", so the mapping keys carry the prefix there and are bare on
+# Kanidm (audit 2026-08-01).
+gprefix = f"{os.environ.get('ARCHGATE_IDP_ORG', 'archgate')}/" if idp == "archguard" else ""
 
 if re.search(r"^external_host:", text, re.M):
     text = re.sub(r"^external_host:.*$", f"external_host: {domain}", text, flags=re.M)
@@ -64,7 +76,7 @@ else:
 sso_block = f"""
 sso_providers:
   - name: kanidm
-    label: ArchGuard (Kanidm)
+    label: ArchGuard
     auto_create_users: true
     provider:
       type: custom
@@ -74,8 +86,8 @@ sso_providers:
       scopes: ["openid", "profile", "email", "groups"]
       groups_claim: groups
       role_mappings:
-        archguard_super_admins: "warpgate:admin"
-        archguard_users: "archgate-operators"
+        {gprefix}archguard_super_admins: "warpgate:admin"
+        {gprefix}archguard_users: "archgate-operators"
 """
 if "sso_providers:" in text:
     text = re.sub(r"\nsso_providers:[\s\S]*?(?=\n[a-zA-Z_]|\Z)", "\n" + sso_block.strip() + "\n", text)

@@ -43,16 +43,31 @@ type UserInfo struct {
 }
 
 type Config struct {
-	IssuerBase       string // https://id…/oauth2/openid/archgate-connect
+	IssuerBase       string // discovery root; shape depends on the IdP
 	ClientID         string
 	ClientSecret     string // optional; confidential clients need client_secret_post
 	CallbackHostPort string // 127.0.0.1:8765
 	Scopes           string
 }
 
+// defaultIssuerBase resolves the discovery root for the active IdP.
+//
+// Kanidm publishes one issuer per client (…/oauth2/openid/<client>); ArchGuard
+// publishes a single issuer for the deployment. Everything else — token,
+// userinfo and jwks endpoints — comes from the discovery document, so this is
+// the only place that has to know the difference.
+func defaultIssuerBase() string {
+	client := env("ARCHGATE_OIDC_CLIENT_ID", "archgate-connect")
+	if env("ARCHGATE_IDP", "kanidm") == "archguard" {
+		return env("ARCHGATE_IDP_URL", "https://app.archguard.com.br")
+	}
+	return env("ARCHGATE_IDP_URL", "https://id.archgate.com.br") +
+		"/oauth2/openid/" + client
+}
+
 func DefaultConfig() Config {
 	return Config{
-		IssuerBase:       env("ARCHGATE_OIDC_ISSUER", "https://id.archgate.com.br/oauth2/openid/archgate-connect"),
+		IssuerBase:       env("ARCHGATE_OIDC_ISSUER", defaultIssuerBase()),
 		ClientID:         env("ARCHGATE_OIDC_CLIENT_ID", "archgate-connect"),
 		ClientSecret:     env("ARCHGATE_OIDC_CLIENT_SECRET", ""),
 		CallbackHostPort: env("ARCHGATE_OIDC_CALLBACK", "127.0.0.1:8765"),
@@ -291,5 +306,3 @@ func FetchUserInfo(userinfoURL, accessToken string) (*UserInfo, error) {
 	}
 	return &ui, nil
 }
-
-
