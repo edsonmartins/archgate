@@ -21,7 +21,7 @@ Antes de tocar no ArchGate, o ArchGuard precisa ter:
 | Organização | `archgate` |
 | Cert | RS256, referenciado por todas as aplicações |
 | Aplicações (6) | `archguard-console`, `archgate-connect`, `warpgate`, `guacamole`, `openbao`, `archgate-console-sa` |
-| `tokenFormat` | **`JWT-Custom`** com `tokenFields = ["Name","Groups","Email","DisplayName"]` |
+| `tokenFormat` | **`JWT-Custom`** com `tokenFields = ["Name","Groups","Email","DisplayName"]` — aplicado por `deploy/archguard/set-token-format.sh` |
 | Grupos (8) | `archguard_super_admins`, `archguard_tenant_admins`, `archguard_admins`, `archguard_users`, `archguard_service_desk`, `archguard_viewers`, `tenant_rio_quality`, `tenant_grupo_marra` |
 | Usuários | `testadmin`, `testuser` (suíte E2E) + personas UAT |
 | Redirects | Connect `http://127.0.0.1:8765/callback` · OpenBao `http://127.0.0.1:8250/oidc/callback` |
@@ -63,6 +63,20 @@ por `client_credentials` e renova no 401.
 ---
 
 ## 3. Ordem de execução
+
+### Passo 0 — formato do token (bloqueador)
+
+```bash
+export ARCHGATE_IDP_URL=https://app.archguard.com.br
+export ARCHGUARD_SA_CLIENT_ID=... ARCHGUARD_SA_CLIENT_SECRET=...
+
+bash deploy/archguard/set-token-format.sh           # dry-run: mostra o que mudaria
+APPLY=1 bash deploy/archguard/set-token-format.sh   # escreve
+```
+
+Idempotente e de escrita estreita: só as colunas `token_format` e `token_fields`
+das 6 aplicações. Reexecutar é seguro. Confirma relendo cada aplicação — o
+Casdoor responde 200 com `status: error` em alguns casos.
 
 ### Passo 1 — smoke camada A (não invasivo)
 
