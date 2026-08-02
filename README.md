@@ -157,6 +157,7 @@ Segredos: `bootstrap.env` e chaves age **fora do git** (ver [`.gitignore`](./.gi
 - [ADR-007A](adr/ADR-007A-oauth2-proxy-guacamole-sso.md) — SSO Guacamole via oauth2-proxy
 - [ADR-008](adr/ADR-008-cliente-operador-hibrido-multi-os.md) — Cliente operador híbrido (browser + desktop)
 - [ADR-009](adr/ADR-009-control-plane-admin-console.md) — Control plane no console
+- [ADR-014](adr/ADR-014-archguard-substitui-kanidm-como-idp.md) — ArchGuard substitui o Kanidm como IdP
 
 ---
 

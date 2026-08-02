@@ -1,6 +1,6 @@
 # ArchGate — Matriz de funcionalidades
 
-**Data de referência:** 2026-07-29 (auditoria codebase × spec)  
+**Data de referência:** 2026-08-02 (ADR-014 — IdP passa a ser o ArchGuard)  
 **Ambiente validado:** lab/staging (`192.168.1.180`, Swarm)  
 **Fonte de verdade por pacote:** `openspec/changes/*/tasks.md`  
 **Plano do que falta até 100%:** [`PLAN-PRODUTO-100.md`](./PLAN-PRODUTO-100.md) · Homologação MVP: [`PLAN-HOMOLOGACAO-MVP.md`](./PLAN-HOMOLOGACAO-MVP.md)
@@ -36,7 +36,10 @@ Legenda de status:
 
 | Funcionalidade | Status | Evidência / nota |
 |----------------|--------|------------------|
-| Kanidm (ArchGuard) como IdP OIDC | **Feito** | `id.archgate.com.br` |
+| Kanidm como IdP OIDC | **Feito** | `id.archgate.com.br` — substituído pelo ArchGuard (ADR-014) |
+| ArchGuard (fork Casdoor) como IdP OIDC | **Código pronto, virada pendente** | `ARCHGATE_IDP=archguard`; smoke `smoke-archguard-cutover.sh` |
+| Porto de administração de identidade (2 adapters) | **Feito** | `archguard-console/src/server/idp/` |
+| Descoberta OIDC agnóstica de IdP | **Feito** | issuer/JWKS/userinfo vêm do documento |
 | Tenants como grupos/escopos | **Feito** | Rio Quality, Grupo Marra, … |
 | RBAC papéis ArchGuard | **Feito** | super_admins, tenant_admins, users, service_desk, viewers |
 | OIDC clients: console, warpgate, guacamole, openbao | **Feito** | bootstrap + OpenBao JWT |
