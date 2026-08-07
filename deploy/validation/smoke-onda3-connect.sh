@@ -4,7 +4,17 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 CONSOLE_BASE="${CONSOLE_BASE:-https://console.archgate.com.br}"
-LAB_BEARER="${LAB_BEARER:-lab-uat-op-a}"
+# Lab bearer = lab-<user>:<shared secret>. The console refuses a bare
+# "lab-<user>", so this smoke needs the same secret it was deployed with
+# (ARCHGATE_CONNECT_LAB_TOKEN in bootstrap.env). Audit 2026-07-28, P0-1.
+LAB_USER="${LAB_USER:-uat-op-a}"
+if [ -z "${LAB_BEARER:-}" ]; then
+  if [ -z "${ARCHGATE_CONNECT_LAB_TOKEN:-}" ]; then
+    echo "ERROR: set ARCHGATE_CONNECT_LAB_TOKEN (or LAB_BEARER) — lab path is fail-closed" >&2
+    exit 2
+  fi
+  LAB_BEARER="lab-${LAB_USER}:${ARCHGATE_CONNECT_LAB_TOKEN}"
+fi
 API="${CONSOLE_BASE%/}/api"
 BASTION_HOST="${BASTION_HOST:-217.196.60.108}"
 PASS=0

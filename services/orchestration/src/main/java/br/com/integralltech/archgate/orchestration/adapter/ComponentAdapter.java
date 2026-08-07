@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Side-effect surface for one platform component.
- * Live implementations will call Kanidm REST, Warpgate admin API, Guacamole JDBC, OpenBao.
+ * Live implementations call ArchGuard, Warpgate, Guacamole and OpenBao APIs.
  */
 public interface ComponentAdapter {
 

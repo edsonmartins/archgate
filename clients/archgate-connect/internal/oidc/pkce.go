@@ -1,5 +1,4 @@
-// Package oidc implements authorization_code + PKCE for ArchGate Connect.
-// Kanidm (current) does not advertise device_code — browser PKCE is the path.
+// Package oidc implements authorization_code + PKCE against ArchGuard.
 package oidc
 
 import (
@@ -43,16 +42,23 @@ type UserInfo struct {
 }
 
 type Config struct {
-	IssuerBase       string // https://id…/oauth2/openid/archgate-connect
+	IssuerBase       string // ArchGuard discovery root
 	ClientID         string
 	ClientSecret     string // optional; confidential clients need client_secret_post
 	CallbackHostPort string // 127.0.0.1:8765
 	Scopes           string
 }
 
+// defaultIssuerBase resolves the ArchGuard deployment issuer. Endpoint URLs
+// are always obtained from discovery; consumers never encode provider-specific
+// paths.
+func defaultIssuerBase() string {
+	return env("ARCHGATE_IDP_URL", "https://app.archguard.com.br")
+}
+
 func DefaultConfig() Config {
 	return Config{
-		IssuerBase:       env("ARCHGATE_OIDC_ISSUER", "https://id.archgate.com.br/oauth2/openid/archgate-connect"),
+		IssuerBase:       env("ARCHGATE_OIDC_ISSUER", defaultIssuerBase()),
 		ClientID:         env("ARCHGATE_OIDC_CLIENT_ID", "archgate-connect"),
 		ClientSecret:     env("ARCHGATE_OIDC_CLIENT_SECRET", ""),
 		CallbackHostPort: env("ARCHGATE_OIDC_CALLBACK", "127.0.0.1:8765"),
@@ -164,14 +170,14 @@ func LoginBrowser(cfg Config) (*TokenResponse, *UserInfo, error) {
 	q.Set("code_challenge_method", "S256")
 	authURL := disc.AuthorizationEndpoint + "?" + q.Encode()
 
-	fmt.Println("Abrindo browser para login Kanidm…")
+	fmt.Println("Abrindo browser para login ArchGuard…")
 	fmt.Println(authURL)
 	fmt.Println()
 	fmt.Println("Importante:")
 	fmt.Println("  1) Use a URL acima (não abra id.archgate.com.br sozinho).")
 	fmt.Println("  2) Após digitar a senha, se aparecer 'Allow/Permitir' para ArchGate Connect, aceite.")
 	fmt.Println("  3) O browser deve ir para http://127.0.0.1:8765/callback — deixe esta janela/terminal aberta.")
-	fmt.Println("  4) Se ficar só no Kanidm sem redirecionar, cancele (Ctrl+C) e rode de novo: archgate login")
+	fmt.Println("  4) Se o ArchGuard não redirecionar, cancele (Ctrl+C) e rode novamente: archgate login")
 	fmt.Println()
 	_ = util.OpenBrowser(authURL)
 
@@ -197,7 +203,7 @@ func LoginBrowser(cfg Config) (*TokenResponse, *UserInfo, error) {
 }
 
 func exchangeCode(tokenURL, clientID, clientSecret, code, redirectURI, verifier string) (*TokenResponse, error) {
-	// Prefer confidential-client auth via HTTP Basic (Kanidm resource server basic).
+	// Prefer confidential-client authentication through HTTP Basic.
 	// Fall back to client_secret_post if Basic is rejected.
 	try := func(useBasic bool) (*TokenResponse, int, string, error) {
 		form := url.Values{}
@@ -291,5 +297,3 @@ func FetchUserInfo(userinfoURL, accessToken string) (*UserInfo, error) {
 	}
 	return &ui, nil
 }
-
-

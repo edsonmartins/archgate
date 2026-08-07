@@ -22,7 +22,7 @@ public class OpenBaoLiveAdapter extends HttpLiveAdapter {
 
   @Override
   public void ensurePerson(String username, String email, List<String> groups) {
-    // Optional: entity alias — deferred; identity is Kanidm.
+    // Optional: entity alias — deferred; identity is ArchGuard.
   }
 
   @Override

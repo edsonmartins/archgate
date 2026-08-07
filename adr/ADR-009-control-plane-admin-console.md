@@ -2,7 +2,7 @@
 
 - **Status:** Aceito (direção de produto)
 - **Data:** 2026-07-11
-- **Atualizado:** 2026-07-20 — nome de produto **ArchGate Manager** ([ADR-009A](./ADR-009A-archgate-manager-produto.md))
+- **Atualizado:** 2026-08-07 — ArchGate Manager definido como superfície obrigatória de toda configuração suportada
 - **Relacionado:** ADR-005 (ArchGate), ADR-006 (frontend), ADR-008 (operador), UnifiedUI (Fase 4), [ADR-009A](./ADR-009A-archgate-manager-produto.md)
 
 ## Contexto
@@ -35,7 +35,14 @@ Reutilizar o console em `console.archgate.com.br` (auth OIDC, RBAC, proxy server
 | **Contas da org** | Inventário + checkout de contas IntegrAllTech (GCP/Play/Apple/produtos) — ver [ADR-013](./ADR-013-org-credential-broker.md) |
 | **Plataforma** | Saúde dos serviços, links de runbook, estado de deploy (`/platform`) |
 
-UIs stock Warpgate/Guacamole/OpenBao **permanecem** como “console avançado do componente” (como usar a API AWS diretamente), **não** como fluxo principal de configuração.
+Toda configuração suportada do produto **deve terminar no ArchGate Manager**. UIs stock de
+Warpgate, Guacamole, OpenBao, OpenFGA ou qualquer outro engine são ferramentas internas de
+diagnóstico e break-glass: não constituem fluxo documentado de administração, não são
+expostas ao tenant e não podem ser pré-requisito para operar o produto.
+
+Scripts e CLI continuam permitidos para bootstrap, recuperação e automação, mas cada operação
+de rotina introduzida por eles precisa de API server-side e tela correspondente no Manager
+antes de ser considerada funcionalidade completa.
 
 ### 2. UnifiedUI / Connect ≠ Manager
 
@@ -50,7 +57,7 @@ Não bloquear o Manager à UnifiedUI/Connect.
 ### 3. Padrão de segurança (inalterado)
 
 - Tokens administrativos e senhas de alvo **nunca** no browser.
-- Todo write em Warpgate/Kanidm/OpenBao via **proxy server-side** com sessão OIDC + allowlist de path.
+- Todo write em ArchGuard, OpenFGA, Warpgate, Guacamole e OpenBao ocorre via **BFF server-side** com sessão OIDC, autorização por ação e contrato de API explícito.
 - Segredos de VPN (`.ovpn`, Forti password, WG keys) **não** são colados no formulário; só **referências** (`secret_ref`, path no host) e deploy do connector continua controlado.
 
 ### 4. Modelo de dados do “cliente”
@@ -81,7 +88,12 @@ Apply no gateway: botão **“Sincronizar gateways”** materializa targets **Wa
 | **CP-4** | OpenBao: status, engines, JWT, leases, unseal | **Feito** (lab; visão admin, não emissão diária completa) |
 | **CP-5** | Connector: checklist + probes + comandos deploy | **Parcial** — checklist/probes/hints; **não** executa deploy no host |
 | **CP-6** | YAML + audit; SoT **PostgreSQL** + fallback SQLite | **Feito** (lab: PG `192.168.1.110`) |
-| **CP-7** | Mentors Axis sync + Kanidm `tenant_*` + role Warpgate | **Feito** (lab: Spring `archgate-axis-spring`; stub desligado) |
+| **CP-7** | Mentors Axis sync + memberships ArchGuard + role Warpgate | **Parcial** — sync existente; migrar semântica antiga de grupos para memberships |
+| **CP-8** | Aplicações OIDC, service accounts e políticas ArchGuard | **Pendente** — eliminar bootstrap manual do fluxo normal |
+| **CP-9** | Grants OpenFGA, aprovações, step-up e break-glass | **Pendente** |
+| **CP-10** | Connectors: enrollment, rotação, upgrade, diagnóstico e revogação | **Pendente** |
+| **CP-11** | Configuração versionada, preview/diff, apply assíncrono e rollback | **Pendente** |
+| **CP-12** | Auditoria de configuração e trilha de mudanças por recurso | **Pendente** |
 | **Plataforma** | Saúde stack + endpoints + runbooks | **Feito** (lab: `/platform`) |
 
 ## Consequências
@@ -94,5 +106,5 @@ Apply no gateway: botão **“Sincronizar gateways”** materializa targets **Wa
 ## Fora de escopo deste ADR
 
 - Inferência agêntica, HA de componentes (Fase 5).  
-- Substituir Kanidm UI interna; substituir gravação de sessão.  
+- Substituir gravação de sessão.
 - Operador abrindo RDP no Manager (isso é UnifiedUI / Connect).

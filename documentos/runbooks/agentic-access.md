@@ -1,5 +1,21 @@
 # Runbook — Acesso agêntico OpenSRE (W5-AG)
 
+## Autenticação (obrigatória)
+
+| Credencial | Uso | Rotas |
+|------------|-----|-------|
+| `AGENT_API_TOKEN` | Service account do agente (OpenSRE) | `POST /agentic/v1/sessions/request`, `POST /agentic/v1/actions`, leituras |
+| `AGENT_APPROVER_TOKEN` | Plano humano/ops — **distinto** do token do agente | `POST /approvals/{id}/approve`, `/deny`, `POST /kill-switch` |
+
+- `agent_id` vem da credencial apresentada; divergência no corpo → **403**.
+- Aprovações exigem `X-ArchGate-Actor: <pessoa>` para registrar o aprovador.
+- Sem nenhuma credencial configurada, a API responde **503** (fail-closed).
+- A API é interna; não é publicada na borda.
+
+Motivo: até a auditoria de 2026-07-28 todas as rotas eram anônimas e o chamador
+declarava o próprio `agent_id`, o que anulava o HITL (qualquer um aprovava as
+próprias ações e desligava o kill-switch).
+
 | Campo | Valor |
 |-------|--------|
 | ADR | [ADR-012](../../adr/ADR-012-acesso-agentico-opensre.md) |

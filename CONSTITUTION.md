@@ -9,9 +9,9 @@ ArchGate é a **plataforma de acesso privilegiado** (bastion/gateway) da IntegrA
 ## §2 — Invariantes de segurança (inegociáveis)
 
 1. **Zero-credencial-no-dev.** A credencial do alvo nunca chega ao principal. O gateway injeta; o principal apenas usa. Qualquer fluxo que exponha o segredo ao dev é inválido por construção.
-2. **Política no gateway, nunca no principal.** Autorização e limites são impostos pela infraestrutura (Warpgate/OpenBao/Kanidm). Nunca se confia no julgamento do usuário ou de um agente.
+2. **Política na infraestrutura, nunca no principal.** Autorização e limites são impostos por ArchGuard/OpenFGA, gateways e OpenBao. Nunca se confia no julgamento do usuário ou de um agente.
 3. **Efemeridade por padrão** (a partir da Fase 2). Credenciais de curta duração. Nada de longa vida na mão de ninguém — nem do gateway.
-4. **Identidade é o alicerce.** Todo acesso deriva de identidade autenticada no Kanidm. Revogar identidade = revogar acesso.
+4. **Identidade é o alicerce.** Todo acesso deriva de identidade autenticada no ArchGuard. Revogar identidade = revogar acesso.
 5. **Tudo auditável e reversível.** Toda sessão gravada; toda concessão rastreável a um principal e a uma autorização; kill-switch central.
 
 ## §3 — Invariantes de soberania (LGPD)
@@ -22,7 +22,7 @@ ArchGate é a **plataforma de acesso privilegiado** (bastion/gateway) da IntegrA
 
 ## §4 — Invariantes de arquitetura
 
-1. **Composição, não produto único.** Os engines (Kanidm, OpenBao, Warpgate, Guacamole, NetBird) são operados e integrados, não reescritos.
+1. **Composição com control plane único.** ArchGuard, OpenFGA, OpenBao e os gateways são integrados pelo ArchGate Manager; seus consoles nativos não fazem parte do fluxo administrativo normal.
 2. **Preferência por governança de fundação** nas peças críticas (Apache, Linux Foundation). Evitar licenças copyleft forte (AGPL) e source-available (BSL/FSL) no núcleo.
 3. **Persistência externa.** Warpgate e Guacamole usam PostgreSQL externo — nunca SQLite em produção.
 4. **OIDC Authorization Code + PKCE.** Fluxos implícitos desabilitados.

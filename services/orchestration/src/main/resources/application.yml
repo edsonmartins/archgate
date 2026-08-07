@@ -16,10 +16,15 @@ archgate:
     # mock = in-memory (tests/lab); live = HTTP adapters (dry-run default)
     mode: ${ORCH_MODE:mock}
     dry-run: ${ORCH_DRY_RUN:true}
-    kanidm:
-      enabled: ${ORCH_KANIDM_ENABLED:false}
-      base-url: ${ORCH_KANIDM_URL:https://id.archgate.com.br}
-      token: ${ORCH_KANIDM_TOKEN:}
+    # Service token required on every route. No default on purpose: unset =
+    # the API answers 503 instead of running open (audit 2026-07-28, P0-3).
+    api-token: ${ORCH_API_TOKEN:}
+    # HMAC-SHA256 secret for Axis webhook bodies. Unset = webhooks refused.
+    webhook-secret: ${ORCH_WEBHOOK_SECRET:}
+    archguard:
+      enabled: ${ORCH_ARCHGUARD_ENABLED:false}
+      base-url: ${ORCH_ARCHGUARD_URL:https://app.archguard.com.br}
+      token: ${ORCH_ARCHGUARD_TOKEN:}
     warpgate:
       enabled: ${ORCH_WG_ENABLED:false}
       base-url: ${ORCH_WG_URL:https://wg.archgate.com.br}

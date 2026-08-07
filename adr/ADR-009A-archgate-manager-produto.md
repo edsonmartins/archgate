@@ -13,7 +13,7 @@ Na conversa de produto e no canal **Connect** (operador), falta um **nome de pro
 ## Decisão
 
 1. O nome de **produto** do console admin é **ArchGate Manager**.
-2. **ArchGuard** permanece o **módulo de identidade** (Kanidm + domínio pessoas/grupos/OAuth2/SA).
+2. **ArchGuard** permanece o **IdP e módulo de identidade**, baseado no fork do Casdoor.
 3. O código e o OIDC client podem continuar `archguard-console` no curto prazo; a **fachada** (UI, docs, runbooks) fala **ArchGate Manager**.
 4. Fronteira de canais:
 
@@ -25,6 +25,8 @@ Na conversa de produto e no canal **Connect** (operador), falta um **nome de pro
 
 5. Manager **não** embute sessão RDP/SSH do dia a dia (Connect / UnifiedUI).  
    Pode exibir deep-links / snippets (`archgate go <target>`) para o operador.
+6. Toda configuração suportada da plataforma deve estar disponível no Manager. Consoles
+   nativos dos engines são superfícies internas de diagnóstico/break-glass, não produtos.
 
 ## Consequências
 

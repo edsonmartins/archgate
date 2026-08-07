@@ -13,6 +13,8 @@
 - [x] 2.1 Bootstrap SA OpenSRE (`deploy/agentic/bootstrap-opensre-sa.sh`) + policy YAML
 - [x] 2.2 On-behalf-of na auditoria (`humanApprover` + `agentId`) — agent-control
 - [ ] 2.3 Token/API live no Kanidm lab
+- [x] 2.4 Autenticação da API do plano agêntico (fail-closed) — `AGENT_API_TOKEN` 2026-07-29
+- [x] 2.5 `agent_id` derivado da credencial, nunca do corpo — 2026-07-29
 
 ## 3. Política no gateway (não no modelo)
 - [x] 3.1 Allow-list de ações (`opensre-allowlist.yaml` + PolicyEngine)
@@ -25,6 +27,7 @@
 - [x] 4.2 Mutant → PENDING_HITL + approve/deny
 - [x] 4.3 Approver registrado na audit chain
 - [ ] 4.4 Integração UI admin “aprovações pendentes”
+- [x] 4.5 Credencial de aprovador separada da do agente (`AGENT_APPROVER_TOKEN`) — 2026-07-29
 
 ## 5. Kill-switch e inferência local
 - [x] 5.1 Kill-switch API + bloqueio subsequente; best-effort orchestration revoke

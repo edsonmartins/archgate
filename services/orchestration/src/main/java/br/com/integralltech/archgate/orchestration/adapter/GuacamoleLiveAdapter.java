@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Live Guacamole user provision via REST/JDBC bridge used by provision-kanidm-users.
+ * Live Guacamole user provision via the ArchGate orchestration bridge.
  * Prefer console BFF path in production; this is the Axis one-shot surface.
  */
 public class GuacamoleLiveAdapter extends HttpLiveAdapter {

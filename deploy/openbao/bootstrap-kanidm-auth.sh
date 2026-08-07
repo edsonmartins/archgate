@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-# OpenBao JWT auth ← Kanidm OIDC (Fase 2 task 5.3)
+# OpenBao JWT auth ← ArchGate IdP OIDC (Fase 2 task 5.3).
+#
+# ARCHGATE_IDP selects the IdP (default: kanidm).
+#   kanidm    issuer per client, ES256 public key pinned
+#   archguard single deployment issuer, RS256 via oidc_discovery_url;
+#             the OIDC client is provisioned in the ArchGuard console, not
+#             here, and OPENBAO_OIDC_AUDIENCE must carry its clientId
 set -euo pipefail
 
 BOOTSTRAP="${BOOTSTRAP:-/root/archgate/bootstrap.env}"
@@ -41,6 +47,9 @@ bao() {
 echo "=== 1. Kanidm OAuth2 client ${CLIENT_ID} ==="
 TOKENS=$(mktemp)
 trap 'rm -f "$TOKENS"' EXIT
+# ArchGuard provisions its OIDC applications in the console; only the
+# Kanidm path can create its client from here.
+if [ "${ARCHGATE_IDP:-kanidm}" = "kanidm" ]; then
 expect <<EOF >/dev/null
 set timeout 60
 spawn docker run --rm -it --network host -v ${TOKENS}:/root/.cache/kanidm_tokens -e KANIDM_URL=https://127.0.0.1:8443 ${TOOLS} /sbin/kanidm login --accept-invalid-certs --name idm_admin
@@ -60,11 +69,46 @@ kcli system oauth2 add-redirect-url "$CLIENT_ID" "http://127.0.0.1:8250/callback
 kcli system oauth2 update-scope-map "$CLIENT_ID" archguard_users openid profile email groups || true
 kcli system oauth2 prefer-short-username "$CLIENT_ID" || true
 log "Kanidm client $CLIENT_ID"
+else
+  log "ArchGuard: OIDC client provisioned in the console (skipping kanidm CLI)"
+fi
 
-ISSUER="https://${DOMAIN}/oauth2/openid/${CLIENT_ID}"
+# Kanidm publishes one issuer per client; ArchGuard a single deployment issuer
+# and RS256 keys under /.well-known/jwks (audit 2026-08-01).
+ARCHGATE_IDP="${ARCHGATE_IDP:-kanidm}"
+ARCHGATE_IDP_URL="${ARCHGATE_IDP_URL:-https://${DOMAIN}}"
+ARCHGATE_IDP_ORG="${ARCHGATE_IDP_ORG:-archgate}"
 
-echo "=== 2. Import Kanidm OIDC public key (lab: avoid OpenBao TLS to discovery) ==="
+if [ "$ARCHGATE_IDP" = "archguard" ]; then
+  ISSUER="${ARCHGATE_IDP_URL%/}"
+  # In Casdoor `aud` is the application's clientId (a hex id), NOT its name —
+  # object/token_jwt.go:544. Set OPENBAO_OIDC_AUDIENCE to the openbao app's
+  # clientId or the role will never match.
+  AUDIENCE="${OPENBAO_OIDC_AUDIENCE:?set OPENBAO_OIDC_AUDIENCE to the clientId of the openbao application}"
+  # JWT-Custom emits `name` (the username); `preferred_username` only exists in
+  # the JWT-Standard format, which does not carry groups.
+  USER_CLAIM="${OPENBAO_USER_CLAIM:-name}"
+  GROUP_USERS="${OPENBAO_BOUND_GROUP_USERS:-${ARCHGATE_IDP_ORG}/archguard_users}"
+  GROUP_ADMINS="${OPENBAO_BOUND_GROUP_ADMINS:-${ARCHGATE_IDP_ORG}/archguard_super_admins}"
+else
+  ISSUER="${ARCHGATE_IDP_URL%/}/oauth2/openid/${CLIENT_ID}"
+  AUDIENCE="${OPENBAO_OIDC_AUDIENCE:-$CLIENT_ID}"
+  USER_CLAIM="${OPENBAO_USER_CLAIM:-preferred_username}"
+  # Kanidm's groups claim carries full SPNs (name@domain), not short names.
+  GROUP_USERS="${OPENBAO_BOUND_GROUP_USERS:-archguard_users@${DOMAIN}}"
+  GROUP_ADMINS="${OPENBAO_BOUND_GROUP_ADMINS:-archguard_super_admins@${DOMAIN}}"
+fi
+
+echo "=== 2. Key material ==="
 mkdir -p "$DATA"
+if [ "$ARCHGATE_IDP" = "archguard" ]; then
+  # Let OpenBao fetch the JWKS itself: RS256 with kid rotation and overlap,
+  # so a key roll does not require re-running this script.
+  log "ArchGuard: OpenBao uses oidc_discovery_url (RS256/JWKS)"
+else
+# Kanidm lab: pin the EC public key so OpenBao does not have to reach the
+# discovery endpoint over TLS it may not trust. The heredoc terminator must
+# stay at column 0, so this branch is intentionally not indented.
 python3 <<PY
 import json,ssl,urllib.request,base64
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -81,35 +125,44 @@ pem=pub.public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.Subj
 open("${DATA}/kanidm_oidc.pem","w").write(pem)
 print(pem[:60],"...")
 PY
-log "PEM saved ${DATA}/kanidm_oidc.pem"
+  log "PEM saved ${DATA}/kanidm_oidc.pem"
+fi
 
 echo "=== 3. OpenBao auth/jwt ==="
-bao POST sys/auth/jwt '{"type":"jwt","description":"Kanidm OIDC"}' >/dev/null 2>&1 || true
-PEM=$(cat "${DATA}/kanidm_oidc.pem")
-bao POST auth/jwt/config "$(python3 -c "
-import json
+bao POST sys/auth/jwt '{"type":"jwt","description":"ArchGate OIDC"}' >/dev/null 2>&1 || true
+if [ "$ARCHGATE_IDP" = "archguard" ]; then
+  bao POST auth/jwt/config "$(ARCHGATE_ISSUER="$ISSUER" python3 -c "
+import json, os
 print(json.dumps({
-  'bound_issuer': '''$ISSUER''',
-  'jwt_validation_pubkeys': [open('''$DATA/kanidm_oidc.pem''').read()],
+  'oidc_discovery_url': os.environ['ARCHGATE_ISSUER'],
+  'bound_issuer': os.environ['ARCHGATE_ISSUER'],
+  'jwt_supported_algs': ['RS256'],
+  'default_role': 'archgate-operator',
+}))
+")" >/dev/null
+  log "jwt config (discovery ${ISSUER}, RS256)"
+else
+  bao POST auth/jwt/config "$(ARCHGATE_ISSUER="$ISSUER" ARCHGATE_PEM_PATH="$DATA/kanidm_oidc.pem" python3 -c "
+import json, os
+print(json.dumps({
+  'bound_issuer': os.environ['ARCHGATE_ISSUER'],
+  'jwt_validation_pubkeys': [open(os.environ['ARCHGATE_PEM_PATH']).read()],
   'jwt_supported_algs': ['ES256'],
   'default_role': 'archgate-operator',
 }))
 ")" >/dev/null
-log "jwt config (issuer + ES256 pubkey)"
-
-# Kanidm OIDC "groups" claim uses full SPNs (name@domain), not short names
-GROUP_USERS="${OPENBAO_BOUND_GROUP_USERS:-archguard_users@${DOMAIN}}"
-GROUP_ADMINS="${OPENBAO_BOUND_GROUP_ADMINS:-archguard_super_admins@${DOMAIN}}"
+  log "jwt config (issuer + ES256 pubkey)"
+fi
 
 bao POST auth/jwt/role/archgate-operator "$(python3 - <<PY
 import json
 print(json.dumps({
   "role_type": "jwt",
-  "user_claim": "preferred_username",
+  "user_claim": "$USER_CLAIM",
   "groups_claim": "groups",
-  "bound_audiences": ["$CLIENT_ID"],
+  "bound_audiences": ["$AUDIENCE"],
   "bound_claims": {"groups": "$GROUP_USERS"},
-  "claim_mappings": {"preferred_username": "kanidm_username", "email": "email"},
+  "claim_mappings": {"$USER_CLAIM": "archgate_username", "email": "email"},
   "policies": ["archgate-operator-ephemeral"],
   "ttl": "30m",
   "max_ttl": "2h",
@@ -123,9 +176,9 @@ bao POST auth/jwt/role/archgate-admin "$(python3 - <<PY
 import json
 print(json.dumps({
   "role_type": "jwt",
-  "user_claim": "preferred_username",
+  "user_claim": "$USER_CLAIM",
   "groups_claim": "groups",
-  "bound_audiences": ["$CLIENT_ID"],
+  "bound_audiences": ["$AUDIENCE"],
   "bound_claims": {"groups": "$GROUP_ADMINS"},
   "policies": ["archgate-operator-ephemeral"],
   "ttl": "1h",

@@ -24,6 +24,9 @@
 - [ ] 3.5 Terraform provider do Warpgate como fonte de verdade de targets/roles
 - [x] 3.6 Adapters live HTTP dry-run (Kanidm/WG/Guac/OpenBao) — calibrar paths no lab
 - [x] 3.7 Webhook Axis + Idempotency-Key
+- [x] 3.8 Autenticação da API (token de serviço, fail-closed) — `ORCH_API_TOKEN` 2026-07-29
+- [x] 3.9 Assinatura HMAC-SHA256 nos webhooks do Axis — `ORCH_WEBHOOK_SECRET` 2026-07-29
+- [x] 3.10 Remover exposição pública da API (borda) — `traefik.enable=false` 2026-07-29
 
 ## 4. Automação de ciclo de vida
 - [x] 4.1 Onboarding API mock (provision + grant)

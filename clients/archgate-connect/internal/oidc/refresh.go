@@ -59,7 +59,7 @@ func Refresh(cfg Config, refreshToken string) (*TokenResponse, error) {
 	if tok.AccessToken == "" {
 		return nil, fmt.Errorf("refresh returned empty access_token")
 	}
-	// Kanidm may omit refresh_token on refresh — caller should keep the old one.
+	// Providers may omit refresh_token on refresh — keep the previous token.
 	return &tok, nil
 }
 

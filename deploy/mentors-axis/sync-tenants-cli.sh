@@ -8,8 +8,14 @@
 set -euo pipefail
 
 BOOTSTRAP="${BOOTSTRAP:-/root/archgate/bootstrap.env}"
-[[ -f "$BOOTSTRAP" ]] && set -a && # shellcheck disable=SC1090
-  source "$BOOTSTRAP" && set +a
+# An `[[ ... ]] && ...` chain here would abort the whole script under `set -e`
+# when bootstrap.env is absent, instead of falling back to the ambient env.
+if [[ -f "$BOOTSTRAP" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$BOOTSTRAP"
+  set +a
+fi
 
 # Prefer console container env (Swarm DNS + secrets already set)
 CID=""

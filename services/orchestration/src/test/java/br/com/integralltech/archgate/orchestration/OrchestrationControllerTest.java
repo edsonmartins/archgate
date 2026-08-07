@@ -12,9 +12,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = "archgate.orchestration.api-token=test-token")
 @AutoConfigureMockMvc
 class OrchestrationControllerTest {
+
+  private static final String AUTH = "Bearer test-token";
 
   @Autowired
   MockMvc mvc;
@@ -22,6 +24,7 @@ class OrchestrationControllerTest {
   @Test
   void provisionGrantRevokeFlow() throws Exception {
     mvc.perform(post("/orchestration/v1/users/provision")
+            .header("Authorization", AUTH)
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
@@ -37,6 +40,7 @@ class OrchestrationControllerTest {
         .andExpect(jsonPath("$.operation").value("users.provision"));
 
     mvc.perform(post("/orchestration/v1/access/grant")
+            .header("Authorization", AUTH)
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {"username":"dev.silva","target":"rio-lab-ssh","ttl":"8h"}
@@ -45,6 +49,7 @@ class OrchestrationControllerTest {
         .andExpect(jsonPath("$.operation").value("access.grant"));
 
     mvc.perform(post("/orchestration/v1/users/revoke")
+            .header("Authorization", AUTH)
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {"username":"dev.silva","reason":"offboarding"}
@@ -53,14 +58,16 @@ class OrchestrationControllerTest {
         .andExpect(jsonPath("$.operation").value("users.revoke"))
         .andExpect(jsonPath("$.steps").isArray());
 
-    mvc.perform(get("/orchestration/v1/status/users/dev.silva"))
+    mvc.perform(get("/orchestration/v1/status/users/dev.silva")
+            .header("Authorization", AUTH))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.operation").value("users.revoke"));
   }
 
   @Test
   void syncTenants() throws Exception {
-    mvc.perform(post("/orchestration/v1/tenants/sync"))
+    mvc.perform(post("/orchestration/v1/tenants/sync")
+            .header("Authorization", AUTH))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.operation").value("tenants.sync"));
   }
@@ -68,6 +75,7 @@ class OrchestrationControllerTest {
   @Test
   void validationRejectsBlankUsername() throws Exception {
     mvc.perform(post("/orchestration/v1/users/revoke")
+            .header("Authorization", AUTH)
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {"username":"","reason":"x"}

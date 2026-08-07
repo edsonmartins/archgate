@@ -15,14 +15,13 @@ export type CatalogResult = {
 
 export async function fetchMyConnections(session: UserSession): Promise<CatalogResult> {
   try {
+    // Identity comes from the session cookie / Bearer the BFF validates. The
+    // client never asserts who it is: the old X-ArchGate-User / -Tenants
+    // headers were ignored server-side and only invited someone to start
+    // trusting them (audit 2026-07-28).
     const res = await fetch(`${config.apiBase}/unified/v1/connections`, {
       credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-        // Lab: identity hint only — real auth = session cookie / Bearer from BFF
-        'X-ArchGate-User': session.username ?? session.email,
-        'X-ArchGate-Tenants': session.tenants.join(','),
-      },
+      headers: { Accept: 'application/json' },
     })
     if (!res.ok) throw new Error(`catalog ${res.status}`)
     const data = (await res.json()) as { connections?: Connection[] } | Connection[]

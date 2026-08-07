@@ -12,7 +12,7 @@ export function ConnectionCatalog({ connections, selectedId, onSelect }: Props) 
       <div className="card">
         <h2>Minhas conexões</h2>
         <p className="muted">
-          Sem conexões para o seu tenant. Peça acesso ao admin ou verifique o grupo Kanidm.
+          Sem conexões para o tenant ativo. Peça acesso no ArchGate Manager.
         </p>
       </div>
     )

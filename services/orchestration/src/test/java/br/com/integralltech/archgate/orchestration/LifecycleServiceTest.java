@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LifecycleServiceTest {
 
-  private MockComponentAdapter kanidm;
+  private MockComponentAdapter archguard;
   private MockComponentAdapter warpgate;
   private MockComponentAdapter guacamole;
   private MockComponentAdapter openbao;
@@ -22,11 +22,11 @@ class LifecycleServiceTest {
 
   @BeforeEach
   void setUp() {
-    kanidm = new MockComponentAdapter("kanidm");
+    archguard = new MockComponentAdapter("archguard");
     warpgate = new MockComponentAdapter("warpgate");
     guacamole = new MockComponentAdapter("guacamole");
     openbao = new MockComponentAdapter("openbao");
-    svc = new LifecycleService(List.of(kanidm, warpgate, guacamole, openbao));
+    svc = new LifecycleService(List.of(archguard, warpgate, guacamole, openbao));
   }
 
   @Test
@@ -40,7 +40,7 @@ class LifecycleServiceTest {
     );
     assertEquals("ok", r.status());
     assertEquals("users.provision", r.operation());
-    assertTrue(kanidm.hasPerson("dev.silva"));
+    assertTrue(archguard.hasPerson("dev.silva"));
     assertTrue(warpgate.hasPerson("dev.silva"));
     assertTrue(guacamole.hasPerson("dev.silva"));
     assertTrue(r.details().get("groups").contains("tenant_rio_quality"));
@@ -60,7 +60,7 @@ class LifecycleServiceTest {
     OrchestrationResult rev = svc.revoke("uat-op-a", "offboarding");
     assertEquals("ok", rev.status());
     assertEquals("users.revoke", rev.operation());
-    assertFalse(kanidm.hasPerson("uat-op-a"));
+    assertFalse(archguard.hasPerson("uat-op-a"));
     assertFalse(warpgate.hasPerson("uat-op-a"));
     assertFalse(guacamole.hasPerson("uat-op-a"));
     assertFalse(openbao.hasGrant("uat-op-a", "rio-lab-ssh"));
@@ -72,7 +72,7 @@ class LifecycleServiceTest {
     svc.revoke("ghost", "cleanup");
     OrchestrationResult r2 = svc.revoke("ghost", "cleanup");
     assertEquals("ok", r2.status());
-    assertFalse(kanidm.hasPerson("ghost"));
+    assertFalse(archguard.hasPerson("ghost"));
   }
 
   @Test

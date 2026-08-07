@@ -28,7 +28,15 @@ if [[ -z "${OAUTH2_PROXY_COOKIE_SECRET:-}" ]]; then
   echo "==> generated OAUTH2_PROXY_COOKIE_SECRET"
 fi
 
-ISSUER="https://${KANIDM_DOMAIN}/oauth2/openid/guacamole"
+# Issuer shape depends on the IdP: Kanidm is per-client, ArchGuard is a single
+# deployment issuer. oauth2-proxy discovers the rest from it.
+ARCHGATE_IDP="${ARCHGATE_IDP:-kanidm}"
+ARCHGATE_IDP_URL="${ARCHGATE_IDP_URL:-https://${KANIDM_DOMAIN}}"
+if [ "$ARCHGATE_IDP" = "archguard" ]; then
+  ISSUER="${ARCHGATE_IDP_URL%/}"
+else
+  ISSUER="${ARCHGATE_IDP_URL%/}/oauth2/openid/guacamole"
+fi
 REDIRECT="https://${DOMAIN_GUAC}/oauth2/callback"
 CLIENT_ID="${GUACAMOLE_OIDC_CLIENT_ID:-guacamole}"
 

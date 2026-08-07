@@ -17,6 +17,7 @@ func TestLoginStatusLogout(t *testing.T) {
 	t.Setenv("ARCHGATE_CONFIG_DIR", dir)
 	t.Setenv("ARCHGATE_MOCK", "1")
 	t.Setenv("ARCHGATE_KEYCHAIN", "file")
+	t.Setenv("ARCHGATE_CONNECT_LAB_TOKEN", "test-lab-secret")
 	t.Setenv("ARCHGATE_WG_USER", "")
 
 	if err := Execute([]string{"login", "--lab", "--user", "tester"}); err != nil {
@@ -72,6 +73,7 @@ func TestPrintSSHUsesWarpgateUserNotCatalogNickname(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("ARCHGATE_CONFIG_DIR", dir)
 	t.Setenv("ARCHGATE_MOCK", "1")
+	t.Setenv("ARCHGATE_CONNECT_LAB_TOKEN", "test-lab-secret")
 	t.Setenv("ARCHGATE_WG_USER", "")
 	t.Setenv("ARCHGATE_WG_SSH_HOST", "217.196.60.108")
 	t.Setenv("ARCHGATE_WG_SSH_PORT", "2222")
@@ -126,6 +128,7 @@ func TestPrintSSHHonorsEnvOverride(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("ARCHGATE_CONFIG_DIR", dir)
 	t.Setenv("ARCHGATE_MOCK", "1")
+	t.Setenv("ARCHGATE_CONNECT_LAB_TOKEN", "test-lab-secret")
 	t.Setenv("ARCHGATE_WG_USER", "custom-op")
 	t.Setenv("ARCHGATE_WG_SSH_HOST", "10.0.0.1")
 
@@ -147,6 +150,7 @@ func TestResolveWarpgateUserErrorsWithoutIdentity(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("ARCHGATE_CONFIG_DIR", dir)
 	t.Setenv("ARCHGATE_MOCK", "1")
+	t.Setenv("ARCHGATE_CONNECT_LAB_TOKEN", "test-lab-secret")
 	t.Setenv("ARCHGATE_WG_USER", "")
 
 	cfg, err := config.Load()
@@ -162,6 +166,7 @@ func TestLabOperatorNeverInSSHLine(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("ARCHGATE_CONFIG_DIR", dir)
 	t.Setenv("ARCHGATE_MOCK", "1")
+	t.Setenv("ARCHGATE_CONNECT_LAB_TOKEN", "test-lab-secret")
 	t.Setenv("ARCHGATE_WG_USER", "")
 	t.Setenv("ARCHGATE_WG_SSH_HOST", "217.196.60.108")
 
@@ -185,6 +190,7 @@ func TestFindConnPartialAndAmbiguous(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("ARCHGATE_CONFIG_DIR", dir)
 	t.Setenv("ARCHGATE_MOCK", "1")
+	t.Setenv("ARCHGATE_CONNECT_LAB_TOKEN", "test-lab-secret")
 	t.Setenv("ARCHGATE_WG_USER", "")
 
 	if err := Execute([]string{"login", "--lab", "--user", "t"}); err != nil {
@@ -224,6 +230,7 @@ func TestWgUserSetAndGet(t *testing.T) {
 	t.Setenv("ARCHGATE_CONFIG_DIR", dir)
 	t.Setenv("ARCHGATE_MOCK", "1")
 	t.Setenv("ARCHGATE_KEYCHAIN", "file")
+	t.Setenv("ARCHGATE_CONNECT_LAB_TOKEN", "test-lab-secret")
 	t.Setenv("ARCHGATE_WG_USER", "")
 
 	if err := Execute([]string{"login", "--lab", "--user", "tester"}); err != nil {
@@ -319,4 +326,42 @@ func captureStdout(t *testing.T, fn func()) string {
 	_, _ = io.Copy(&buf, r)
 	_ = r.Close()
 	return buf.String()
+}
+
+// Lab login must refuse to mint a bearer without the shared secret, so the
+// CLI cannot produce a token the BFF would have to reject (audit 2026-07-28).
+func TestLabLoginRequiresSharedSecret(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("ARCHGATE_CONFIG_DIR", dir)
+	t.Setenv("ARCHGATE_MOCK", "1")
+	t.Setenv("ARCHGATE_KEYCHAIN", "file")
+	t.Setenv("ARCHGATE_CONNECT_LAB_TOKEN", "")
+
+	err := Execute([]string{"login", "--lab", "--user", "tester"})
+	if err == nil {
+		t.Fatal("expected lab login to fail without ARCHGATE_CONNECT_LAB_TOKEN")
+	}
+	if !strings.Contains(err.Error(), "ARCHGATE_CONNECT_LAB_TOKEN") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+// The stored bearer carries the secret so the BFF can verify it.
+func TestLabLoginBearerCarriesSecret(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("ARCHGATE_CONFIG_DIR", dir)
+	t.Setenv("ARCHGATE_MOCK", "1")
+	t.Setenv("ARCHGATE_KEYCHAIN", "file")
+	t.Setenv("ARCHGATE_CONNECT_LAB_TOKEN", "s3cr3t")
+
+	if err := Execute([]string{"login", "--lab", "--user", "tester"}); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Creds.LabToken != "lab-tester:s3cr3t" {
+		t.Fatalf("lab token=%q", cfg.Creds.LabToken)
+	}
 }

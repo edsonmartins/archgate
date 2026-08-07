@@ -245,7 +245,7 @@ export function App() {
     setPending('sso')
     setNotice({
       kind: 'info',
-      text: 'Abrindo login SSO no browser… Conclua no Kanidm e volte aqui (pode levar até alguns minutos).',
+      text: 'Abrindo login SSO no browser… Conclua no ArchGuard e volte aqui.',
     })
     setShowLog(true)
 
@@ -758,7 +758,7 @@ export function App() {
               ) : (
                 <>
                   <div className="identity-name">Não autenticado</div>
-                  <div className="identity-sub">Use SSO (Kanidm) para carregar o catálogo</div>
+                  <div className="identity-sub">Use SSO (ArchGuard) para carregar o catálogo</div>
                 </>
               )}
             </div>

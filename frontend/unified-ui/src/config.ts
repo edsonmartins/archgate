@@ -11,7 +11,12 @@ export const config = {
   apiBase: import.meta.env.VITE_API_BASE ?? '/api',
   oidc: {
     enabled: flag(import.meta.env.VITE_OIDC_ENABLED),
-    issuer: import.meta.env.VITE_OIDC_ISSUER ?? 'https://id.archgate.com.br/oauth2/openid/archgate-unified-ui',
+    /**
+     * ArchGuard deployment issuer. Remaining endpoints come from discovery.
+     */
+    issuer:
+      import.meta.env.VITE_OIDC_ISSUER ??
+      'https://app.archguard.com.br',
     clientId: import.meta.env.VITE_OIDC_CLIENT_ID ?? 'archgate-unified-ui',
     redirectUri:
       import.meta.env.VITE_OIDC_REDIRECT_URI ??

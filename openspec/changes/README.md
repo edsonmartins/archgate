@@ -10,6 +10,7 @@ Sequência de mudanças que constroem a plataforma, na ordem de dependência. Ca
 | 3a | `add-oracle-credential-proxy` | 3 — Pré-requisito Oracle | Proxy Java (ojdbc thin) para credencial dinâmica Oracle. Implementa o ADR-001. |
 | 3 | `add-network-mesh` | 3 — Rede e protocolo | NetBird (malha); RDP/K8s ponta a ponta; Oracle via `add-oracle-credential-proxy`. |
 | 4 | `add-unified-ui-and-orchestration` | 4 — UnifiedUI e orquestração | React + `guacamole-common-js`; automação via Mentors Axis. |
+| 4a | `evaluate-rustguac-session-gateway` | 4 — Gateway de sessão | Spike e ADR para decidir adoção/adaptação do RustGuac antes de implementar o broker de sessão. |
 | 5 | `add-agentic-access` | 5 — Escala e agêntico | HA (OpenBao/Kanidm); OpenSRE como service account com HITL e kill-switch. |
 | — | `add-org-credential-broker` | Control plane (paralelo) | Contas da IntegrAllTech (GCP/Play/Apple/produtos): inventário, OpenBao, checkout TTL, dual-control. **ADR-013**. |
 
@@ -35,7 +36,8 @@ Sequência de mudanças que constroem a plataforma, na ordem de dependência. Ca
 - **ADR-005 (nome) — ACEITO:** produto = **ArchGate**; ArchGuard é o módulo de identidade. Ver `adr/ADR-005-nome-do-produto-archgate.md` (pendente checagem de marca/domínio).
 - **ADR-007 (Guacamole OIDC) — ACEITO:** implicit stock vs Kanidm; remediação proxy / 1.7 / UnifiedUI.
 - **ADR-008 (cliente operador híbrido multi-OS) — ACEITO:** ver `add-operator-client-access-standard` e `adr/ADR-008-cliente-operador-hibrido-multi-os.md`.
-- **ADR-013 (org credential broker) — PROPOSTO:** contas IntegrAllTech (cloud/lojas/produtos); ver `add-org-credential-broker`.
+- **ADR-014 (IdP) — ACEITO:** o **ArchGuard** (fork do Casdoor) substitui o Kanidm como IdP do ArchGate; troca por `ARCHGATE_IDP`. Ver `adr/ADR-014-archguard-substitui-kanidm-como-idp.md`.
+- **ADR-013 (org credential broker) — ACEITO:** contas IntegrAllTech (cloud/lojas/produtos); ver `add-org-credential-broker`.
 - Em aberto: ADR-002 (step-ca), ADR-003 (persistência Warpgate — de fato PostgreSQL em uso), ADR-004 (fronteira ArchGuard × Mentors Axis — antes da Fase 4), ADR-006 (estratégia de frontend).
 
 ## Referência

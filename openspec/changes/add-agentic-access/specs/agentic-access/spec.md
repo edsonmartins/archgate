@@ -18,6 +18,30 @@ O sistema SHALL impor allow-list de comandos, escopo por host, TTL curtíssimo e
 - **THEN** qualquer comando fora da allow-list ou do escopo é bloqueado pelo gateway
 - **AND** o privilégio do agente não é ampliado
 
+### Requirement: Autenticação do Plano de Controle Agêntico
+A API de controle de agentes SHALL autenticar toda chamada e SHALL falhar fechada quando nenhuma credencial estiver configurada. A identidade do agente SHALL derivar da credencial apresentada, nunca de um campo do corpo da requisição. A API SHALL NOT ser exposta na borda pública.
+
+#### Scenario: Agente não pode se declarar
+- **WHEN** uma requisição informa `agent_id` divergente da credencial apresentada
+- **THEN** a requisição é rejeitada com 403
+- **AND** a tentativa é registrada na auditoria
+
+#### Scenario: Chamada anônima é rejeitada
+- **WHEN** uma requisição chega sem credencial
+- **THEN** a resposta é 401 e nenhuma ação é enfileirada
+
+### Requirement: Separação de Credenciais entre Agente e Aprovador
+Aprovação HITL e kill-switch SHALL exigir uma credencial distinta da usada pelo agente, de modo que a posse da credencial do agente não permita aprovar as próprias ações nem desligar o kill-switch.
+
+#### Scenario: Agente não aprova a própria ação
+- **WHEN** um chamador autenticado com a credencial do agente chama `POST /agentic/v1/approvals/{id}/approve`
+- **THEN** a requisição é rejeitada com 403
+- **AND** a ação permanece pendente
+
+#### Scenario: Aprovador registra identidade
+- **WHEN** um chamador autenticado com a credencial de aprovador aprova a ação
+- **THEN** a auditoria registra o aprovador declarado junto da ação e da service account do agente
+
 ### Requirement: HITL para Ações Mutantes
 O sistema SHALL permitir leitura ampla de forma automática, mas SHALL exigir aprovação humana em tempo real para qualquer ação mutante ou destrutiva.
 

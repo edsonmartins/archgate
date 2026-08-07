@@ -46,7 +46,7 @@ export function FirstRunWizard({
             <span className="onboard-n">1</span>
             <div>
               <strong>Entrar com SSO</strong>
-              <p>Kanidm no browser (identidade corporativa).</p>
+              <p>ArchGuard no browser (identidade corporativa).</p>
             </div>
           </li>
           <li className={step === 2 ? 'active' : doctorOk === true ? 'done' : ''}>
@@ -68,7 +68,7 @@ export function FirstRunWizard({
         <div className="onboard-actions">
           {step === 1 ? (
             <button type="button" className="btn btn-primary" disabled={busy} onClick={onSso}>
-              {busy ? 'Aguardando SSO…' : 'Login SSO (Kanidm)'}
+              {busy ? 'Aguardando SSO…' : 'Login SSO (ArchGuard)'}
             </button>
           ) : null}
           {step === 2 ? (
