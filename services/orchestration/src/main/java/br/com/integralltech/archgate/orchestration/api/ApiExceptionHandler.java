@@ -24,4 +24,9 @@ public class ApiExceptionHandler {
   public ResponseEntity<Map<String, String>> illegal(IllegalArgumentException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", ex.getMessage()));
   }
+
+  @ExceptionHandler(IllegalStateException.class)
+  public ResponseEntity<Map<String, String>> unavailable(IllegalStateException ex) {
+    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", ex.getMessage()));
+  }
 }

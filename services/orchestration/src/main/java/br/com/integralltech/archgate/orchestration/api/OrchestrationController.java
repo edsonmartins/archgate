@@ -1,6 +1,8 @@
 package br.com.integralltech.archgate.orchestration.api;
 
 import br.com.integralltech.archgate.orchestration.domain.OrchestrationResult;
+import br.com.integralltech.archgate.orchestration.adapter.ArchGuardLiveAdapter;
+import br.com.integralltech.archgate.orchestration.adapter.ArchGuardSessionContext;
 import br.com.integralltech.archgate.orchestration.service.LifecycleService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -22,9 +24,11 @@ import java.util.List;
 public class OrchestrationController {
 
   private final LifecycleService lifecycle;
+  private final ArchGuardLiveAdapter archGuard;
 
-  public OrchestrationController(LifecycleService lifecycle) {
+  public OrchestrationController(LifecycleService lifecycle, ArchGuardLiveAdapter archGuard) {
     this.lifecycle = lifecycle;
+    this.archGuard = archGuard;
   }
 
   public record ProvisionRequest(
@@ -71,6 +75,13 @@ public class OrchestrationController {
   public OrchestrationResult syncTenants() {
     return lifecycle.syncTenants();
   }
+
+  @PostMapping("/identities/session-context")
+  public ArchGuardSessionContext sessionContext(@Valid @RequestBody SessionContextRequest req) {
+    return archGuard.resolveSessionContext(req.subject());
+  }
+
+  public record SessionContextRequest(@NotBlank String subject) {}
 
   @GetMapping("/status/last")
   public ResponseEntity<OrchestrationResult> lastGlobal() {
