@@ -17,8 +17,8 @@
 
 ## 2. Executable spike
 
-- [ ] 2.1 Build pinned RustGuac revision reproducibly — macOS attempt fails on unguarded Linux LUKS calls; Linux container build required (`evidence/rustguac-build-2026-08-07.md`)
-- [ ] 2.2 Start guacd + session gateway in isolated lab
+- [x] 2.1 Build pinned RustGuac revision reproducibly — Linux/amd64 OCI image, SBOM and provenance published by GitHub Actions (`evidence/rustguac-build-2026-08-07.md`)
+- [x] 2.2 Start guacd + session gateway in isolated lab — digest-pinned VPS profile, HTTPS 200 and SSH target reachability proven (`evidence/rustguac-vps-spike-2026-08-07.md`)
 - [ ] 2.3 Open one SSH session through a one-time ticket
 - [ ] 2.4 Prove ticket replay is denied
 - [ ] 2.5 Prove target credential and admin token are absent from browser traffic/logs
