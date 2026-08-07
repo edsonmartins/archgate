@@ -45,7 +45,7 @@ export function HomePage() {
         <div className="card">
           <h2>Entrar</h2>
           <p className="muted">
-            Produção: OIDC Kanidm (Code+PKCE) com client{' '}
+            Produção: OIDC ArchGuard (Code+PKCE) com client{' '}
             <code>archgate-unified-ui</code>. Lab: sessão mock (
             <code>uat-op-a</code> / Rio).
           </p>
@@ -63,8 +63,8 @@ export function HomePage() {
               disabled={oidcBusy || !isOidcEnabled()}
               title={
                 isOidcEnabled()
-                  ? 'Redirect Kanidm'
-                  : 'Defina VITE_OIDC_ENABLED=1 e registre o client no Kanidm'
+                  ? 'Redirect ArchGuard'
+                  : 'Defina VITE_OIDC_ENABLED=1 e registre a aplicação no ArchGate Manager'
               }
               onClick={() => {
                 setOidcBusy(true)
@@ -135,9 +135,9 @@ export function HomePage() {
       <div className="card">
         <h2>Próximos passos (W4)</h2>
         <ul className="muted" style={{ margin: 0, paddingLeft: '1.2rem' }}>
-          <li>Registrar OIDC client no Kanidm e BFF cookie session</li>
+          <li>Gerenciar aplicação OIDC ArchGuard pelo Manager e concluir a sessão BFF</li>
           <li>API catálogo real + <code>POST /sessions</code> tunnel token</li>
-          <li>Adapters live de orquestração (Kanidm/WG/Guac/OpenBao)</li>
+          <li>Adapters live de orquestração (ArchGuard/WG/Guac/OpenBao)</li>
           <li>E2E browser smoke (W4-UI09)</li>
         </ul>
       </div>

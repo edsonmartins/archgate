@@ -4,7 +4,7 @@
 # Non-interactive preflight (no browser):
 #   ./scripts/smoke-sso-e2e.sh --preflight
 #
-# Full interactive (opens browser — complete Kanidm login within 5m):
+# Full interactive (opens browser — complete ArchGuard login within 5m):
 #   ./scripts/smoke-sso-e2e.sh --interactive
 #
 # Writes evidence markdown under documentos/evidence/ when ARCHGATE_EVIDENCE=1
@@ -50,7 +50,7 @@ PY
 
 interactive() {
   echo "=== SSO interactive E2E ==="
-  echo "A browser window will open. Complete Kanidm login for client archgate-connect."
+  echo "A browser window will open. Complete ArchGuard login for client archgate-connect."
   echo "Callback: http://127.0.0.1:8765/callback  (timeout 5 minutes)"
   TMP=$(mktemp -d)
   export ARCHGATE_CONFIG_DIR="$TMP"

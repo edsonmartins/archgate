@@ -16,7 +16,7 @@ public record OrchestrationProperties(
     String apiToken,
     /** HMAC-SHA256 secret for Axis webhook bodies. Unset = webhooks refused. */
     String webhookSecret,
-    Endpoint kanidm,
+    Endpoint archguard,
     Endpoint warpgate,
     Endpoint guacamole,
     Endpoint openbao

@@ -15,7 +15,7 @@ Operadores e agentes acessam máquinas, bancos, Kubernetes e painéis de cliente
 | Problema atual | Com ArchGate |
 |----------------|--------------|
 | Credenciais de cliente nas máquinas dos devs | Gateway injeta o segredo; o dev não vê |
-| Offboarding = rotacionar dezenas de senhas | Revoga identidade no Kanidm → acesso cai |
+| Offboarding = rotacionar dezenas de senhas | Revoga identidade no ArchGuard → acesso cai |
 | Auditoria fraca / espalhada | Sessões gravadas no bastion (WG / Guac) |
 | Escala multi-cliente manual | Tenants + inventário de sites + control plane |
 
@@ -43,7 +43,7 @@ Operador / agente
        │
        ▼
 ┌──────────────────┐     ┌─────────────────┐
-│ ArchGuard Console│────▶│ Kanidm (OIDC)   │  identidade
+│ ArchGate Manager │────▶│ ArchGuard OIDC  │  identidade
 └────────┬─────────┘     └────────┬────────┘
          │                        │ JWT / SSO
          ▼                        ▼
@@ -66,7 +66,7 @@ Operador / agente
 | Camada | Papel | Componente |
 |--------|-------|------------|
 | Controle | Tenants, sites, orquestração | Mentors Axis + console ArchGuard |
-| Identidade | SSO, RBAC, service accounts | **Kanidm** (via ArchGuard) |
+| Identidade | SSO, memberships, MFA/step-up, service accounts | **ArchGuard** (fork Casdoor) |
 | Gateway | Proxy + gravação | **Warpgate** + **Apache Guacamole** |
 | Segredos | Credenciais de curta duração | **OpenBao** |
 | Rede | Alcance aos sites | Connector site (WG/OpenVPN/…) · NetBird (fase futura) |
@@ -84,9 +84,9 @@ Ambiente de staging: host runtime Swarm `edson-ai` · domínio `*.archgate.com.b
 
 | Pacote OpenSpec | Status |
 |-----------------|--------|
-| `add-identity-axis` | Lab complete (Kanidm, WG, Guac portão, console, multi-tenant) |
+| `add-identity-axis` | Legado concluído; identidade atual é ArchGuard (ADR-014) |
 | `add-operator-client-access-standard` | Lab-ready (ADR-008, smoke operador, bastion-first) |
-| `add-ephemeral-credentials` | MVP lab (OpenBao, JWT←Kanidm, broker DB) |
+| `add-ephemeral-credentials` | MVP lab (OpenBao, JWT←ArchGuard, broker DB) |
 | Control plane admin (ADR-009) | Lab: sites SoT, apply gateways, Axis sync, `/platform` |
 | Aceite piloto | **PASS com waiver** — ver runbooks |
 
@@ -97,7 +97,7 @@ Checklist de aceite: [`documentos/runbooks/ACEITE-PILOTO-LAB.md`](./documentos/r
 
 | Host | Serviço |
 |------|---------|
-| `id.archgate.com.br` | Kanidm |
+| `app.archguard.com.br` | ArchGuard IdP |
 | `console.archgate.com.br` | ArchGuard Console |
 | `wg.archgate.com.br` | Warpgate (UI + SSH `:2222` + PG `:55432`) |
 | `guac.archgate.com.br` | Guacamole (portão oauth2-proxy) |
@@ -124,7 +124,7 @@ PLATAFORMA_ACESSO_PRIVILEGIADO.md
 # ver deploy/README.md e deploy/env.example/bootstrap.env
 
 ./deploy/bootstrap-networks.sh
-# stacks: traefik → postgres (externo) → archguard/kanidm → warpgate → guacamole → openbao → console
+# stacks: traefik → postgres (externo) → ArchGuard → warpgate → guacamole → openbao → Manager
 ```
 
 Versões **pinadas** em [`deploy/versions.env`](./deploy/versions.env) — nunca `latest` em staging/prod.
@@ -190,7 +190,7 @@ WG_HOST=192.168.1.180 bash deploy/validation/smoke-operator-access.sh
 |--------------|-----|
 | `deploy/validation/smoke-operator-access.sh` | SSH + PG via bastion |
 | `deploy/validation/tenant-isolation-e2e.sh` | Isolamento tenant |
-| `deploy/openbao/smoke-kanidm-jwt.sh` | JWT Kanidm → OpenBao |
+| `deploy/validation/smoke-archguard-cutover.sh` | OIDC/JWT ArchGuard → OpenBao |
 | `documentos/runbooks/ACEITE-PILOTO-LAB.md` | Checklist pass/fail lab |
 | `documentos/runbooks/sites/smoke-evidence-*.md` | Evidências datadas |
 
@@ -201,7 +201,7 @@ WG_HOST=192.168.1.180 bash deploy/validation/smoke-operator-access.sh
 | Componente | Versão pinada (referência) |
 |------------|----------------------------|
 | Traefik | v3.4.x |
-| Kanidm | 1.10.x |
+| ArchGuard | fork Casdoor mantido pela IntegrAllTech |
 | Warpgate | 0.26.x |
 | Guacamole / guacd | 1.6.x |
 | OpenBao | 2.x |
@@ -237,7 +237,7 @@ Itens **fora** do aceite lab: peer VPN de cliente real em produção, UnifiedUI,
 
 Relacionados:
 
-- `../_archguard/archguard-console` — ArchGate Manager (console) + BFF `/api/unified/v1/*` + integração Kanidm
+- `../_archguard/archguard-console` — ArchGate Manager + BFF `/api/unified/v1/*` + integração ArchGuard
 - `../archgate-devops` — compose de staging, scripts de deploy e ops
 - Mentors Axis — plano de controle de tenants (API Spring no lab)
 
@@ -245,4 +245,4 @@ Relacionados:
 
 ## Licença
 
-Código e documentação proprietários da **IntegrAllTech**. Engines de terceiros mantêm suas licenças (Kanidm/OpenBao MPL-2.0, Guacamole Apache-2.0, Warpgate open-source, etc.).
+Código e documentação proprietários da **IntegrAllTech**. O ArchGuard preserva a licença Apache-2.0 da base Casdoor; engines de terceiros mantêm suas respectivas licenças.

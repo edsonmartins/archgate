@@ -7,7 +7,7 @@ Contratos: [`documentos/runbooks/orchestration-api-contracts.md`](../../document
 ## Stack
 
 - Spring Boot 3.4 / Java 21  
-- Modo **mock** (default): adapters in-memory `kanidm`, `warpgate`, `guacamole`, `openbao`  
+- Modo **mock** (default): adapters in-memory `archguard`, `warpgate`, `guacamole`, `openbao`
 - Modo **live** (`ORCH_MODE=live`): HTTP adapters + `ORCH_DRY_RUN=true` por default (só log)
 
 ## API
@@ -29,7 +29,7 @@ Porta default: `8090` (`ORCH_PORT`).
 ```bash
 export ORCH_MODE=live
 export ORCH_DRY_RUN=true   # false só com tokens reais
-export ORCH_KANIDM_ENABLED=true ORCH_KANIDM_URL=… ORCH_KANIDM_TOKEN=…
+export ORCH_ARCHGUARD_ENABLED=true ORCH_ARCHGUARD_URL=… ORCH_ARCHGUARD_TOKEN=…
 export ORCH_WG_ENABLED=true ORCH_WG_URL=… ORCH_WG_TOKEN=…
 # guacamole / openbao idem
 ```

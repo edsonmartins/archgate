@@ -10,7 +10,7 @@ export type UserSession = {
   displayName: string
   email: string
   tenants: string[]
-  /** mock lab | oidc Kanidm */
+  /** mock lab | OIDC ArchGuard */
   mode: 'mock' | 'oidc'
   /** Warpgate username (preferred_username) for launch snippets */
   username?: string

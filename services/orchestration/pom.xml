@@ -15,7 +15,7 @@
   <artifactId>orchestration</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <name>archgate-orchestration</name>
-  <description>W4-ORCH — Axis lifecycle (provision / grant / revoke) for Kanidm + WG + Guac + OpenBao</description>
+  <description>W4-ORCH — Axis lifecycle for ArchGuard + WG + Guac + OpenBao</description>
 
   <properties>
     <java.version>21</java.version>

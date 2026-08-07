@@ -137,7 +137,7 @@ public class LifecycleService {
 
   public OrchestrationResult syncTenants() {
     String opId = UUID.randomUUID().toString();
-    List<String> steps = List.of("axis:fetch", "kanidm:tenant_groups", "sot:sites");
+    List<String> steps = List.of("axis:fetch", "archguard:tenant_memberships", "sot:sites");
     OrchestrationResult r = OrchestrationResult.ok(
         opId,
         "tenants.sync",

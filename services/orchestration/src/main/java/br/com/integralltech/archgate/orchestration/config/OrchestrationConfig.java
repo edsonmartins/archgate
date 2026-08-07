@@ -2,7 +2,7 @@ package br.com.integralltech.archgate.orchestration.config;
 
 import br.com.integralltech.archgate.orchestration.adapter.ComponentAdapter;
 import br.com.integralltech.archgate.orchestration.adapter.GuacamoleLiveAdapter;
-import br.com.integralltech.archgate.orchestration.adapter.KanidmLiveAdapter;
+import br.com.integralltech.archgate.orchestration.adapter.ArchGuardLiveAdapter;
 import br.com.integralltech.archgate.orchestration.adapter.MockComponentAdapter;
 import br.com.integralltech.archgate.orchestration.adapter.OpenBaoLiveAdapter;
 import br.com.integralltech.archgate.orchestration.adapter.WarpgateLiveAdapter;
@@ -49,12 +49,12 @@ public class OrchestrationConfig {
     List<ComponentAdapter> adapters = new ArrayList<>();
     if (props.isLive()) {
       boolean dry = props.dryRun();
-      adapters.add(new KanidmLiveAdapter(orDisabled(props.kanidm()), dry));
+      adapters.add(new ArchGuardLiveAdapter(orDisabled(props.archguard()), dry));
       adapters.add(new WarpgateLiveAdapter(orDisabled(props.warpgate()), dry));
       adapters.add(new GuacamoleLiveAdapter(orDisabled(props.guacamole()), dry));
       adapters.add(new OpenBaoLiveAdapter(orDisabled(props.openbao()), dry));
     } else {
-      adapters.add(new MockComponentAdapter("kanidm"));
+      adapters.add(new MockComponentAdapter("archguard"));
       adapters.add(new MockComponentAdapter("warpgate"));
       adapters.add(new MockComponentAdapter("guacamole"));
       adapters.add(new MockComponentAdapter("openbao"));

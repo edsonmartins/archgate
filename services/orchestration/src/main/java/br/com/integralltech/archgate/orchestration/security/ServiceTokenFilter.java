@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Authenticates every orchestration route.
  *
- * <p>The API drives identity, gateway and secret lifecycle across Kanidm,
+ * <p>The API drives identity, gateway and secret lifecycle across ArchGuard,
  * Warpgate, Guacamole and OpenBao. It previously accepted anonymous calls,
  * which contradicts CONSTITUTION §2.2 and §2.4 (audit 2026-07-28, P0-3).
  *

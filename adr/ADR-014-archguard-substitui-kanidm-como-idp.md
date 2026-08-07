@@ -17,9 +17,11 @@ Manter dois IdPs — Kanidm para o ArchGate, ArchGuard para o resto — signific
 
 ## Decisão
 
-**O ArchGate passa a autenticar contra o ArchGuard.** O Kanidm sai de cena.
+**O ArchGate autentica exclusivamente contra o ArchGuard.** O Kanidm sai de cena.
 
-A troca é seletiva por ambiente através de `ARCHGATE_IDP` (`kanidm` | `archguard`), com default `kanidm`, para que a virada seja um ato deliberado e reversível por variável.
+A compatibilidade seletiva por `ARCHGATE_IDP` existiu apenas durante a virada. Depois do
+cutover ela é removida: não há fallback, segundo issuer ou modo de produção suportado com
+Kanidm.
 
 ### O que muda concretamente
 

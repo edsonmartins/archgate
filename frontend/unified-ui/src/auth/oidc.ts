@@ -1,7 +1,7 @@
 /**
- * OIDC Code+PKCE against Kanidm (scaffold).
+ * OIDC Code+PKCE against ArchGuard (scaffold).
  * Lab default: mock session (session.ts). Enable with VITE_OIDC_ENABLED=1
- * after registering client `archgate-unified-ui` on id.archgate.com.br.
+ * after registering `archgate-unified-ui` through ArchGate Manager.
  */
 
 import { config } from '../config'
@@ -19,7 +19,6 @@ type StoredPkce = {
 }
 
 function issuerBase(): string {
-  // Kanidm OpenID path: …/oauth2/openid/<client>
   return config.oidc.issuer.replace(/\/$/, '')
 }
 

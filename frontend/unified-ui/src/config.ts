@@ -12,14 +12,11 @@ export const config = {
   oidc: {
     enabled: flag(import.meta.env.VITE_OIDC_ENABLED),
     /**
-     * Discovery root. Kanidm publishes one issuer per client
-     * (…/oauth2/openid/<client>); ArchGuard publishes a single issuer for the
-     * deployment. Set VITE_OIDC_ISSUER to whichever the deployment uses — the
-     * remaining endpoints come from discovery.
+     * ArchGuard deployment issuer. Remaining endpoints come from discovery.
      */
     issuer:
       import.meta.env.VITE_OIDC_ISSUER ??
-      'https://id.archgate.com.br/oauth2/openid/archgate-unified-ui',
+      'https://app.archguard.com.br',
     clientId: import.meta.env.VITE_OIDC_CLIENT_ID ?? 'archgate-unified-ui',
     redirectUri:
       import.meta.env.VITE_OIDC_REDIRECT_URI ??
