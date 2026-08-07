@@ -62,6 +62,11 @@ public class OrchestrationConfig {
     return new LifecycleService(adapters);
   }
 
+  @Bean
+  public ArchGuardLiveAdapter archGuardClient(OrchestrationProperties props) {
+    return new ArchGuardLiveAdapter(orDisabled(props.archguard()), false);
+  }
+
   private static OrchestrationProperties.Endpoint orDisabled(OrchestrationProperties.Endpoint e) {
     if (e == null) {
       return new OrchestrationProperties.Endpoint("", "", false);

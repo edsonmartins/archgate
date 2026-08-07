@@ -75,6 +75,23 @@ public abstract class HttpLiveAdapter implements ComponentAdapter {
     }
   }
 
+  protected <T> T postJson(String path, Object body, Class<T> responseType) {
+    if (!isLiveHttp()) {
+      log.info("[{}] dry-run POST {} body={}", name(), path, body);
+      return null;
+    }
+    try {
+      return client.post()
+          .uri(path)
+          .contentType(MediaType.APPLICATION_JSON)
+          .body(body)
+          .retrieve()
+          .body(responseType);
+    } catch (RestClientResponseException e) {
+      throw new OrchestrationHttpException(name(), "POST", path, e.getStatusCode().value(), e.getResponseBodyAsString(), e);
+    }
+  }
+
   protected void patchJson(String path, Object body) {
     if (!isLiveHttp()) {
       log.info("[{}] dry-run PATCH {} body={}", name(), path, body);

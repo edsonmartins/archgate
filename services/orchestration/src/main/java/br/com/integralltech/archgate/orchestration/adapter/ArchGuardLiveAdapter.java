@@ -4,12 +4,15 @@ import br.com.integralltech.archgate.orchestration.config.OrchestrationPropertie
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * ArchGuard identity lifecycle through its versioned control-plane API.
  * Authentication is a short-lived ArchGuard service-account bearer token.
  */
 public class ArchGuardLiveAdapter extends HttpLiveAdapter {
+
+  private record SessionContextRequest(String subject) {}
 
   public ArchGuardLiveAdapter(OrchestrationProperties.Endpoint endpoint, boolean dryRun) {
     super(endpoint, dryRun);
@@ -18,6 +21,25 @@ public class ArchGuardLiveAdapter extends HttpLiveAdapter {
   @Override
   public String name() {
     return "archguard";
+  }
+
+  /**
+   * Resolves an already-authenticated OIDC subject through ArchGuard's narrow
+   * service-to-service contract. The bearer is the configured ORCH_ARCHGUARD_TOKEN;
+   * no user token or email is sent to this endpoint.
+   */
+  public ArchGuardSessionContext resolveSessionContext(String subject) {
+    if (subject == null || subject.isBlank()) {
+      throw new IllegalArgumentException("ArchGuard subject must not be blank");
+    }
+    ArchGuardSessionContext response = postJson(
+        "/api/v1/service/session-context",
+        new SessionContextRequest(subject.trim()),
+        ArchGuardSessionContext.class);
+    if (response == null) {
+      throw new IllegalStateException("ArchGuard session-context unavailable in dry-run");
+    }
+    return response;
   }
 
   @Override
