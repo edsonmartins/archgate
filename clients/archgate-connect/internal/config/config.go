@@ -219,8 +219,12 @@ func SaveCredentials(c *Credentials) error {
 
 func ClearCredentials() error {
 	var first error
-	if err := clearKeychain(); err != nil && first == nil {
-		first = err
+	// A headless Linux host commonly has the keyring package installed but no
+	// Secret Service on D-Bus. File mode must not contact it (tests/CLI servers).
+	if UseKeychain() {
+		if err := clearKeychain(); err != nil && first == nil {
+			first = err
+		}
 	}
 	path, err := credentialsPath()
 	if err != nil {
