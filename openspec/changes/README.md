@@ -10,6 +10,7 @@ Sequência de mudanças que constroem a plataforma, na ordem de dependência. Ca
 | 3a | `add-oracle-credential-proxy` | 3 — Pré-requisito Oracle | Proxy Java (ojdbc thin) para credencial dinâmica Oracle. Implementa o ADR-001. |
 | 3 | `add-network-mesh` | 3 — Rede e protocolo | NetBird (malha); RDP/K8s ponta a ponta; Oracle via `add-oracle-credential-proxy`. |
 | 4 | `add-unified-ui-and-orchestration` | 4 — UnifiedUI e orquestração | React + `guacamole-common-js`; automação via Mentors Axis. |
+| 4a | `evaluate-rustguac-session-gateway` | 4 — Gateway de sessão | Spike e ADR para decidir adoção/adaptação do RustGuac antes de implementar o broker de sessão. |
 | 5 | `add-agentic-access` | 5 — Escala e agêntico | HA (OpenBao/Kanidm); OpenSRE como service account com HITL e kill-switch. |
 | — | `add-org-credential-broker` | Control plane (paralelo) | Contas da IntegrAllTech (GCP/Play/Apple/produtos): inventário, OpenBao, checkout TTL, dual-control. **ADR-013**. |
 
