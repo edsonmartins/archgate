@@ -32,7 +32,7 @@ public class ArchGuardLiveAdapter extends HttpLiveAdapter {
     if (subject == null || subject.isBlank()) {
       throw new IllegalArgumentException("ArchGuard subject must not be blank");
     }
-    ArchGuardSessionContext response = postJson(
+    ArchGuardSessionContext response = postJsonReadOnly(
         "/api/v1/service/session-context",
         new SessionContextRequest(subject.trim()),
         ArchGuardSessionContext.class);
