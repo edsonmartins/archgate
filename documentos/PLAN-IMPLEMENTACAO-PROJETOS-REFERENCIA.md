@@ -146,5 +146,5 @@ P0 legado/contratos
 
 - [x] P0-01 iniciado: Connect e orchestration passaram a ArchGuard-only; testes Go e Maven registrados em 2026-08-07.
 - [ ] P0-02 a P0-06.
-- [x] W1-01 iniciado pelo pacote `evaluate-rustguac-session-gateway`.
-
+- [x] W1-01 concluído: RustGuac implantado como gateway de sessões em `guac.archgate.com.br`, com Console → BFF → RustGuac validado.
+- [x] W1-03/W1-04 concluídos: contrato de sessão e ticket WebSocket single-use formalizados em `rustguac-proxy.ts`, com TTL de 30s, URL sem credencial administrativa e testes unitários.
