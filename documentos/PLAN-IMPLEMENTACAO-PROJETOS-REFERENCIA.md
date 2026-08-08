@@ -148,3 +148,4 @@ P0 legado/contratos
 - [ ] P0-02 a P0-06.
 - [x] W1-01 concluído: RustGuac implantado como gateway de sessões em `guac.archgate.com.br`, com Console → BFF → RustGuac validado.
 - [x] W1-03/W1-04 concluídos: contrato de sessão e ticket WebSocket single-use formalizados em `rustguac-proxy.ts`, com TTL de 30s, URL sem credencial administrativa e testes unitários.
+- [x] W1-05 concluído: sessão OIDC resolve `subject` no ArchGuard session-context, exige identidade ativa e anexa memberships autoritativas ao cookie server-side.
