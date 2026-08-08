@@ -1,5 +1,6 @@
 package br.com.integralltech.archgate.orchestration.api;
 
+import br.com.integralltech.archgate.orchestration.adapter.HttpLiveAdapter.OrchestrationHttpException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,5 +29,14 @@ public class ApiExceptionHandler {
   @ExceptionHandler(IllegalStateException.class)
   public ResponseEntity<Map<String, String>> unavailable(IllegalStateException ex) {
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", ex.getMessage()));
+  }
+
+  @ExceptionHandler(OrchestrationHttpException.class)
+  public ResponseEntity<Map<String, String>> upstream(OrchestrationHttpException ex) {
+    HttpStatus status = HttpStatus.resolve(ex.status);
+    if (status == null || status.is5xxServerError()) {
+      status = HttpStatus.BAD_GATEWAY;
+    }
+    return ResponseEntity.status(status).body(Map.of("error", "ArchGuard session-context request failed"));
   }
 }
