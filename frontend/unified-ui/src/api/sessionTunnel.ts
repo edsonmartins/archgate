@@ -14,6 +14,8 @@ export type TunnelSession = {
   target: string
   expiresInSec?: number
   source: 'bff' | 'demo'
+  /** Optional RustGuac built-in client URL with a one-shot ticket. */
+  embedUrl?: string
 }
 
 export type TunnelRequest = {
@@ -45,6 +47,7 @@ export async function requestTunnelSession(req: TunnelRequest): Promise<TunnelSe
       tunnel_url: string
       connect_data: string
       expires_in?: number
+      embed_url?: string
     }
     return {
       tunnelUrl: data.tunnel_url,
@@ -53,6 +56,7 @@ export async function requestTunnelSession(req: TunnelRequest): Promise<TunnelSe
       target: req.target,
       expiresInSec: data.expires_in,
       source: 'bff',
+      embedUrl: data.embed_url,
     }
   } catch (e) {
     if (config.guac.demo) {
