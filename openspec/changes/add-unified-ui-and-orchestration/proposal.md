@@ -10,7 +10,7 @@ A UnifiedUI embute a sessão de RDP/SSH dentro do console (via `guacamole-common
 
 - **UnifiedUI React** embutindo sessão remota via `guacamole-common-js` (túnel WebSocket até o guacd), com o *chrome* de sessão (barra de conexão, clipboard, resize, indicador de gravação, reconexão).
 - Tokens sensíveis permanecem fora do browser (mantém o padrão do console).
-- **Orquestração via Mentors Axis:** contratos de API para provisionar/revogar, com Terraform onde disponível (Warpgate) e API para Kanidm/OpenBao/Guacamole/NetBird.
+- **Orquestração via Mentors Axis:** contratos de API para provisionar/revogar, com Terraform onde disponível (Warpgate) e API para archguard/OpenBao/Guacamole/NetBird.
 - **Onboarding/offboarding automatizados** ponta a ponta.
 - **Sincronização de tenants** do registro de clientes do Mentors Axis.
 

@@ -5,7 +5,7 @@
 | Status | OCB-0…**OCB-5** + **Manager-only ops** (settings/health/ensure write) |
 | ADR | [ADR-013](../../adr/ADR-013-org-credential-broker.md) · [ADR-009](../../adr/ADR-009-control-plane-admin-console.md) (console estilo AWS) |
 | OpenSpec | `openspec/changes/add-org-credential-broker/` |
-| Superfície | **Só ArchGate Manager** — sem UI Kanidm/OpenBao no dia a dia |
+| Superfície | **Só ArchGate Manager** — sem UI archguard/OpenBao no dia a dia |
 
 ## Princípio (AWS Console)
 
@@ -15,11 +15,11 @@ Toda operação do broker é feita em **`https://console.archgate.com.br` → Co
 |--------------------|-------------------|
 | Inventário, checkout, dual-control | — |
 | Gravar / rotacionar secret | Secrets store (OpenBao via BFF) |
-| Pessoas / grupos / OAuth2 clients | IdP (Kanidm via BFF) |
+| Pessoas / grupos / OAuth2 clients | IdP (archguard via BFF) |
 | Config webhook + TTL | SQLite settings do console |
 | Status do broker (health) | Probe canário no backend |
 
-**Não** abra UI do OpenBao nem do Kanidm para o fluxo normal.  
+**Não** abra UI do OpenBao nem do archguard para o fluxo normal.  
 Se o status do broker estiver degradado, isso é **bootstrap de plataforma** (admin de plataforma / deploy) — não o runbook do operador.
 
 ## Objetivo

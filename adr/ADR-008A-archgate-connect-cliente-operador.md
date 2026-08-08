@@ -67,7 +67,7 @@ Admin continua no archguard-console (ADR-009). Operador **não** recebe IPs inte
 |--------|---------|
 | Core CLI | Go (`clients/archgate-connect`) |
 | Desktop | Tauri 2 tray invocando/embutindo o CLI |
-| Auth | OIDC Kanidm (`archgate-connect`) — device code e/ou PKCE browser |
+| Auth | OIDC archguard (`archgate-connect`) — device code e/ou PKCE browser |
 | Tokens | `~/.config/archgate/` + keychain quando possível |
 
 ### 6. Fora do MVP v1 / evolução

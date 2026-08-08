@@ -6,8 +6,8 @@ Esta é a fase fundadora da plataforma de acesso privilegiado. Ela estabelece a 
 
 ## Decisões técnicas
 
-### D1 — Kanidm como IdP OIDC (em vez de Keycloak)
-Kanidm (Rust, MPL-2.0) é o engine de identidade, operado pelo ArchGuard. Motivos: menor footprint, seguro por padrão, e — decisivo — a IntegrAllTech **já opera** o Kanidm via ArchGuard, encurtando a fase. Toda a stack de gateways fala OIDC, então o suporte SAML limitado do Kanidm não é impeditivo.
+### D1 — archguard como IdP OIDC (em vez de Keycloak)
+archguard (Rust, MPL-2.0) é o engine de identidade, operado pelo ArchGuard. Motivos: menor footprint, seguro por padrão, e — decisivo — a IntegrAllTech **já opera** o archguard via ArchGuard, encurtando a fase. Toda a stack de gateways fala OIDC, então o suporte SAML limitado do archguard não é impeditivo.
 
 ### D2 — Authorization Code + PKCE, sem fluxos implícitos
 Todos os clients OIDC (`warpgate`, `guacamole`, `archguard-console`) usam Authorization Code com PKCE. Fluxos implícitos ficam desabilitados. Isso alinha ao padrão do ArchGuard e evita exposição de token no browser.
@@ -16,7 +16,7 @@ Todos os clients OIDC (`warpgate`, `guacamole`, `archguard-console`) usam Author
 O console mantém sessão dupla: OIDC para o operador + service account para a API administrativa. Tokens administrativos permanecem server-side; o browser fala apenas com o proxy do próprio console, que valida path e autentica. É o mesmo princípio "o segredo não chega ao cliente" que sustenta toda a plataforma — reaproveitado, não reinventado.
 
 ### D4 — Tenancy modelada na identidade
-Cada cliente = um tenant, refletido em grupos/escopos no Kanidm. O claim de tenant/grupo viaja no token e é a base para o RBAC dos gateways e do console. O Mentors Axis é a fonte de verdade dos tenants; nesta fase a sincronização pode ser manual/semi-automática, com a automação plena na Fase 4.
+Cada cliente = um tenant, refletido em grupos/escopos no archguard. O claim de tenant/grupo viaja no token e é a base para o RBAC dos gateways e do console. O Mentors Axis é a fonte de verdade dos tenants; nesta fase a sincronização pode ser manual/semi-automática, com a automação plena na Fase 4.
 
 ### D5 — Service accounts desde a Fase 1
 Mesmo sem uso agêntico agora, o primitivo de service account é criado e exercitado. Isso evita retrabalho na Fase 5 e valida o modelo de identidade não-humana cedo.
@@ -28,7 +28,7 @@ Warpgate default usa SQLite; para HA e auditoria confiável, aponta-se para Post
 
 Nesta fase, **o Warpgate detém as credenciais dos alvos** (o dev nunca as vê). A propriedade de *certificado efêmero assinado por CA* (que remove a credencial de longa vida até do gateway) só chega na Fase 2 com o OpenBao.
 
-Consequência importante: o **núcleo da dor de offboarding já é resolvido aqui**. Como o dev nunca possuiu a credencial do alvo, sair da empresa não exige rotacionar senha de cliente — desabilitar a identidade no Kanidm derruba o SSO e o acesso acaba. A Fase 2 adiciona defesa em profundidade (blast radius menor se o próprio gateway for comprometido), não o ganho de negócio principal.
+Consequência importante: o **núcleo da dor de offboarding já é resolvido aqui**. Como o dev nunca possuiu a credencial do alvo, sair da empresa não exige rotacionar senha de cliente — desabilitar a identidade no archguard derruba o SSO e o acesso acaba. A Fase 2 adiciona defesa em profundidade (blast radius menor se o próprio gateway for comprometido), não o ganho de negócio principal.
 
 ## Riscos e mitigações
 

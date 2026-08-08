@@ -44,7 +44,7 @@ Contexto: até a auditoria de 2026-07-28 a API estava publicada em
 }
 ```
 
-Efeito: Kanidm person + memberships (+ opcional WG role / Guac user).
+Efeito: archguard person + memberships (+ opcional WG role / Guac user).
 
 ### `POST /orchestration/v1/access/grant`
 
@@ -67,7 +67,7 @@ Efeito: bind role/target Warpgate; policy OpenBao se aplicável.
 }
 ```
 
-Efeito: **revogar_tudo** — expire Kanidm, drop leases OpenBao, remove roles WG/Guac (idempotente).
+Efeito: **revogar_tudo** — expire archguard, drop leases OpenBao, remove roles WG/Guac (idempotente).
 
 ### `POST /orchestration/v1/tenants/sync`
 
@@ -101,7 +101,7 @@ Eventos: `user.provision` | `access.grant` | `user.offboard` | `tenants.sync` (a
 | Op | Lab hoje | W4 target |
 |----|----------|-----------|
 | sync tenants | CLI + UI Spring | API estável + audit |
-| provision user | manual / SA Kanidm | API one-shot |
+| provision user | manual / SA archguard | API one-shot |
 | grant access | apply targets manual | API |
 | revoke all | offboarding-e2e IdP | multi-componente API |
 
@@ -111,6 +111,6 @@ Implementação mock em `services/orchestration` (Spring Boot):
 
 - `POST …/users/provision|revoke`, `…/access/grant`, `…/tenants/sync`
 - `GET …/status/last`, `…/status/users/{username}`
-- Adapters mock: kanidm, warpgate, guacamole, openbao (idempotência de revoke coberta em testes)
+- Adapters mock: archguard, warpgate, guacamole, openbao (idempotência de revoke coberta em testes)
 
 Live: trocar `MockComponentAdapter` por clients reais; manter a mesma API.

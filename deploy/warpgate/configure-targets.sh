@@ -53,7 +53,7 @@ for r in json.load(sys.stdin):
 ')
 if [[ -z "$ROLE_ID" ]]; then
   ROLE_ID=$(api POST /@warpgate/admin/api/roles \
-    '{"name":"archgate-operators","description":"Mapped from Kanidm archguard_users","is_default":true}' \
+    '{"name":"archgate-operators","description":"Mapped from archguard archguard_users","is_default":true}' \
     | python3 -c 'import sys,json; print(json.load(sys.stdin)["id"])')
   echo "created role $ROLE_ID"
 else
@@ -142,12 +142,12 @@ for u in json.load(sys.stdin):
 ')
 if [[ -z "$USER_ID" ]]; then
   USER_ID=$(api POST /@warpgate/admin/api/users \
-    '{"username":"testadmin","description":"SSO operator (Kanidm)"}' \
+    '{"username":"testadmin","description":"SSO operator (archguard)"}' \
     | python3 -c 'import sys,json; print(json.load(sys.stdin)["id"])')
 fi
 echo "user=$USER_ID"
 api POST "/@warpgate/admin/api/users/${USER_ID}/credentials/sso" \
-  '{"email":"testadmin@archgate.com.br","provider":"kanidm"}' >/dev/null 2>&1 || true
+  '{"email":"testadmin@archgate.com.br","provider":"archguard"}' >/dev/null 2>&1 || true
 api POST "/@warpgate/admin/api/users/${USER_ID}/roles/${ROLE_ID}" >/dev/null 2>&1 || true
 
 echo "==> 3.7 secrets not in user-facing targets"
@@ -183,5 +183,5 @@ echo "DONE"
 echo "  role archgate-operators=$ROLE_ID"
 echo "  lab-ssh=$SSH_TARGET_ID"
 echo "  lab-postgres=$PG_TARGET_ID"
-echo "  SSO: https://${WG_HOST} → ArchGuard (Kanidm)"
+echo "  SSO: https://${WG_HOST} → ArchGuard (archguard)"
 echo "  Zero-credencial-no-dev: LAB_* passwords only in Warpgate admin config"

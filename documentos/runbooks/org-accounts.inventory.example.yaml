@@ -50,7 +50,7 @@ accounts:
     oidc_client_id: vendax-admin
     owner_group: archguard_users
     secret_ref: secret/data/org/product/vendax-admin
-    notes: Meta SSO Kanidm; password só break-glass dual-control.
+    notes: Meta SSO archguard; password só break-glass dual-control.
 
   - slug: archflow-admin
     name: ArchFlow · admin (break-glass)

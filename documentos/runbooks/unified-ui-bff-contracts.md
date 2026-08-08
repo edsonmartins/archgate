@@ -31,7 +31,7 @@ Resposta (JSON + `Set-Cookie` session HttpOnly):
 
 ### `GET /api/unified/v1/connections`
 
-Filtrado por sessão (RBAC / memberships Kanidm `tenant_*`). **Sem** IPs de alvo.
+Filtrado por sessão (RBAC / memberships archguard `tenant_*`). **Sem** IPs de alvo.
 
 ```json
 {
@@ -76,7 +76,7 @@ Resposta:
 }
 ```
 
-- BFF emite **authToken do operador** via header-auth interno (`X-Forwarded-User` = username Kanidm; ADR-007A) — **não** usa `guacadmin`.  
+- BFF emite **authToken do operador** via header-auth interno (`X-Forwarded-User` = username archguard; ADR-007A) — **não** usa `guacadmin`.  
 - `connect_data` é a query string de `Guacamole.Client.connect()`.  
 - `embed_mode: "websocket"` quando o mint OK; `"iframe"` se Guac inacessível / ACL sem conexão.  
 - SPA/Connect nunca recebe token admin, senha de alvo ou JWT de serviço.  

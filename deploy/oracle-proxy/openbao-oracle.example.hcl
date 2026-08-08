@@ -29,8 +29,8 @@
 #   max_ttl=2h \
 #   username_template='v_{{random 8}}'
 
-# --- Identity binding (Kanidm JWT → policy) ---
-# Operators authenticate to OpenBao via JWT (Kanidm). Bound claims restrict
+# --- Identity binding (archguard JWT → policy) ---
+# Operators authenticate to OpenBao via JWT (archguard). Bound claims restrict
 # which groups can read database/creds/oracle-readonly.
 #
 # path "auth/jwt/role/archgate-operator" {

@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | Cliente | **Rio Quality** |
-| Slug / tenant | `rio_quality` · Kanidm `tenant_rio_quality` · WG role `tenant-rio-quality` |
+| Slug / tenant | `rio_quality` · archguard `tenant_rio_quality` · WG role `tenant-rio-quality` |
 | Staging | Hostinger `217.196.60.108` · `*.archgate.com.br` |
 | Inventário | [`archgate-devops/inventory/clients/rio-quality.md`](../../../../archgate-devops/inventory/clients/rio-quality.md) |
 | Ficha SoT | [`rio-quality.site.yaml`](../../../../archgate-devops/inventory/clients/rio-quality.site.yaml) |
@@ -31,7 +31,7 @@ Saída: `documentos/evidence/smoke-evidence-YYYY-MM-DD-rio-quality-auto.{md,json
 
 ```text
 Operador (Mac, SEM VPN do cliente)
-  → SSO ArchGate (Kanidm)
+  → SSO ArchGate (archguard)
   → Connect / SSH / psql / browser embutido
   → Warpgate (wg.archgate.com.br :2222 / :55432)
   → peer no VPS
@@ -45,7 +45,7 @@ Operador (Mac, SEM VPN do cliente)
 
 ## Personas
 
-| Persona | Kanidm / uso | Warpgate |
+| Persona | archguard / uso | Warpgate |
 |---------|--------------|----------|
 | `uat-admin` | Admin Manager (sites, grant, platform) | amplo |
 | `uat-op-a` | Operador **Rio** | role `tenant-rio-quality` |
@@ -84,7 +84,7 @@ cd archgate-devops
 
 | # | Check | ☐ | Resultado / nota |
 |---|-------|---|------------------|
-| 0.1.1 | `67` PASS (console, kanidm, wg, orch, agent…) | ☐ | |
+| 0.1.1 | `67` PASS (console, archguard, wg, orch, agent…) | ☐ | |
 | 0.1.2 | Bootstrap lab `GET /api/unified/v1/operator/bootstrap` 200 | ☐ | |
 | 0.1.3 | Grant `uat-op-a` → role `tenant-rio-quality` (74 ou Manager) | ☐ | |
 
@@ -271,7 +271,7 @@ psql "host=217.196.60.108 port=55432 user=uat-op-a:rio-aws-pg-a dbname=<DB> sslm
 
 | ID | Check | Pass | ☐ | Nota |
 |----|-------|------|---|------|
-| F1 | Portão SSO (redirect IdP) | login Kanidm | ☐ | |
+| F1 | Portão SSO (redirect IdP) | login archguard | ☐ | |
 | F2 | Sessão SSH lab no Guac | shell browser | ☐ | |
 | F3 | Connect embutido (iframe/WS) | sem browser externo default | ☐ | |
 | F4 | Recording (opcional) | path/audit | ☐ | |
@@ -300,7 +300,7 @@ psql "host=217.196.60.108 port=55432 user=uat-op-a:rio-aws-pg-a dbname=<DB> sslm
 | H2 | Status connectors Forti/AWS | active / probe | ☐ | |
 | H3 | Apply gateways (ou 72/73 documentado) | targets no WG | ☐ | |
 | H4 | Provision / grant / revoke pessoa | steps OK; grant WG real | ☐ | |
-| H5 | `/platform` | Kanidm/WG/OpenBao legíveis | ☐ | |
+| H5 | `/platform` | archguard/WG/OpenBao legíveis | ☐ | |
 | H6 | `/audit` | activity grant/login | ☐ | |
 | H7 | `/oracle` | UI sobe | ☐ | |
 

@@ -13,7 +13,7 @@
 
 ## Critérios de aceite com B
 
-- [x] JWT Kanidm → OpenBao  
+- [x] JWT archguard → OpenBao  
 - [x] DB dinâmico + broker Warpgate PG  
 - [x] Sem senha de alvo no inventário de sites (só secret_ref / env)  
 - [ ] SSH só com cert CA (pós-upstream)  

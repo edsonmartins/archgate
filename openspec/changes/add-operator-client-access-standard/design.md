@@ -46,7 +46,7 @@ Ficha de cliente inclui `conectividade.tipo`:
 | Agent no site (NetBird, cloudflared, jump) | `tunnel_agent` | Idem | Só bastion |
 | VPN de usuário no notebook | `vpn_user_exception` | Endpoint do operador | Exceção + inventário + MFA + plano migração |
 
-Preferido: **uma** conta/túnel institucional → **N** sessões de operadores via SSO Kanidm.
+Preferido: **uma** conta/túnel institucional → **N** sessões de operadores via SSO archguard.
 
 ### D6 — Targets multi-protocolo pelo bastion
 
@@ -62,7 +62,7 @@ Preferido: **uma** conta/túnel institucional → **N** sessões de operadores v
 
 O padrão **não** bloqueia em 4.2:
 
-- Personas SSH/DB: Warpgate + Kanidm (já alinhado).
+- Personas SSH/DB: Warpgate + archguard (já alinhado).
 - Personas RDP-browser: Guacamole com limitação atual até oauth2-proxy / Guac Code+PKCE / UnifiedUI.
 
 ### D8 — Artefatos normativos

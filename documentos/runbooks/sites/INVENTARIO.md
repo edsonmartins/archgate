@@ -38,7 +38,7 @@ Guia: [conectividade-vpn-clientes.md](./conectividade-vpn-clientes.md).
 
 ## Sites ativos (staging / lab IntegrAllTech)
 
-| Site / slug | Tenant Kanidm | Conectividade | Targets Warpgate | Guac | Ficha |
+| Site / slug | Tenant archguard | Conectividade | Targets Warpgate | Guac | Ficha |
 |-------------|---------------|---------------|------------------|------|-------|
 | Rio Quality (lab) | `tenant_rio_quality` | `tunnel_agent` (overlay Swarm + Postgres `.110`) | `rio-lab-ssh`, `rio-lab-postgres` | `lab-ssh-browser` (shared lab) | [lab-rio-quality.yaml](./lab-rio-quality.yaml) |
 

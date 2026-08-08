@@ -29,7 +29,7 @@
 
 | Item | Resultado | Evidência |
 |------|-----------|-----------|
-| Core services 1/1 | ✅ | traefik, kanidmd, console, warpgate, guacamole, guacd, oauth2-proxy, openbao, axis-spring, lab_ssh, piloto_* |
+| Core services 1/1 | ✅ | traefik, archguardd, console, warpgate, guacamole, guacd, oauth2-proxy, openbao, axis-spring, lab_ssh, piloto_* |
 | OpenBao unsealed | ✅ | `Sealed false`, v2.2.0 |
 | Timer unseal | ✅ | `archgate-openbao-unseal.timer` ativo (~2 min) |
 | Broker DB timer | ✅ | `archgate-broker-db.timer` |
@@ -50,7 +50,7 @@
 | F1.5 Activity log | ⚠️→parcial | SQLite `/app/data/archguard.sqlite` estava **0 bytes** (tabela ausente). Schema recriado + linha seed `uat.prep.init_activity_log`. **UI browser e mutação real pendentes** |
 | F1.6 OpenBao APP_TOKEN | ⚠️ | `OPENBAO_APP_TOKEN` **presente**; ainda há `OPENBAO_ROOT_TOKEN` + `OPENBAO_UNSEAL_KEY` + `ARCHGATE_LAB` no serviço (lab residual) |
 | F1.7 Smoke operador | ✅ | SSH + PG **PASS** |
-| F1.7 JWT OpenBao | ✅ | **KANIDM → OPENBAO JWT AUTH PASSED** |
+| F1.7 JWT OpenBao | ✅ | **archguard → OPENBAO JWT AUTH PASSED** |
 | F1.7 Isolamento tenant | ✅ | `testuser:rio-lab-ssh` → hostname `45baba7d8be4`; `testuser:marra-lab-ssh` → **Permission denied** |
 | F1.7 WG admin API (console) | ✅ | login 201, targets 200, roles 200 |
 | F1.8 Este arquivo | ✅ | |
@@ -110,7 +110,7 @@ TARGET=marra-lab-ssh → Permission denied (publickey,keyboard-interactive)
 
 ## F2.2 — Contas UAT (2026-07-11)
 
-| User | Kanidm auth | WG roles | Smoke SSH |
+| User | archguard auth | WG roles | Smoke SSH |
 |------|-------------|----------|-----------|
 | uat-admin | ✅ REST | admin, archgate-operators | — |
 | uat-op-a | ✅ REST | tenant-rio-quality | rio-lab-ssh ✅ · marra-lab-ssh ❌ deny |
@@ -219,7 +219,7 @@ RESULT: W0 console session PASS=16 FAIL=0
 ### W0 Guac session 2026-07-17
 
 ```
-provision-kanidm-users: uat-op-a → cids=[2] (rio); uat-op-b → marra; uat-admin → all
+provision-archguard-users: uat-op-a → cids=[2] (rio); uat-op-b → marra; uat-admin → all
 guacamole-sso-proxy-e2e PASSED
 w0-guac-session:
   uat-op-a → [rio-lab-ssh-browser]

@@ -53,4 +53,4 @@ Smoke: `bash deploy/oracle-proxy/smoke-plugin-cli.sh`
 
 1. Real Oracle JDBC on proxy (`ORACLE_PROXY_MOCK=false`)
 2. Register plugin SHA on Hostinger OpenBao
-3. JWT role Kanidm → `database/creds/oracle-readonly`
+3. JWT role archguard → `database/creds/oracle-readonly`

@@ -1,5 +1,5 @@
 # ArchGate — Traefik edge (Fase 1, tarefa 1.2)
-# Traefik v3: providers.swarm + file (serversTransport for Kanidm HTTPS).
+# Traefik v3: providers.swarm + file (serversTransport for archguard HTTPS).
 # TLS: Let's Encrypt HTTP-01 when DNS reaches this host; Cloudflare Tunnel alternative.
 
 version: "3.8"

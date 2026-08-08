@@ -2,11 +2,11 @@
 
 ## Princípio
 
-**ArchGuard** (`/Users/edsonmartins/desenvolvimento/archguard`) é o **produto de identidade** da IntegrAllTech. O ArchGate **não implementa** um segundo Kanidm nem um console de IAM paralelo.
+**ArchGuard** (`/Users/edsonmartins/desenvolvimento/archguard`) é o **produto de identidade** da IntegrAllTech. O ArchGate **não implementa** um segundo archguard nem um console de IAM paralelo.
 
 | Camada | Sistema | Responsabilidade |
 |---|---|---|
-| Identidade / OIDC / RBAC / console operador | **ArchGuard** (Kanidm + Console + AliasVault) | Quem é o principal; provisionar/desabilitar; OAuth2 clients; service accounts |
+| Identidade / OIDC / RBAC / console operador | **ArchGuard** (archguard + Console + AliasVault) | Quem é o principal; provisionar/desabilitar; OAuth2 clients; service accounts |
 | Gateway de protocolo + gravação | **ArchGate** (Warpgate + Guacamole + Traefik + malha) | Acesso privilegiado sem credencial no dev; sessões auditadas |
 
 CONSTITUTION: *“ArchGuard é o módulo de identidade dentro do ArchGate”* — na prática isso significa **dependência de produto**, não reimplementação.
@@ -17,9 +17,9 @@ Repo: `~/desenvolvimento/archguard`
 
 | Peça | Papel | Notas |
 |---|---|---|
-| `kanidmd` | IdP OIDC + API `/v1/` | Compose local `:8443`; prod atrás de Caddy |
+| `archguardd` | IdP OIDC + API `/v1/` | Compose local `:8443`; prod atrás de Caddy |
 | `archguard-console` | Console operador (TanStack Start) | Dual session OIDC + SA; proxy server-side com allowlist de path |
-| `scripts/setup-kanidm.sh` | Bootstrap idempotente | Grupos RBAC, OAuth2 `archguard-console`, SA `archguard-sa` |
+| `scripts/setup-archguard.sh` | Bootstrap idempotente | Grupos RBAC, OAuth2 `archguard-console`, SA `archguard-sa` |
 | AliasVault | Cofre de senhas humanas | **Não** substitui OpenBao (Fase 2) |
 
 ### Grupos RBAC já modelados
@@ -32,7 +32,7 @@ Repo: `~/desenvolvimento/archguard`
 
 Mapeamento Fase 1 ArchGate: Super Admin / Tenant Admin / Operador / Service Desk / Viewer → estes grupos (Operador ≈ `archguard_users` + claims de tenant).
 
-| Papel | Grupos Kanidm | Console |
+| Papel | Grupos archguard | Console |
 |---|---|---|
 | Super Admin | `archguard_super_admins` | todas as perms (`system:admin`) |
 | Tenant Admin | `archguard_tenant_admins` + `tenant_{slug}` | users/groups do tenant (sem OAuth2/SA/system) |
@@ -46,23 +46,23 @@ Tenants ArchGate = grupos `tenant_rio_quality`, `tenant_grupo_marra`, … (não 
 
 - OIDC Authorization Code + **PKCE**
 - Token administrativo (`ARCHGUARD_SA_TOKEN`) **só server-side**
-- Proxy `kanidm-proxy.ts` com validação de path (anti-SSRF)
+- Proxy `archguard-proxy.ts` com validação de path (anti-SSRF)
 
 ## O que o ArchGate adiciona sobre o ArchGuard
 
-1. Registrar OAuth2 clients no **mesmo** Kanidm:
+1. Registrar OAuth2 clients no **mesmo** archguard:
    - `warpgate` (OIDC)
    - `guacamole` (OIDC, extensão openid)
    - manter `archguard-console`
-2. Mapear grupos Kanidm → RBAC de targets Warpgate/Guacamole
+2. Mapear grupos archguard → RBAC de targets Warpgate/Guacamole
 3. Persistência externa Warpgate/Guacamole (já no Postgres `.110`)
-4. Offboarding: desabilitar pessoa no ArchGuard/Kanidm → SSO dos gateways cai
+4. Offboarding: desabilitar pessoa no ArchGuard/archguard → SSO dos gateways cai
 
 ## Domínios propostos (`archgate.com.br`)
 
 | Host | Serviço | Origem do código |
 |---|---|---|
-| `id.archgate.com.br` | Kanidm (issuer OIDC) | ArchGuard `kanidmd` |
+| `id.archgate.com.br` | archguard (issuer OIDC) | ArchGuard `archguardd` |
 | `console.archgate.com.br` | ArchGuard Console | ArchGuard `archguard-console` |
 | `vault.archgate.com.br` (opcional) | AliasVault | ArchGuard |
 | `wg.archgate.com.br` | Warpgate | ArchGate |
@@ -74,8 +74,8 @@ TLS de borda: Traefik no `.180` e/ou Cloudflare Tunnel (já no host).
 
 | Host | O que sobe |
 |---|---|
-| `192.168.1.180` | Stack ArchGuard (Kanidm + Console [+ Vault]) **e** stack ArchGate (Traefik, Warpgate, Guacamole) |
-| `192.168.1.110` | Postgres compartilhado (Warpgate/Guacamole DBs); **não** hospedar Kanidm aqui (disco apertado) |
+| `192.168.1.180` | Stack ArchGuard (archguard + Console [+ Vault]) **e** stack ArchGate (Traefik, Warpgate, Guacamole) |
+| `192.168.1.110` | Postgres compartilhado (Warpgate/Guacamole DBs); **não** hospedar archguard aqui (disco apertado) |
 
 Opções de empacotamento:
 
@@ -86,11 +86,11 @@ Opções de empacotamento:
 
 | Tarefa original | Como executar de fato |
 |---|---|
-| 2.x Kanidm | Deploy/config do **ArchGuard** (não inventar stack Kanidm isolada) |
+| 2.x archguard | Deploy/config do **ArchGuard** (não inventar stack archguard isolada) |
 | 2.5 OAuth2 clients | Estender setup ArchGuard: clients `warpgate`, `guacamole` + `archguard-console` |
 | 2.3 Papéis RBAC | Reusar grupos `archguard_*` do setup; tenants como grupos/escopos adicionais |
 | 5.x ArchGuard console | Deploy do `archguard-console` existente; **não** reescrever console na Fase 1 |
-| 3–4 Warpgate/Guacamole | SSO → `id.archgate.com.br` (issuer Kanidm do ArchGuard) |
+| 3–4 Warpgate/Guacamole | SSO → `id.archgate.com.br` (issuer archguard do ArchGuard) |
 
 ## Fora de escopo desta integração
 

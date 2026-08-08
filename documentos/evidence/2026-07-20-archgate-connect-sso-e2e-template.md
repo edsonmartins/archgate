@@ -15,7 +15,7 @@ cd clients/archgate-connect
 # 1) non-interactive
 ./scripts/smoke-sso-e2e.sh --preflight
 
-# 2) interactive (opens browser — complete Kanidm login)
+# 2) interactive (opens browser — complete archguard login)
 ./scripts/smoke-sso-e2e.sh --interactive
 # writes documentos/evidence/YYYY-MM-DD-archgate-connect-sso-e2e.md
 ```
@@ -24,7 +24,7 @@ cd clients/archgate-connect
 
 - [ ] Discovery OIDC `archgate-connect` HTTP 200  
 - [ ] `oidc.env` secret present (not committed)  
-- [ ] Browser opened to Kanidm authorize URL  
+- [ ] Browser opened to archguard authorize URL  
 - [ ] Callback `127.0.0.1:8765` completed  
 - [ ] `archgate status --json` → `auth=oidc`, `session=true`, `token_ok=true`  
 - [ ] `connections` ≥ 1 (or expected empty catalog)  

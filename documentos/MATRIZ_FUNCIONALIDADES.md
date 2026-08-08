@@ -20,9 +20,9 @@ Legenda de status:
 
 | # | Pacote | Fase | Status geral | Feito (lab) | Falta |
 |---|--------|------|--------------|-------------|-------|
-| 1 | `add-identity-axis` | 1 — Identidade | **Lab complete** | Kanidm, Warpgate SSO, Guac portão SSO, console, multi-tenant, offboarding, audit | Guac 1:1 nativo OIDC; RDP Windows host; UnifiedUI |
+| 1 | `add-identity-axis` | 1 — Identidade | **Lab complete** | archguard, Warpgate SSO, Guac portão SSO, console, multi-tenant, offboarding, audit | Guac 1:1 nativo OIDC; RDP Windows host; UnifiedUI |
 | 1b | `add-operator-client-access-standard` | 1 — Padrão operador | **Lab-ready** | ADR-008, runbooks, smoke L+macOS, DB proxy, connector piloto, sites | Windows nativo; VPN cliente real; catálogo UnifiedUI |
-| 2 | `add-ephemeral-credentials` | 2 — Credenciais | **MVP lab** | OpenBao, SSH CA, DB dinâmico, broker Warpgate DB, JWT←Kanidm, unseal timer | SSH cert nativo no Warpgate; HA/auto-unseal |
+| 2 | `add-ephemeral-credentials` | 2 — Credenciais | **MVP lab** | OpenBao, SSH CA, DB dinâmico, broker Warpgate DB, JWT←archguard, unseal timer | SSH cert nativo no Warpgate; HA/auto-unseal |
 | 3a | `add-oracle-credential-proxy` | 3 — Pré-req Oracle | **Scaffold** | oracle-proxy mock + plugin CLI + mTLS skeleton | JDBC Oracle real + plugin gRPC catalog |
 | 3 | `add-network-mesh` | 3 — Rede | **Lab piloto WG** | Dual-network + **WireGuard real** (agent+connector), smoke PASS, checklist 0.5 | NetBird, cliente real, RDP/K8s/Oracle E2E |
 | 4 | `add-unified-ui-and-orchestration` | 4 — UI + orquestração | **Scaffold lab** | UnifiedUI + launch WG + guac-common-js + orchestration mock/live dry-run | OIDC/BFF lab, adapters live calibrados, E2E browser |
@@ -36,21 +36,21 @@ Legenda de status:
 
 | Funcionalidade | Status | Evidência / nota |
 |----------------|--------|------------------|
-| Kanidm como IdP OIDC | **Feito** | `id.archgate.com.br` — substituído pelo ArchGuard (ADR-014) |
+| archguard como IdP OIDC | **Feito** | `id.archgate.com.br` — substituído pelo ArchGuard (ADR-014) |
 | ArchGuard (fork Casdoor) como IdP OIDC | **Código pronto, virada pendente** | `ARCHGATE_IDP=archguard`; smoke `smoke-archguard-cutover.sh` |
 | Porto de administração de identidade (2 adapters) | **Feito** | `archguard-console/src/server/idp/` |
 | Descoberta OIDC agnóstica de IdP | **Feito** | issuer/JWKS/userinfo vêm do documento |
 | Tenants como grupos/escopos | **Feito** | Rio Quality, Grupo Marra, … |
 | RBAC papéis ArchGuard | **Feito** | super_admins, tenant_admins, users, service_desk, viewers |
 | OIDC clients: console, warpgate, guacamole, openbao | **Feito** | bootstrap + OpenBao JWT |
-| Authorization Code + PKCE (clients públicos) | **Feito** | Kanidm; Guac via oauth2-proxy |
-| Warpgate SSO Kanidm | **Feito** | operadores sem senha local |
+| Authorization Code + PKCE (clients públicos) | **Feito** | archguard; Guac via oauth2-proxy |
+| Warpgate SSO archguard | **Feito** | operadores sem senha local |
 | Guacamole SSO browser (Code+PKCE) | **Parcial** | **ADR-007A** oauth2-proxy na borda; app Guac ainda JDBC/header |
 | Guacamole OIDC nativo Code+PKCE | **Pendente** | Guac 1.7+ ou UnifiedUI (ADR-007) |
 | Console ArchGuard OIDC + RBAC UI | **Feito** | tenant filter, provision/disable via SA |
-| Login único Kanidm → Warpgate + console + portão Guac | **Feito** | Fase 1 6.1 |
-| Offboarding: disable Kanidm derruba SSO | **Feito** | `offboarding-e2e` |
-| OpenBao auth/jwt ← Kanidm id_token | **Feito** | `smoke-kanidm-jwt.sh` PASS |
+| Login único archguard → Warpgate + console + portão Guac | **Feito** | Fase 1 6.1 |
+| Offboarding: disable archguard derruba SSO | **Feito** | `offboarding-e2e` |
+| OpenBao auth/jwt ← archguard id_token | **Feito** | `smoke-archguard-jwt.sh` PASS |
 
 ### 2.2 Gateways e sessões
 
@@ -98,7 +98,7 @@ Legenda de status:
 | Create + revoke lease DB | **Feito** | `smoke-ephemeral.sh` |
 | Broker OpenBao → target Warpgate DB | **Feito** | rio/lab/marra postgres; timer 20 min |
 | Operador DB via Warpgate com user dinâmico | **Feito** | `smoke-broker-warpgate.sh` |
-| Emissão amarrada a identidade Kanidm (JWT) | **Feito** | role `archgate-operator` + groups SPN |
+| Emissão amarrada a identidade archguard (JWT) | **Feito** | role `archgate-operator` + groups SPN |
 | Warpgate pede cert SSH ao OpenBao no connect | **Bloqueado** | upstream warpgate#2105 |
 | SSH via Warpgate **somente** com cert CA | **Pendente** | depende de 4.1 / broker de key |
 | OpenBao HA + auto-unseal KMS | **Pendente** | Fase 5 / prod |
@@ -121,9 +121,9 @@ Legenda de status:
 | Inventário clientes reais por stack | **Parcial** | YAML + admin `/sites` (SoT **Postgres**; seed/sync populam) |
 | Control plane admin / **ArchGate Manager** (estilo AWS) | **Lab complete (CP-0…7)** | **ADR-009** + **ADR-009A** (nome produto); orquestração full pessoas = Fase 4 |
 | Aceite piloto lab (definição formal) | **Checklist** | `documentos/runbooks/ACEITE-PILOTO-LAB.md` |
-| Módulo Plataforma (saúde stack) | **Feito (lab)** | `/platform` — probes Kanidm/Bao/WG/Guac/Axis/connector + endpoints + runbooks |
+| Módulo Plataforma (saúde stack) | **Feito (lab)** | `/platform` — probes archguard/Bao/WG/Guac/Axis/connector + endpoints + runbooks |
 | Sites SoT PostgreSQL | **Feito (lab)** | `CONSOLE_DATABASE_URL` → DB `archguard_console`; fallback SQLite |
-| Sync Mentors Axis → sites + grupo Kanidm | **Feito (lab Spring)** | Spring `archgate-axis-spring:9030` + MySQL real; `ensureTenantGroup` |
+| Sync Mentors Axis → sites + grupo archguard | **Feito (lab Spring)** | Spring `archgate-axis-spring:9030` + MySQL real; `ensureTenantGroup` |
 | Sync Mentors Axis → sites | **Feito** | live Spring (stub opcional em :9030) |
 | Mentors Axis Spring lab | **Feito** | `deploy/mentors-axis/deploy-spring-lab.sh`; MySQL 3308 + MQTT |
 | Admin connector checklist por site | **Feito** | `/sites/$slug` aba Connector + % na lista |
@@ -146,7 +146,7 @@ Legenda de status:
 | Plugin Go OpenBao → proxy | **Parcial** | CLI client + mTLS skeleton |
 | mTLS plugin↔proxy | **Parcial** | certs lab + profile |
 | Role dinâmica Oracle + E2E lease | **Pendente** | Oracle real |
-| Amarração a identidade Kanidm | **Pendente** | |
+| Amarração a identidade archguard | **Pendente** | |
 
 ### 2.7 UnifiedUI e orquestração
 
@@ -167,7 +167,7 @@ Legenda de status:
 |----------------|--------|------------------|
 | Postgres externo (Warpgate/Guac) | **Feito** | base para stateless gateway |
 | OpenBao HA / Raft | **Parcial** | exemplos + ADR-011; cluster live TBD |
-| Kanidm replicação | **Parcial** | topologia doc; deploy TBD |
+| archguard replicação | **Parcial** | topologia doc; deploy TBD |
 | Failover por componente | **Parcial** | runbook + checklist docs |
 | RPO/RTO documentados | **Parcial** | `ha-rpo-rto.md` (assinatura pendente) |
 | Service account OpenSRE + on-behalf-of | **Parcial** | bootstrap script + audit fields |
@@ -250,7 +250,7 @@ bash deploy/validation/offboarding-e2e.sh
 # Credenciais
 bash deploy/openbao/smoke-ephemeral.sh
 bash deploy/openbao/smoke-broker-warpgate.sh
-bash deploy/openbao/smoke-kanidm-jwt.sh
+bash deploy/openbao/smoke-archguard-jwt.sh
 
 # Connector
 bash deploy/connector/smoke-connector-piloto.sh

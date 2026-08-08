@@ -5,9 +5,9 @@
 set -euo pipefail
 
 BOOTSTRAP="${BOOTSTRAP:-/root/archgate/bootstrap.env}"
-KANIDM_URL="${KANIDM_URL:-https://127.0.0.1:8443}"
-DOMAIN="${KANIDM_DOMAIN:-id.archgate.com.br}"
-TOOLS="${KANIDM_TOOLS_IMAGE:-kanidm/tools:1.10.4}"
+archguard_URL="${archguard_URL:-https://127.0.0.1:8443}"
+DOMAIN="${archguard_DOMAIN:-id.archgate.com.br}"
+TOOLS="${archguard_TOOLS_IMAGE:-archguard/tools:1.10.4}"
 WG_HOST="${WG_HOST:-wg.archgate.com.br}"
 BASE="https://127.0.0.1"
 
@@ -20,16 +20,16 @@ log()  { echo "  [OK] $1" >&2; }
 fail() { echo "  [FAIL] $1" >&2; exit 1; }
 step() { echo -e "\n=== $1 ===" >&2; }
 
-CID=$(docker ps --filter name=archgate-id_kanidmd --format '{{.ID}}' | head -1)
-[[ -n "$CID" ]] || fail "Kanidm down"
+CID=$(docker ps --filter name=archgate-id_archguardd --format '{{.ID}}' | head -1)
+[[ -n "$CID" ]] || fail "archguard down"
 [[ -n "${WARPGATE_ADMIN_PASSWORD:-}" ]] || fail "WARPGATE_ADMIN_PASSWORD missing"
 [[ -n "${LAB_SSH_PASSWORD:-}" && -n "${LAB_PG_PASSWORD:-}" ]] || fail "lab secrets missing"
 
-if [[ -z "${KANIDM_IDM_ADMIN_PASSWORD:-}" ]]; then
-  KANIDM_IDM_ADMIN_PASSWORD=$(docker exec "$CID" /sbin/kanidmd recover-account idm_admin -c /data/server.toml 2>&1 \
+if [[ -z "${archguard_IDM_ADMIN_PASSWORD:-}" ]]; then
+  archguard_IDM_ADMIN_PASSWORD=$(docker exec "$CID" /sbin/archguardd recover-account idm_admin -c /data/server.toml 2>&1 \
     | sed -n 's/.*new_password: "\([^"]*\)".*/\1/p' | tail -1)
 fi
-IDM_PASS="$KANIDM_IDM_ADMIN_PASSWORD"
+IDM_PASS="$archguard_IDM_ADMIN_PASSWORD"
 
 SSH_IP=$(docker inspect "$(docker ps -q --filter name=archgate-lab_ssh | head -1)" \
   --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
@@ -38,14 +38,14 @@ export SSH_IP LAB_SSH_PASSWORD LAB_PG_HOST LAB_PG_PORT LAB_PG_USER LAB_PG_PASSWO
 rest_auth() {
   local user="$1" pass="$2" hdr cookie response
   hdr=$(mktemp)
-  curl -sk -X POST "$KANIDM_URL/v1/auth" -H "Content-Type: application/json" \
+  curl -sk -X POST "$archguard_URL/v1/auth" -H "Content-Type: application/json" \
     -d "{\"step\":{\"init\":\"$user\"}}" -D "$hdr" -o /dev/null
   cookie=$(grep -i set-cookie "$hdr" | sed 's/.*auth-session-id=\([^;]*\).*/\1/' | tr -d '\r' | head -1)
   rm -f "$hdr"
   [[ -n "$cookie" ]] || { echo ""; return 0; }
-  curl -sk -X POST "$KANIDM_URL/v1/auth" -H "Content-Type: application/json" \
+  curl -sk -X POST "$archguard_URL/v1/auth" -H "Content-Type: application/json" \
     -H "Cookie: auth-session-id=$cookie" -d '{"step":{"begin":"password"}}' >/dev/null
-  response=$(curl -sk -X POST "$KANIDM_URL/v1/auth" -H "Content-Type: application/json" \
+  response=$(curl -sk -X POST "$archguard_URL/v1/auth" -H "Content-Type: application/json" \
     -H "Cookie: auth-session-id=$cookie" \
     -d "$(python3 -c 'import json,sys; print(json.dumps({"step":{"cred":{"password":sys.argv[1]}}}))' "$pass")")
   echo "$response" | python3 -c "import sys,json; print(json.load(sys.stdin).get('state',{}).get('success',''))" 2>/dev/null || true
@@ -54,10 +54,10 @@ rest_auth() {
 api_k() {
   local token="$1" method="$2" path="$3" body="${4:-}"
   if [[ -n "$body" ]]; then
-    curl -sk -X "$method" "$KANIDM_URL$path" -H "Authorization: Bearer $token" \
+    curl -sk -X "$method" "$archguard_URL$path" -H "Authorization: Bearer $token" \
       -H "Content-Type: application/json" -d "$body"
   else
-    curl -sk -X "$method" "$KANIDM_URL$path" -H "Authorization: Bearer $token" \
+    curl -sk -X "$method" "$archguard_URL$path" -H "Authorization: Bearer $token" \
       -H "Content-Type: application/json"
   fi
 }
@@ -69,7 +69,7 @@ trap 'rm -f "$TOKENS" "$CK_ADMIN"' EXIT
 klogin() {
   expect <<EOF >/dev/null
 set timeout 60
-spawn docker run --rm -it --network host -v $TOKENS:/root/.cache/kanidm_tokens -e KANIDM_URL=$KANIDM_URL $TOOLS /sbin/kanidm login --accept-invalid-certs --name idm_admin
+spawn docker run --rm -it --network host -v $TOKENS:/root/.cache/archguard_tokens -e archguard_URL=$archguard_URL $TOOLS /sbin/archguard login --accept-invalid-certs --name idm_admin
 expect -re "password:"
 send "$IDM_PASS\r"
 expect eof
@@ -77,15 +77,15 @@ EOF
 }
 
 kcli() {
-  docker run --rm --network host -v "$TOKENS:/root/.cache/kanidm_tokens" -e "KANIDM_URL=$KANIDM_URL" \
-    $TOOLS /sbin/kanidm "$@" --accept-invalid-certs --name idm_admin 2>&1 | grep -v WARN || true
+  docker run --rm --network host -v "$TOKENS:/root/.cache/archguard_tokens" -e "archguard_URL=$archguard_URL" \
+    $TOOLS /sbin/archguard "$@" --accept-invalid-certs --name idm_admin 2>&1 | grep -v WARN || true
 }
 
 set_pw() {
   local person="$1" pass="$2"
   expect <<EOF >/dev/null
 set timeout 60
-spawn docker run --rm -it --network host -v $TOKENS:/root/.cache/kanidm_tokens -e KANIDM_URL=$KANIDM_URL $TOOLS /sbin/kanidm person credential update --accept-invalid-certs --name idm_admin $person
+spawn docker run --rm -it --network host -v $TOKENS:/root/.cache/archguard_tokens -e archguard_URL=$archguard_URL $TOOLS /sbin/archguard person credential update --accept-invalid-certs --name idm_admin $person
 expect "cred update"
 send "password\r"
 expect "New password:"
@@ -200,7 +200,7 @@ for u in json.load(sys.stdin):
     log "created warpgate user $username"
   fi
   wg_api "$CK_ADMIN" POST "/@warpgate/admin/api/users/${uid}/credentials/sso" \
-    "$(python3 -c 'import json,sys; print(json.dumps({"email":sys.argv[1],"provider":"kanidm"}))' "$email")" >/dev/null 2>&1 || true
+    "$(python3 -c 'import json,sys; print(json.dumps({"email":sys.argv[1],"provider":"archguard"}))' "$email")" >/dev/null 2>&1 || true
   wg_api "$CK_ADMIN" POST "/@warpgate/admin/api/users/${uid}/credentials/passwords" \
     "$(python3 -c 'import json,sys; print(json.dumps({"password":sys.argv[1]}))' "$password")" >/dev/null 2>&1 || true
   # strip other roles then assign only tenant role
@@ -220,11 +220,11 @@ for r in json.load(sys.stdin):
 # ---------------------------------------------------------------------------
 step "0. Admin sessions"
 IDM_TOKEN=$(rest_auth idm_admin "$IDM_PASS")
-[[ -n "$IDM_TOKEN" ]] || fail "Kanidm admin auth"
+[[ -n "$IDM_TOKEN" ]] || fail "archguard admin auth"
 wg_login admin "$WARPGATE_ADMIN_PASSWORD" "$CK_ADMIN"
 log "admins OK"
 
-step "1. Kanidm: tenant users A (rio) and B (marra)"
+step "1. archguard: tenant users A (rio) and B (marra)"
 # tenant-a = testuser (rio only) — ensure memberships
 # tenant-b = tenant-b-user (marra only)
 api_k "$IDM_TOKEN" POST /v1/person \
@@ -248,7 +248,7 @@ PASS_A="TenantA-RioQuality-2026"
 PASS_B="TenantB-GrupoMarra-2026"
 [[ -n "$(rest_auth testuser "$PASS_A")" ]] || fail "testuser auth"
 [[ -n "$(rest_auth tenant-b-user "$PASS_B")" ]] || fail "tenant-b-user auth"
-log "Kanidm users ready: testuser→rio, tenant-b-user→marra"
+log "archguard users ready: testuser→rio, tenant-b-user→marra"
 
 step "2. Warpgate roles per tenant"
 ROLE_RIO=$(ensure_role "tenant-rio-quality" "Operators for tenant Rio Quality")
@@ -293,13 +293,13 @@ for t in json.load(sys.stdin):
 done
 log "targets scoped: rio→{rio-lab-*}, marra→{marra-lab-*}"
 
-step "4. SSO role_mappings: Kanidm groups → Warpgate roles"
+step "4. SSO role_mappings: archguard groups → Warpgate roles"
 python3 - <<'PY'
 from pathlib import Path
 import re
 p = Path("/var/lib/archgate/warpgate/warpgate.yaml")
 text = p.read_text()
-# Replace role_mappings block under kanidm provider
+# Replace role_mappings block under archguard provider
 new_map = """      role_mappings:
         archguard_super_admins: "warpgate:admin"
         tenant_rio_quality: "tenant-rio-quality"

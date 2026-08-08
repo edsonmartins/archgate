@@ -26,7 +26,7 @@ cd clients/archgate-connect
 OIDC (uma vez, secret da plataforma):
 
 ```bash
-# copiar secret do client Kanidm archgate-connect
+# copiar secret do client archguard archgate-connect
 # para ~/.config/archgate/oidc.env (chmod 600)
 # O CLI carrega esse arquivo automaticamente.
 ```

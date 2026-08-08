@@ -27,7 +27,7 @@
 ## 5. Políticas e revogação
 - [ ] 5.1 Calibrar TTLs por tipo (SSH, DB) conforme a tabela de políticas
 - [ ] 5.2 Validar revogação de leases (kill imediato) e expiração automática
-- [ ] 5.3 Amarrar emissão à identidade Kanidm (rastreabilidade principal → credencial)
+- [ ] 5.3 Amarrar emissão à identidade archguard (rastreabilidade principal → credencial)
 
 ## 6. Validação de ponta a ponta
 - [ ] 6.1 Nenhuma credencial de longa vida reside no Warpgate após a migração

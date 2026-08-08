@@ -16,7 +16,7 @@
              │ HTTPS OIDC + API
 ┌────────────▼─────────────┐
 │  ArchGate (Hostinger)    │
-│  Kanidm · BFF · Warpgate │
+│  archguard · BFF · Warpgate │
 │  Guac · connectors       │
 └──────────────────────────┘
 ```

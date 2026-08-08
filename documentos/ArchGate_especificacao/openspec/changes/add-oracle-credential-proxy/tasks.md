@@ -25,7 +25,7 @@
 - [ ] 4.1 Configurar a conexão de banco apontando ao plugin/plugin-name
 - [ ] 4.2 Definir role dinâmico Oracle: creation_statements, revocation_statements, TTL/max_ttl
 - [ ] 4.3 Ajustar username_template ao limite de identificador da versão Oracle-alvo
-- [ ] 4.4 Amarrar emissão à identidade Kanidm (rastreabilidade)
+- [ ] 4.4 Amarrar emissão à identidade archguard (rastreabilidade)
 
 ## 5. Validação
 - [ ] 5.1 Emitir credencial Oracle dinâmica com TTL e conectar ao banco de teste

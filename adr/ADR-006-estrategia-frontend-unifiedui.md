@@ -25,7 +25,7 @@ Motivos:
 - Admin já maduro no monorepo archguard; não reescrever.  
 - UnifiedUI é produto operador com ciclo próprio (guacamole-common-js, catálogo).  
 - Vite permite iterar o chrome de sessão sem acoplar ao server TanStack.  
-- Auth: OIDC Kanidm (Code+PKCE); tokens admin **não** no browser — catálogo via BFF futuro no console ou API Axis.
+- Auth: OIDC archguard (Code+PKCE); tokens admin **não** no browser — catálogo via BFF futuro no console ou API Axis.
 
 ## Sessão remota (ADR-007 path)
 

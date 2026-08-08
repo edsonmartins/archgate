@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# W5-AG01 — Bootstrap service account OpenSRE no Kanidm (idempotent intent)
+# W5-AG01 — Bootstrap service account OpenSRE no archguard (idempotent intent)
 # DRY_RUN=1 only prints actions (default if no bootstrap.env / tools).
 set -euo pipefail
 
 SA_NAME="${OPENSRE_SA:-sa-opensre}"
 SA_GROUP="${OPENSRE_GROUP:-archgate_agents}"
-DOMAIN="${KANIDM_DOMAIN:-id.archgate.com.br}"
+DOMAIN="${archguard_DOMAIN:-id.archgate.com.br}"
 BOOTSTRAP="${BOOTSTRAP:-/root/archgate/bootstrap.env}"
 DRY_RUN="${DRY_RUN:-}"
 
@@ -33,32 +33,32 @@ fi
 # shellcheck disable=SC1090
 set -a; source "$BOOTSTRAP"; set +a
 
-KANIDM_URL="${KANIDM_URL:-https://127.0.0.1:8443}"
-TOOLS="${KANIDM_TOOLS_IMAGE:-kanidm/tools:1.10.4}"
+archguard_URL="${archguard_URL:-https://127.0.0.1:8443}"
+TOOLS="${archguard_TOOLS_IMAGE:-archguard/tools:1.10.4}"
 TOKENS=$(mktemp -d)
 trap 'rm -rf "$TOKENS"' EXIT
 
-CID=$(docker ps --filter name=archgate-id_kanidmd --format '{{.ID}}' | head -1)
-[[ -n "$CID" ]] || fail "Kanidm not running"
+CID=$(docker ps --filter name=archgate-id_archguardd --format '{{.ID}}' | head -1)
+[[ -n "$CID" ]] || fail "archguard not running"
 
-IDM_PASS=$(docker exec "$CID" /sbin/kanidmd recover-account idm_admin -c /data/server.toml 2>&1 \
+IDM_PASS=$(docker exec "$CID" /sbin/archguardd recover-account idm_admin -c /data/server.toml 2>&1 \
   | sed -n 's/.*new_password: "\([^"]*\)".*/\1/p' | tail -1)
 [[ -n "$IDM_PASS" ]] || fail "could not recover idm_admin"
 
 # Login tools (non-interactive best-effort; lab may need expect like offboarding-e2e)
 info "login idm_admin via tools image (see offboarding-e2e for expect pattern if needed)"
 docker run --rm --network host \
-  -v "$TOKENS:/root/.cache/kanidm_tokens" \
-  -e "KANIDM_URL=$KANIDM_URL" \
-  "$TOOLS" /sbin/kanidm login --accept-invalid-certs --name idm_admin <<EOF || true
+  -v "$TOKENS:/root/.cache/archguard_tokens" \
+  -e "archguard_URL=$archguard_URL" \
+  "$TOOLS" /sbin/archguard login --accept-invalid-certs --name idm_admin <<EOF || true
 $IDM_PASS
 EOF
 
 k() {
   docker run --rm --network host \
-    -v "$TOKENS:/root/.cache/kanidm_tokens" \
-    -e "KANIDM_URL=$KANIDM_URL" \
-    "$TOOLS" /sbin/kanidm "$@" --accept-invalid-certs --name idm_admin 2>&1 | grep -v WARN || true
+    -v "$TOKENS:/root/.cache/archguard_tokens" \
+    -e "archguard_URL=$archguard_URL" \
+    "$TOOLS" /sbin/archguard "$@" --accept-invalid-certs --name idm_admin 2>&1 | grep -v WARN || true
 }
 
 info "ensure group $SA_GROUP"
@@ -71,5 +71,5 @@ info "membership $SA_GROUP"
 k group add-members "$SA_GROUP" "$SA_NAME" || true
 k group add-members archguard_users "$SA_NAME" || true
 
-log "SA $SA_NAME bootstrap attempted — validate in Kanidm UI/API"
+log "SA $SA_NAME bootstrap attempted — validate in archguard UI/API"
 log "Next: issue API token; configure agent-control OPENSRE_AGENT_ID=$SA_NAME"

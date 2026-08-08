@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tasks 5.3–5.5 — ArchGuard Console RBAC + Kanidm provision API (via SA)
+# Tasks 5.3–5.5 — ArchGuard Console RBAC + archguard provision API (via SA)
 #
 # 5.3 Tenant Admin: perms + tenant scope (rio only)
 # 5.4 Operator: read-only + tenant scope
@@ -7,8 +7,8 @@
 set -euo pipefail
 
 BOOTSTRAP="${BOOTSTRAP:-/root/archgate/bootstrap.env}"
-KANIDM_URL="${KANIDM_URL:-https://id.archgate.com.br}"
-DOMAIN="${KANIDM_DOMAIN:-id.archgate.com.br}"
+archguard_URL="${archguard_URL:-https://id.archgate.com.br}"
+DOMAIN="${archguard_DOMAIN:-id.archgate.com.br}"
 CONSOLE_HOST="${CONSOLE_HOST:-console.archgate.com.br}"
 
 set -a
@@ -25,11 +25,11 @@ step() { echo -e "\n=== $1 ==="; }
 api() {
   local method="$1" path="$2" body="${3:-}"
   if [[ -n "$body" ]]; then
-    curl -sk -X "$method" "${KANIDM_URL}${path}" \
+    curl -sk -X "$method" "${archguard_URL}${path}" \
       -H "Authorization: Bearer ${ARCHGUARD_SA_TOKEN}" \
       -H "Content-Type: application/json" -d "$body"
   else
-    curl -sk -X "$method" "${KANIDM_URL}${path}" \
+    curl -sk -X "$method" "${archguard_URL}${path}" \
       -H "Authorization: Bearer ${ARCHGUARD_SA_TOKEN}" \
       -H "Content-Type: application/json"
   fi
@@ -114,7 +114,7 @@ else:
 PY
 }
 
-step "0. Preflight console + Kanidm"
+step "0. Preflight console + archguard"
 code=$(curl -sk -o /dev/null -w '%{http_code}' -H "Host: ${CONSOLE_HOST}" https://127.0.0.1/ || true)
 [[ "$code" =~ ^(200|301|302|307|308)$ ]] || fail "console HTTP $code"
 log "console reachable (http=$code)"
@@ -261,15 +261,15 @@ step "5.5b Console proxy path allowlist (static check)"
 # Read from deployed image if possible; else from repo
 PROXY_SRC=""
 for p in \
-  /root/archgate/archguard-src/archguard-console/src/server/kanidm-proxy.ts \
-  /root/archgate/repo/../archguard/archguard-console/src/server/kanidm-proxy.ts
+  /root/archgate/archguard-src/archguard-console/src/server/archguard-proxy.ts \
+  /root/archgate/repo/../archguard/archguard-console/src/server/archguard-proxy.ts
  do
   [[ -f "$p" ]] && PROXY_SRC="$p" && break
 done
 if [[ -n "$PROXY_SRC" ]]; then
   grep -q "'/v1/person'" "$PROXY_SRC" || fail "proxy missing /v1/person"
   grep -q "'/v1/group'" "$PROXY_SRC" || fail "proxy missing /v1/group"
-  log "kanidm-proxy allowlist includes person+group ($PROXY_SRC)"
+  log "archguard-proxy allowlist includes person+group ($PROXY_SRC)"
 else
   log "proxy source not on host — skipped static allowlist check"
 fi

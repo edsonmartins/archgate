@@ -37,7 +37,7 @@
     {
       "id": "P2",
       "category": "platform",
-      "title": "Kanidm id HTTPS",
+      "title": "archguard id HTTPS",
       "status": "PASS",
       "detail": "HTTP 303 → /ui",
       "duration_ms": 196,

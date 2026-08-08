@@ -32,7 +32,7 @@ Esta mudança **formaliza o padrão operacional e de produto** do cliente operad
 |------|--------|
 | **Nova capability** | `operator-client-access` |
 | **ADRs** | Formaliza [ADR-008](../../../adr/ADR-008-cliente-operador-hibrido-multi-os.md); referencia ADR-007, ADR-006 |
-| **Depende de** | `add-identity-axis` (bastion + Kanidm) em operação mínima |
+| **Depende de** | `add-identity-axis` (bastion + archguard) em operação mínima |
 | **Alimenta** | `add-network-mesh` (connector/malha), `add-unified-ui-and-orchestration` (catálogo único) |
 | **Não muda** | Protocol engines (Warpgate/Guac) em si; não resolve OIDC Guacamole 1.6 |
 | **Fora de escopo** | App desktop nativo ArchGate; fork GUACAMOLE-2258; Oracle (ADR-001); HA |

@@ -14,7 +14,7 @@
 - [x] 2.3 Princípio tokens admin fora do browser documentado no scaffold
 - [x] 2.4 Scaffold OIDC Code+PKCE + callback route (enable com VITE_OIDC_ENABLED)
 - [ ] 2.5 Aposentar a UI stock do Guacamole do fluxo do dev (lab path)
-- [ ] 2.6 Client Kanidm real + BFF cookie session em lab
+- [ ] 2.6 Client archguard real + BFF cookie session em lab
 
 ## 3. Contratos de orquestração (Mentors Axis)
 - [x] 3.1 `provisionar_usuario` API mock multi-adapter — `services/orchestration` 2026-07-17
@@ -22,7 +22,7 @@
 - [x] 3.3 `revogar_tudo` one-shot mock + testes de idempotência
 - [x] 3.4 `sincronizar_tenants()` — lab CLI/UI + endpoint stub API
 - [ ] 3.5 Terraform provider do Warpgate como fonte de verdade de targets/roles
-- [x] 3.6 Adapters live HTTP dry-run (Kanidm/WG/Guac/OpenBao) — calibrar paths no lab
+- [x] 3.6 Adapters live HTTP dry-run (archguard/WG/Guac/OpenBao) — calibrar paths no lab
 - [x] 3.7 Webhook Axis + Idempotency-Key
 - [x] 3.8 Autenticação da API (token de serviço, fail-closed) — `ORCH_API_TOKEN` 2026-07-29
 - [x] 3.9 Assinatura HMAC-SHA256 nos webhooks do Axis — `ORCH_WEBHOOK_SECRET` 2026-07-29

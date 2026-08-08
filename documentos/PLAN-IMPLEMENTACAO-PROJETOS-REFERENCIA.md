@@ -6,7 +6,7 @@
 | Início | 2026-08-07 |
 | Objetivo | Incorporar os padrões úteis de RustGuac, Veyport, OneTerm, Remota, ThinkWatch e BastionDB sem duplicar ArchGuard, OpenFGA ou OpenBao |
 | Control plane | Toda configuração suportada termina no **ArchGate Manager** |
-| Identidade | **ArchGuard é o único IdP**; Kanidm não é suportado |
+| Identidade | **ArchGuard é o único IdP**; archguard não é suportado |
 
 ## Regras de execução
 
@@ -30,14 +30,14 @@ P0 legado/contratos
 
 ## P0 — Base coerente
 
-**Critério de saída:** nenhum runtime suporta Kanidm; contratos ArchGuard/OpenFGA/OpenBao estão explícitos; Manager é a única superfície administrativa suportada.
+**Critério de saída:** nenhum runtime suporta archguard; contratos ArchGuard/OpenFGA/OpenBao estão explícitos; Manager é a única superfície administrativa suportada.
 
 | ID | Tarefa | Entrega | Aceite |
 |---|---|---|---|
-| P0-01 | Remover fallback Kanidm de clientes e orchestration | ArchGuard-only | Testes Go/Maven; busca de runtime sem fallback |
-| P0-02 | Substituir deploy e smokes Kanidm | scripts ArchGuard | Warpgate, OpenBao, offboarding e isolamento passam com ArchGuard |
-| P0-03 | Remover stack/imagens/health checks Kanidm | deploy limpo | nenhuma imagem, serviço ou variável `KANIDM_*` ativa |
-| P0-04 | Atualizar OpenSpecs e documentos vivos | baseline coerente | Kanidm apenas em ADR/evidência histórica marcada como superseded |
+| P0-01 | Remover fallback archguard de clientes e orchestration | ArchGuard-only | Testes Go/Maven; busca de runtime sem fallback |
+| P0-02 | Substituir deploy e smokes archguard | scripts ArchGuard | Warpgate, OpenBao, offboarding e isolamento passam com ArchGuard |
+| P0-03 | Remover stack/imagens/health checks archguard | deploy limpo | nenhuma imagem, serviço ou variável `archguard_*` ativa |
+| P0-04 | Atualizar OpenSpecs e documentos vivos | baseline coerente | archguard apenas em ADR/evidência histórica marcada como superseded |
 | P0-05 | Definir contratos BFF do Manager | API de control plane | authz por ação, idempotency key, audit event e job assíncrono documentados |
 | P0-06 | Criar license gate/SBOM | CI | AGPL/BUSL falham build; Apache NOTICE preservado |
 
@@ -135,7 +135,7 @@ P0 legado/contratos
 
 ## Primeira sequência executável
 
-1. `P0-01` — remover fallback Kanidm do runtime.
+1. `P0-01` — remover fallback archguard do runtime.
 2. `W1-01` — concluir spike RustGuac.
 3. `W1-02` — decidir arquitetura.
 4. `W1-03` e `W1-04` — contrato de sessão e ticket single-use.

@@ -14,7 +14,7 @@
 
 | Item | Resultado | Evidência |
 |------|-----------|-----------|
-| 0.1 Core services 1/1 | ✅ | traefik, kanidmd, console, warpgate, guacamole, guacd, oauth2-proxy, openbao, axis-spring, lab_ssh, piloto_* 1/1; stub 0/0 |
+| 0.1 Core services 1/1 | ✅ | traefik, archguardd, console, warpgate, guacamole, guacd, oauth2-proxy, openbao, axis-spring, lab_ssh, piloto_* 1/1; stub 0/0 |
 | 0.2 OpenBao unsealed | ✅ | `Sealed false`, v2.2.0 |
 | 0.3 Timer unseal | ✅ | `archgate-openbao-unseal.timer` ativo |
 | 0.4 Axis Spring UP | ✅ | `curl :9031/actuator/health` → `{"status":"UP"}` |
@@ -29,7 +29,7 @@
 | 1.1 Console OIDC | ⚠️ | Console responde 307 (login); login interativo browser não automatizado nesta execução |
 | 1.2 Warpgate auth | ✅ | Smoke SSH com `testuser` via WG OK |
 | 1.3 Guac portão | ✅ | HTTP **302** (oauth2-proxy) em `guac.archgate.com.br` |
-| 1.4 OpenBao JWT | ✅ | `smoke-kanidm-jwt.sh` → **KANIDM → OPENBAO JWT AUTH PASSED** |
+| 1.4 OpenBao JWT | ✅ | `smoke-archguard-jwt.sh` → **archguard → OPENBAO JWT AUTH PASSED** |
 | 1.5 Offboarding | ⚠️ | Não reexecutado hoje; coberto por `offboarding-e2e` histórico / reteste manual |
 
 ---
@@ -80,7 +80,7 @@ Não revalidado nesta execução; evidência de recordings em runs anteriores do
 |------|-----------|-----------|
 | 3.1 Sites SoT Postgres | ✅ | `count(*)=6` em `archguard_console.sites` |
 | 3.2 Alinhado Axis | ✅ | Axis `totalElements=6` = 6 sites |
-| 3.3 Sync orquestra | ✅ | CLI `sync-tenants-cli.sh` + Kanidm groups; UI sync disponível |
+| 3.3 Sync orquestra | ✅ | CLI `sync-tenants-cli.sh` + archguard groups; UI sync disponível |
 | 3.4 Gateways API | ✅ | Pós-deploy: do pod console → Traefik (`WARPGATE_CONNECT_HOST=archgate-edge_traefik`) + SNI `wg.archgate.com.br`. Login **201**, targets **200** (7), roles **200** (4). Ver § Fix Warpgate |
 | 3.5 Apply gateways | ✅ | Path admin OK (list targets/roles). Apply usa o mesmo client `upsertTarget`/`ensureRole`; secrets por `TARGET_SECRET_*` |
 | 3.6 OpenBao secrets view | ✅ | Unsealed + JWT smoke; módulo `/secrets` no console |

@@ -18,7 +18,7 @@
 
 ### 0.1 O que este UAT valida
 
-- Login SSO (Kanidm) no **console**
+- Login SSO (archguard) no **console**
 - Bastion-first: **SSH** e **Postgres** via Warpgate
 - Isolamento **tenant A ↛ tenant B**
 - Control plane admin (sites / platform) em nível de sanidade
@@ -34,14 +34,14 @@ Lista completa: plano §2.2.
 Credenciais **só no runtime**: `/root/archgate/uat-credentials.env` (mode 600; **não** no git).  
 Reprovisionar: `bash deploy/validation/provision-uat-users.sh`
 
-| Persona | Usuário | Kanidm groups | Warpgate roles | Uso no UAT |
+| Persona | Usuário | archguard groups | Warpgate roles | Uso no UAT |
 |---------|---------|---------------|----------------|------------|
 | Admin plataforma | `uat-admin` | `archguard_users`, `archguard_super_admins` | `admin`, `archgate-operators` | Console full + bastion amplo |
 | Operador A (Rio) | `uat-op-a` | `archguard_users`, `tenant_rio_quality` | `tenant-rio-quality` | SSH/PG `rio-lab-*`; **nega** marra |
 | Operador B (Marra) | `uat-op-b` | `archguard_users`, `tenant_grupo_marra` | `tenant-grupo-marra` | Isolamento inverso |
 | Viewer | `uat-viewer` | `archguard_users`, `archguard_viewers` | _(nenhuma)_ | Deny-by-default sites/targets |
 
-**Auth verificada (lab):** REST Kanidm OK para as 4 contas; WG `uat-op-a:rio-lab-ssh` → hostname lab; `uat-op-a:marra-lab-ssh` → Permission denied.
+**Auth verificada (lab):** REST archguard OK para as 4 contas; WG `uat-op-a:rio-lab-ssh` → hostname lab; `uat-op-a:marra-lab-ssh` → Permission denied.
 
 **Regra:** operador **nunca** recebe senha do host/alvo; só identidade ArchGate / Warpgate.
 
@@ -58,7 +58,7 @@ Endpoints bastion:
 | Serviço | URL / host |
 |---------|------------|
 | Console | https://console.archgate.com.br |
-| Kanidm | https://id.archgate.com.br |
+| archguard | https://id.archgate.com.br |
 | Warpgate UI | https://wg.archgate.com.br |
 | Warpgate SSH | `wg.archgate.com.br:2222` ou `192.168.1.180:2222` |
 | Warpgate Postgres | `wg.archgate.com.br:55432` / `192.168.1.180:55432` · `sslmode=require` |
@@ -82,7 +82,7 @@ Snippets: [`snippets/ssh-warpgate.example`](./snippets/ssh-warpgate.example), [`
 
 | # | Ação | Resultado esperado | ☐ |
 |---|------|--------------------|---|
-| 1 | Abrir https://console.archgate.com.br | Redirect ou tela de login Kanidm | ☐ |
+| 1 | Abrir https://console.archgate.com.br | Redirect ou tela de login archguard | ☐ |
 | 2 | Autenticar como **Operador A** / Admin | Dashboard / app carrega sem erro 5xx | ☐ |
 | 3 | Abrir `/platform` (se Admin) ou módulo visível | Serviços principais “up” ou status legível | ☐ |
 
@@ -162,7 +162,7 @@ Opcional: repetir com Operador B no sentido inverso.
 | # | Ação | Resultado esperado | ☐ |
 |---|------|--------------------|---|
 | 1 | https://guac.archgate.com.br sem sessão | Redirect IdP (302 portão) | ☐ |
-| 2 | Login Kanidm | Entra no Guac (sem segundo login ideal) | ☐ |
+| 2 | Login archguard | Entra no Guac (sem segundo login ideal) | ☐ |
 | 3 | Abrir conexão SSH autorizada | Shell no browser | ☐ |
 | 4 | (Se disponível) Confirmar recording | Path ou UI de gravação documentado na evidência | ☐ |
 
@@ -174,7 +174,7 @@ Se falhar só o Guac e SSH/PG desktop OK → **ressalva**, não bloqueio automá
 
 | # | Ação | Resultado esperado | ☐ |
 |---|------|--------------------|---|
-| 1 | Disable / lock user de teste no Kanidm | Conta inativa | ☐ |
+| 1 | Disable / lock user de teste no archguard | Conta inativa | ☐ |
 | 2 | Tentar SSO console ou novo login WG | **Falha** de autenticação/autorização | ☐ |
 | 3 | Reabilitar user de UAT | Login volta a funcionar | ☐ |
 
@@ -253,7 +253,7 @@ Salvar em `documentos/runbooks/sites/smoke-evidence-YYYY-MM-DD-uat.md` (copiar [
 |------|---------|
 | 2026-07-11 | Rascunho inicial (F2.1) — alvos reais ainda placeholder até F3 |
 | 2026-07-11 | v0.2 — piloto Rio Quality; dono/revisor Edson; evidência homolog-prep |
-| 2026-07-11 | v0.3 — F2.2 contas uat-* provisionadas (Kanidm+WG); matriz RBAC §0.3 |
+| 2026-07-11 | v0.3 — F2.2 contas uat-* provisionadas (archguard+WG); matriz RBAC §0.3 |
 | 2026-07-11 | v0.4 — F2.7 dry-run auto PASS (SSH/PG/isolamento 4 personas) |
 
 ---

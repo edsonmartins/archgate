@@ -2,7 +2,7 @@
 
 ## Contexto
 
-Implementa o [ADR-013](../../../adr/ADR-013-org-credential-broker.md): módulo no Manager para contas da IntegrAllTech (cloud, lojas, produtos), com OpenBao como SoT de segredo e Kanidm como SoT de identidade.
+Implementa o [ADR-013](../../../adr/ADR-013-org-credential-broker.md): módulo no Manager para contas da IntegrAllTech (cloud, lojas, produtos), com OpenBao como SoT de segredo e archguard como SoT de identidade.
 
 ## Arquitetura
 
@@ -15,7 +15,7 @@ Implementa o [ADR-013](../../../adr/ADR-013-org-credential-broker.md): módulo n
                     ┌──────────────────┼──────────────────┐
                     ▼                  ▼                  ▼
               ┌──────────┐      ┌──────────┐      ┌─────────────┐
-              │  Kanidm  │      │ Console  │      │  OpenBao    │
+              │  archguard  │      │ Console  │      │  OpenBao    │
               │ groups + │      │  DB SoT  │      │  KV org/*   │
               │  perms   │      │ metadata │      │  (secret)   │
               └──────────┘      └──────────┘      └─────────────┘
@@ -47,7 +47,7 @@ OrgAccount
   auth_kind               # password | api_key | oidc | totp_password
   secret_ref              # path OpenBao, ex. secret/data/org/store/apple-appstore
   criticality             # P0 | P1 | P2
-  owner_group             # kanidm group slug
+  owner_group             # archguard group slug
   requires_dual_control   # bool (default true se P0)
   notes
   runbook_url
@@ -58,7 +58,7 @@ OrgAccount
 OrgCheckout
   id
   account_id
-  principal               # username Kanidm
+  principal               # username archguard
   reason
   ttl_seconds
   status                  # pending | active | denied | expired | checked_in
@@ -100,7 +100,7 @@ Policy do app token do console: `read` em `secret/data/org/*` + `list` nos mount
 | `org_accounts:approve` | Dual-control P0 |
 | `org_accounts:admin` | CRUD conta + secret_ref / write OpenBao |
 
-Mapear grupos Kanidm (ex.: `archguard_users` → read+checkout limitado; `archguard_super_admins` → admin+approve). Ajuste fino por `owner_group` / product tag na implementação.
+Mapear grupos archguard (ex.: `archguard_users` → read+checkout limitado; `archguard_super_admins` → admin+approve). Ajuste fino por `owner_group` / product tag na implementação.
 
 ## Decisões técnicas
 

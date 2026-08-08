@@ -5,7 +5,7 @@
 | Serviço | Endpoint | Notas |
 |---------|----------|--------|
 | Runtime host | `192.168.1.180` | Swarm ArchGate (`edson-ai`) |
-| Kanidm / OIDC | `https://id.archgate.com.br` | Issuer |
+| archguard / OIDC | `https://id.archgate.com.br` | Issuer |
 | Console ArchGuard | `https://console.archgate.com.br` | Browser |
 | Warpgate UI | `https://wg.archgate.com.br` | Browser |
 | Warpgate SSH | `192.168.1.180:2222` / `wg.archgate.com.br:2222` | OpenSSH Parte B |

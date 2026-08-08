@@ -1,5 +1,5 @@
 # Snippet to merge into /etc/cloudflared/config.yml on 192.168.1.180
-# after Kanidm / Warpgate / Guacamole are listening locally.
+# after archguard / Warpgate / Guacamole are listening locally.
 # Cloudflare terminates TLS for *.archgate.com.br.
 #
 # Prerequisites:

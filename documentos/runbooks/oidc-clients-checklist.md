@@ -1,4 +1,4 @@
-# Checklist OIDC clients — Kanidm (W1-ID04)
+# Checklist OIDC clients — archguard (W1-ID04)
 
 Revisar em cada promoção de DNS/ambiente. Issuer base: `https://id.archgate.com.br`.
 
@@ -17,7 +17,7 @@ Revisar em cada promoção de DNS/ambiente. Issuer base: `https://id.archgate.co
   `curl -sk https://id.archgate.com.br/oauth2/openid/<client>/.well-known/openid-configuration`
 - [ ] `issuer` e `jwks_uri` HTTPS e estáveis  
 - [ ] Redirect URIs **exatos** (sem path errado, com/sem trailing slash)  
-- [ ] Scope map no Kanidm: grupo `archguard_users` (ou equivalente) → scopes  
+- [ ] Scope map no archguard: grupo `archguard_users` (ou equivalente) → scopes  
 - [ ] Secret de clients confidential só em bootstrap/Swarm secret — não no git  
 - [ ] Logout / post-logout URLs se o client usar  
 - [ ] Grupos no token (`groups` claim) — SPN completo vs short name (OpenBao JWT já usa SPN)
@@ -29,7 +29,7 @@ Revisar em cada promoção de DNS/ambiente. Issuer base: `https://id.archgate.co
 | console | login OIDC ou suite `w0-console-session` (lab e2e) |
 | warpgate | SSO UI / smoke-operator |
 | guacamole | `guacamole-sso-proxy-e2e` + `w0-guac-session` |
-| openbao | `smoke-kanidm-jwt.sh` |
+| openbao | `smoke-archguard-jwt.sh` |
 
 ## Última revisão
 

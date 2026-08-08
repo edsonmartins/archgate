@@ -49,7 +49,7 @@ docker exec "$CID" bao status | head -8
 1. Subir Swarm services (`docker service ls` — openbao 1/1).  
 2. Aguardar timer **ou** rodar unseal manual.  
 3. Validar: `bao status` → Sealed false.  
-4. Smoke opcional: `bash deploy/openbao/smoke-kanidm-jwt.sh`.
+4. Smoke opcional: `bash deploy/openbao/smoke-archguard-jwt.sh`.
 
 ## Limites lab (waiver homolog)
 

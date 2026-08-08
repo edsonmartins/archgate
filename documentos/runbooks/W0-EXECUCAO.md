@@ -58,7 +58,7 @@ Credenciais: `source /root/archgate/uat-credentials.env` no runtime (não commit
 |----|------|-------|-----------|
 | W0-A01 | https://console.archgate.com.br → login OIDC → dashboard | `uat-admin` e `uat-op-a` | print |
 | W0-A02 | https://guac.archgate.com.br → SSO → conexão SSH browser | `uat-op-a` | print / sessão |
-| W0-A03 | Disable user teste no Kanidm → novo SSO falha → reabilitar | admin IdP | nota |
+| W0-A03 | Disable user teste no archguard → novo SSO falha → reabilitar | admin IdP | nota |
 | W0-A04 | Mutação (salvar site ou sync Axis) → ver em `/audit` ou activity | `uat-admin` | print |
 | W0-A05 | Confirmar cadeado TLS válido no browser (DNS público) | — | observação |
 | W0-A06 | Data-alvo UAT + assinar F1.9 no plano MVP | — | doc |

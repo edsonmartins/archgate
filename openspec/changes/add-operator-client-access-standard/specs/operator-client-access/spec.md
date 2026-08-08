@@ -155,7 +155,7 @@ A validação do padrão SHALL incluir evidência de acesso a partir de estaçõ
 Personas que usam apenas Parte B (SSH/DB via Warpgate) SHALL poder operar o padrão sem depender da resolução da task de OIDC nativo do Guacamole (4.2 / ADR-007).
 
 #### Scenario: Operador só Warpgate
-- **WHEN** um operador autorizado usa somente SSH e proxy de banco via Warpgate com SSO Kanidm
+- **WHEN** um operador autorizado usa somente SSH e proxy de banco via Warpgate com SSO archguard
 - **THEN** o padrão operator-client-access é satisfeito para essa persona
 - **AND** a limitação de login local do Guacamole NÃO bloqueia essa persona
 

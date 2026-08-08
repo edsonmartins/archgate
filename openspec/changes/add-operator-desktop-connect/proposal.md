@@ -29,4 +29,4 @@ Falta o **endpoint agent do operador**: login ArchGate, catálogo autorizado, ma
 1. Dev macOS opera targets autorizados sem Forti/OpenVPN do cliente.
 2. Catálogo filtrado por identidade/tenant.
 3. Sessões SSH/DB auditáveis no bastion.
-4. Offboarding por Kanidm invalida o Connect.
+4. Offboarding por archguard invalida o Connect.

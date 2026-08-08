@@ -20,7 +20,7 @@ Connector site B ── só subnets B ── hosts B
 
 | Camada | Mecanismo |
 |--------|-----------|
-| Identidade | grupos Kanidm `tenant_*` |
+| Identidade | grupos archguard `tenant_*` |
 | Bastion | roles Warpgate / perms Guac |
 | Rede | AllowedIPs / rotas OpenVPN **mínimas** por site |
 | Admin | SoT sites + deny-by-default console |

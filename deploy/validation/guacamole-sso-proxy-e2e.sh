@@ -14,9 +14,9 @@ CODE=$(curl -sk -D "$HDRS" -o /tmp/guac_body.html -w '%{http_code}' -H "Host: ${
 echo "    http=$CODE"
 LOC=$(grep -i '^location:' "$HDRS" | tr -d '\r' | head -1 || true)
 echo "    $LOC"
-# Expect redirect (302/303/307) to Kanidm or /oauth2/start
+# Expect redirect (302/303/307) to archguard or /oauth2/start
 if echo "$CODE" | grep -qE '302|303|307'; then
-  echo "$LOC" | grep -qiE 'oauth2|id\.archgate|kanidm|authorize' \
+  echo "$LOC" | grep -qiE 'oauth2|id\.archgate|archguard|authorize' \
     || echo "$LOC" | grep -qi 'location:' \
     || fail "redirect location unexpected: $LOC"
   log "unauthenticated → redirect (SSO gate present)"

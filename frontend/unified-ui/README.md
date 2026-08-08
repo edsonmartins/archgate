@@ -6,7 +6,7 @@ Scaffold W4 — catálogo de conexões + chrome de sessão + launch Warpgate (AD
 
 - Vite 6 + React 19 + TypeScript  
 - React Router 7  
-- Auth: mock lab → OIDC Kanidm Code+PKCE (`VITE_OIDC_ENABLED=1`)  
+- Auth: mock lab → OIDC archguard Code+PKCE (`VITE_OIDC_ENABLED=1`)  
 - Catálogo: BFF `GET /api/unified/v1/connections` com fallback mock  
 - Sessão browser: `guacamole-common-js` + token BFF (`POST /api/unified/v1/sessions`)  
 - Parte B: snippets SSH/psql/DBeaver + deep-link `ssh://` (W4-UI07)
@@ -28,7 +28,7 @@ npm run build
 npm run preview
 ```
 
-## OIDC (Kanidm)
+## OIDC (archguard)
 
 1. Registrar client público `archgate-unified-ui` no IdP (redirect `…/auth/callback`, PKCE).  
 2. `VITE_OIDC_ENABLED=1` + issuer/client no `.env`.  

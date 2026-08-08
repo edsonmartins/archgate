@@ -15,7 +15,7 @@ cd clients/archgate-connect
 OIDC (SSO):
 
 ```bash
-# secret do client Kanidm archgate-connect (ops)
+# secret do client archguard archgate-connect (ops)
 cp ~/.config/archgate/oidc.env.example ~/.config/archgate/oidc.env
 chmod 600 ~/.config/archgate/oidc.env
 # preencher ARCHGATE_OIDC_CLIENT_SECRET
@@ -24,7 +24,7 @@ chmod 600 ~/.config/archgate/oidc.env
 ## Uso diário
 
 ```bash
-archgate login                 # browser Kanidm (PKCE)
+archgate login                 # browser archguard (PKCE)
 # ou homolog (catalog nickname ≠ Warpgate user):
 archgate login --lab --user edson
 # grava warpgate_user=uat-op-a (ou ARCHGATE_WG_USER)

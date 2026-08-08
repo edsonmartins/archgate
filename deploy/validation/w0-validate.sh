@@ -23,7 +23,7 @@ step() { echo -e "\n=== $* ==="; }
   source "$UAT_CREDS"; set +a; }
 
 step "0. Core services"
-for svc in archgate-edge_traefik archgate-id_kanidmd archgate-id_archguard-console \
+for svc in archgate-edge_traefik archgate-id_archguardd archgate-id_archguard-console \
   archgate-gw_warpgate archgate-gw_guacamole archgate-gw_oauth2-proxy \
   archgate-secrets_openbao; do
   rep=$(docker service ls --format '{{.Name}} {{.Replicas}}' | awk -v s="$svc" '$1==s{print $2}')

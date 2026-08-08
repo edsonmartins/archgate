@@ -33,5 +33,5 @@ _Nenhuma._
 - [ ] Inventário fechado de hosts/portas
 - [ ] MFA exigido na VPN do cliente (se disponível)
 - [ ] Runbook do operador do cliente aponta só hosts inventariados
-- [ ] Offboarding: revogar VPN **e** Kanidm
+- [ ] Offboarding: revogar VPN **e** archguard
 - [ ] Data de revisão / migração para connector

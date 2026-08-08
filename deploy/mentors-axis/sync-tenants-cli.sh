@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ops CLI: Axis → sites (Postgres) + Kanidm tenant_* + Warpgate roles
+# Ops CLI: Axis → sites (Postgres) + archguard tenant_* + Warpgate roles
 # Mirrors console syncMentorsAxisTenantsFn for lab bootstrap without browser session.
 #
 # Usage (on runtime host):
@@ -30,8 +30,8 @@ if [[ -n "$CID" ]]; then
   AXIS_TOKEN=$(docker exec "$CID" printenv MENTORS_AXIS_TOKEN 2>/dev/null || true)
   TENANT_ID=$(docker exec "$CID" printenv MENTORS_AXIS_TENANT_ID 2>/dev/null || true)
   CONSOLE_DATABASE_URL=$(docker exec "$CID" printenv CONSOLE_DATABASE_URL 2>/dev/null || true)
-  KANIDM_URL=$(docker exec "$CID" printenv ARCHGUARD_ID_URL 2>/dev/null || true)
-  KANIDM_SA=$(docker exec "$CID" printenv ARCHGUARD_SA_TOKEN 2>/dev/null || true)
+  archguard_URL=$(docker exec "$CID" printenv ARCHGUARD_ID_URL 2>/dev/null || true)
+  archguard_SA=$(docker exec "$CID" printenv ARCHGUARD_SA_TOKEN 2>/dev/null || true)
   WG_URL=$(docker exec "$CID" printenv WARPGATE_URL 2>/dev/null || true)
   WG_HOST=$(docker exec "$CID" printenv WARPGATE_HOST 2>/dev/null || true)
   WG_USER=$(docker exec "$CID" printenv WARPGATE_ADMIN_USER 2>/dev/null || true)
@@ -47,8 +47,8 @@ AXIS_EMAIL="${AXIS_EMAIL:-${MENTORS_AXIS_EMAIL:-admin@mentorsaxis.com}}"
 AXIS_PASS="${AXIS_PASS:-${MENTORS_AXIS_PASSWORD:-}}"
 AXIS_TOKEN="${AXIS_TOKEN:-${MENTORS_AXIS_TOKEN:-}}"
 TENANT_ID="${TENANT_ID:-${MENTORS_AXIS_TENANT_ID:-a9f814d2-4dae-41f3-851b-8aa3d4706561}}"
-KANIDM_URL="${KANIDM_URL:-${ARCHGUARD_ID_URL:-https://id.archgate.com.br}}"
-KANIDM_SA="${KANIDM_SA:-${ARCHGUARD_SA_TOKEN:-}}"
+archguard_URL="${archguard_URL:-${ARCHGUARD_ID_URL:-https://id.archgate.com.br}}"
+archguard_SA="${archguard_SA:-${ARCHGUARD_SA_TOKEN:-}}"
 WG_URL="${WG_URL:-${WARPGATE_URL:-https://wg.archgate.com.br}}"
 WG_HOST="${WG_HOST:-${WARPGATE_HOST:-wg.archgate.com.br}}"
 WG_USER="${WG_USER:-${WARPGATE_ADMIN_USER:-admin}}"
@@ -58,12 +58,12 @@ CONSOLE_DATABASE_URL="${CONSOLE_DATABASE_URL:-}"
 
 echo "==> Axis: $AXIS_URL  tenant=$TENANT_ID"
 echo "==> Sites SoT: CONSOLE_DATABASE_URL set"
-echo "==> Kanidm: ${KANIDM_URL}  SA=${KANIDM_SA:+yes}"
+echo "==> archguard: ${archguard_URL}  SA=${archguard_SA:+yes}"
 echo "==> Warpgate: ${WG_URL}  admin=${WG_PASS:+yes}"
 echo "==> Runner: ${CID:+console container}${CID:-host node}"
 
 export AXIS_URL AXIS_EMAIL AXIS_PASS AXIS_TOKEN TENANT_ID
-export KANIDM_URL KANIDM_SA WG_URL WG_HOST WG_USER WG_PASS
+export archguard_URL archguard_SA WG_URL WG_HOST WG_USER WG_PASS
 export CONSOLE_DATABASE_URL
 export NODE_TLS_REJECT_UNAUTHORIZED="${NODE_TLS_REJECT_UNAUTHORIZED:-0}"
 
@@ -71,7 +71,7 @@ run_node() {
   if [[ -n "$CID" ]]; then
     docker exec -i \
       -e AXIS_URL -e AXIS_EMAIL -e AXIS_PASS -e AXIS_TOKEN -e TENANT_ID \
-      -e KANIDM_URL -e KANIDM_SA -e WG_URL -e WG_HOST -e WG_USER -e WG_PASS \
+      -e archguard_URL -e archguard_SA -e WG_URL -e WG_HOST -e WG_USER -e WG_PASS \
       -e CONSOLE_DATABASE_URL -e NODE_TLS_REJECT_UNAUTHORIZED \
       "$CID" node --input-type=module
   else
@@ -84,8 +84,8 @@ import pg from 'pg';
 
 const AXIS_URL = (process.env.AXIS_URL || '').replace(/\/$/, '');
 const TENANT_ID = process.env.TENANT_ID || '';
-const KANIDM_URL = (process.env.KANIDM_URL || '').replace(/\/$/, '');
-const KANIDM_SA = process.env.KANIDM_SA || '';
+const archguard_URL = (process.env.archguard_URL || '').replace(/\/$/, '');
+const archguard_SA = process.env.archguard_SA || '';
 const WG_URL = (process.env.WG_URL || '').replace(/\/$/, '');
 const WG_HOST = process.env.WG_HOST || '';
 const WG_USER = process.env.WG_USER || 'admin';
@@ -144,20 +144,20 @@ async function listProprietarios(token) {
   return j.content || (Array.isArray(j) ? j : []);
 }
 
-async function ensureKanidmGroup(name, description) {
-  if (!KANIDM_SA) return { action: 'skipped', detail: 'no SA' };
-  const get = await fetch(`${KANIDM_URL}/v1/group/${encodeURIComponent(name)}`, {
-    headers: { Authorization: `Bearer ${KANIDM_SA}` },
+async function ensurearchguardGroup(name, description) {
+  if (!archguard_SA) return { action: 'skipped', detail: 'no SA' };
+  const get = await fetch(`${archguard_URL}/v1/group/${encodeURIComponent(name)}`, {
+    headers: { Authorization: `Bearer ${archguard_SA}` },
   });
   if (get.ok) return { action: 'exists', detail: name };
   if (get.status !== 404) {
     const t = await get.text();
     return { action: 'error', detail: `GET ${get.status} ${t.slice(0, 120)}` };
   }
-  const create = await fetch(`${KANIDM_URL}/v1/group`, {
+  const create = await fetch(`${archguard_URL}/v1/group`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${KANIDM_SA}`,
+      Authorization: `Bearer ${archguard_SA}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -361,7 +361,7 @@ try {
         .join('\n'),
     });
 
-    const kg = await ensureKanidmGroup(
+    const kg = await ensurearchguardGroup(
       tenant_group,
       `ArchGate tenant for ${descricao || slug}`,
     );
@@ -371,7 +371,7 @@ try {
       `ArchGate tenant role for ${descricao || slug}`,
     );
     console.log(
-      `  ${slug}: site=${exists.rowCount ? 'upd' : 'new'} kanidm=${kg.action} wg=${wr.action}`,
+      `  ${slug}: site=${exists.rowCount ? 'upd' : 'new'} archguard=${kg.action} wg=${wr.action}`,
     );
   }
 

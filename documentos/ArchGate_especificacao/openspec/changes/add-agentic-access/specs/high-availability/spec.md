@@ -9,11 +9,11 @@ O sistema SHALL operar o OpenBao em modo HA com auto-unseal seguro.
 - **WHEN** um nó do OpenBao falha
 - **THEN** a emissão de credenciais continua por outro nó sem intervenção manual
 
-### Requirement: Kanidm Replicado
-O sistema SHALL operar o Kanidm com replicação.
+### Requirement: archguard Replicado
+O sistema SHALL operar o archguard com replicação.
 
-#### Scenario: Falha de nó do Kanidm
-- **WHEN** um nó do Kanidm falha
+#### Scenario: Falha de nó do archguard
+- **WHEN** um nó do archguard falha
 - **THEN** a autenticação continua disponível por outro nó
 
 ### Requirement: Persistência Externa e Gateways Stateless

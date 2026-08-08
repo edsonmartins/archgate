@@ -8,7 +8,7 @@ A API de orquestração SHALL rejeitar qualquer chamada não autenticada e SHALL
 #### Scenario: Chamada sem credencial é rejeitada
 - **WHEN** um cliente chama `POST /orchestration/v1/users/provision` sem credencial válida
 - **THEN** a requisição é rejeitada com 401
-- **AND** nenhum componente (Kanidm, Warpgate, Guacamole, OpenBao) é tocado
+- **AND** nenhum componente (archguard, Warpgate, Guacamole, OpenBao) é tocado
 
 #### Scenario: Serviço sem credencial configurada não atende
 - **WHEN** o serviço sobe sem token de serviço configurado
@@ -33,11 +33,11 @@ Os webhooks recebidos do Mentors Axis SHALL ser autenticados por assinatura HMAC
 - **THEN** o resultado anterior é devolvido sem reexecutar a operação
 
 ### Requirement: Provisionamento por API
-O Mentors Axis SHALL provisionar usuários e conceder acessos por API, aplicando identidade no Kanidm, targets no gateway e policies no OpenBao.
+O Mentors Axis SHALL provisionar usuários e conceder acessos por API, aplicando identidade no archguard, targets no gateway e policies no OpenBao.
 
 #### Scenario: Onboarding automatizado
 - **WHEN** um novo desenvolvedor é adicionado no Mentors Axis com um perfil e tenant
-- **THEN** a identidade é criada no Kanidm com o RBAC correto
+- **THEN** a identidade é criada no archguard com o RBAC correto
 - **AND** os acessos autorizados são configurados nos gateways e no OpenBao
 
 ### Requirement: Offboarding Automatizado
@@ -45,7 +45,7 @@ O Mentors Axis SHALL revogar todo o acesso de um principal em uma única operaç
 
 #### Scenario: Revogação em um clique
 - **WHEN** um desenvolvedor é desligado no Mentors Axis
-- **THEN** a identidade é desabilitada no Kanidm, os leases são invalidados no OpenBao e os roles removidos no gateway
+- **THEN** a identidade é desabilitada no archguard, os leases são invalidados no OpenBao e os roles removidos no gateway
 - **AND** nenhuma senha de cliente precisa ser rotacionada
 
 ### Requirement: Sincronização de Tenants

@@ -38,7 +38,7 @@
 
 | # | Critério | Como verificar | Evidência | Resultado |
 |---|----------|----------------|-----------|-----------|
-| 0.1 | Swarm runtime saudável (core services 1/1) | `docker service ls` — traefik, kanidmd, console, warpgate, guacamole, openbao | colar saída ou print | ⬜ |
+| 0.1 | Swarm runtime saudável (core services 1/1) | `docker service ls` — traefik, archguardd, console, warpgate, guacamole, openbao | colar saída ou print | ⬜ |
 | 0.2 | OpenBao **unsealed** | `bao status` ou UI `/secrets` | sealed=false | ⬜ |
 | 0.3 | Timer unseal ativo | `systemctl list-timers \| grep openbao-unseal` | timer listado | ⬜ |
 | 0.4 | Axis Spring UP | `curl -sS http://127.0.0.1:9031/actuator/health` → `{"status":"UP"}` | saída curl | ⬜ |
@@ -52,11 +52,11 @@
 
 | # | Critério | Como verificar | Evidência | Resultado |
 |---|----------|----------------|-----------|-----------|
-| 1.1 | Login console via Kanidm OIDC | Abrir console → login → dashboard | print sessão | ⬜ |
+| 1.1 | Login console via archguard OIDC | Abrir console → login → dashboard | print sessão | ⬜ |
 | 1.2 | Operador lab autentica no Warpgate (SSO ou user de teste) | Login em `https://wg.archgate.com.br` | print / log | ⬜ |
 | 1.3 | Portão Guacamole (oauth2-proxy) exige identidade | Abrir `https://guac.archgate.com.br` sem sessão → redirect IdP | print | ⬜ |
-| 1.4 | OpenBao JWT (Kanidm) configurado | `/secrets` mostra auth jwt **ou** `smoke-kanidm-jwt.sh` PASS | log smoke ou print | ⬜ |
-| 1.5 | Offboarding IdP | Desabilitar user de teste no Kanidm → próximo login SSO falha em console **ou** WG | nota do teste | ⬜ |
+| 1.4 | OpenBao JWT (archguard) configurado | `/secrets` mostra auth jwt **ou** `smoke-archguard-jwt.sh` PASS | log smoke ou print | ⬜ |
+| 1.5 | Offboarding IdP | Desabilitar user de teste no archguard → próximo login SSO falha em console **ou** WG | nota do teste | ⬜ |
 
 **Critério do bloco:** 1.1–1.4 obrigatórios; 1.5 pode ⚠️ se só documentado e reexecutado em janela controlada.
 
@@ -85,7 +85,7 @@ Referência: `endpoints-staging.md`, `cliente-operador-multi-os.md`, smoke `depl
 |---|----------|----------------|-----------|-----------|
 | 3.1 | Módulo Sites lista inventário (SoT Postgres) | `/sites` — **≥1** site; badge SoT `postgres` se disponível | print | ⬜ |
 | 3.2 | Inventário alinhado ao Axis | Contagem sites ≈ proprietários Axis (lab: **6**) ou subset documentado | print Sites + Axis | ⬜ |
-| 3.3 | Sync Axis orquestra | UI **Mentors Axis** → Sincronizar: site + Kanidm `tenant_*` + (se WG OK) role | print “Última orquestração” | ⬜ |
+| 3.3 | Sync Axis orquestra | UI **Mentors Axis** → Sincronizar: site + archguard `tenant_*` + (se WG OK) role | print “Última orquestração” | ⬜ |
 | 3.4 | Gateways: listar targets/roles (admin) | `/gateways` Warpgate tab sem erro de API | print / API do pod | ✅ |
 | 3.5 | Apply site → gateway | Site com target `warpgate` → **Sincronizar gateways** → target existe no WG | log apply / path admin OK | ✅ |
 | 3.6 | Segredos OpenBao (leitura admin) | `/secrets` health unsealed + mounts/JWT ou leases | print | ⬜ |
@@ -131,7 +131,7 @@ Marcar só para rastreio; **não** entram no PASS/FAIL do piloto lab.
 | # | Item | Pacote futuro | Resultado rastreio |
 |---|------|---------------|--------------------|
 | 6.1 | UnifiedUI catálogo operador | Fase 4 | ⬜ n/a |
-| 6.2 | Provision/revoke pessoas Axis→Kanidm | Fase 4 | ⬜ n/a |
+| 6.2 | Provision/revoke pessoas Axis→archguard | Fase 4 | ⬜ n/a |
 | 6.3 | Offboarding multi-componente (WG+Bao+Guac) | Fase 4 | ⬜ n/a |
 | 6.4 | OpenBao HA / auto-unseal KMS | Fase 5 | ⬜ n/a |
 | 6.5 | Oracle credential proxy | Fase 3a | ⬜ n/a |
@@ -149,7 +149,7 @@ Marcar só para rastreio; **não** entram no PASS/FAIL do piloto lab.
 |-------|-----------------|
 | Smoke operador | `WG_HOST=192.168.1.180 bash deploy/validation/smoke-operator-access.sh` |
 | Sync inventário CLI | `bash deploy/mentors-axis/sync-tenants-cli.sh` |
-| JWT OpenBao | `bash deploy/openbao/smoke-kanidm-jwt.sh` |
+| JWT OpenBao | `bash deploy/openbao/smoke-archguard-jwt.sh` |
 | Broker DB | `bash deploy/openbao/smoke-broker-warpgate.sh` |
 | Endpoints | `documentos/runbooks/endpoints-staging.md` |
 | Evidência histórica smoke | `documentos/runbooks/sites/smoke-evidence-2026-07-10.md` |
@@ -229,7 +229,7 @@ Atualizar quando o aceite for executado.
 
 | Área | Estado típico pós-implementação 2026-07 |
 |------|------------------------------------------|
-| Core Swarm | traefik, kanidm, console, wg, guac, bao 1/1 |
+| Core Swarm | traefik, archguard, console, wg, guac, bao 1/1 |
 | Axis | Spring 1/1; stub 0/0 |
 | Sites PG | 6 clientes Axis (taf, rio_quality, …) |
 | Stack sites | majoritariamente `a_confirmar` até ops preencher |

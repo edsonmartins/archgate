@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Provision Kanidm + Warpgate personas for Homologação UAT (plano F2.2).
+# Provision archguard + Warpgate personas for Homologação UAT (plano F2.2).
 #
 # Run on ArchGate runtime as root:
 #   bash deploy/validation/provision-uat-users.sh
@@ -9,9 +9,9 @@
 set -euo pipefail
 
 BOOTSTRAP="${BOOTSTRAP:-/root/archgate/bootstrap.env}"
-KANIDM_URL="${KANIDM_URL:-https://127.0.0.1:8443}"
-KANIDM_SERVICE="${KANIDM_SERVICE:-archgate-id_kanidmd}"
-DOMAIN="${KANIDM_DOMAIN:-id.archgate.com.br}"
+archguard_URL="${archguard_URL:-https://127.0.0.1:8443}"
+archguard_SERVICE="${archguard_SERVICE:-archgate-id_archguardd}"
+DOMAIN="${archguard_DOMAIN:-id.archgate.com.br}"
 UAT_CREDS_FILE="${UAT_CREDS_FILE:-/root/archgate/uat-credentials.env}"
 WG_HOST_HEADER="${WARPGATE_HOST:-wg.archgate.com.br}"
 WG_BASE="${WARPGATE_ADMIN_BASE:-https://127.0.0.1}"
@@ -43,13 +43,13 @@ gen_password() {
 
 recover_password() {
   local account="$1" cid="$2"
-  docker exec "$cid" /sbin/kanidmd recover-account "$account" -c /data/server.toml 2>&1 \
+  docker exec "$cid" /sbin/archguardd recover-account "$account" -c /data/server.toml 2>&1 \
     | sed -n 's/.*new_password: "\([^"]*\)".*/\1/p' | tail -1
 }
 
-kanidm_rest_auth() {
+archguard_rest_auth() {
   local username="$1" password="$2"
-  python3 - "$username" "$password" "$KANIDM_URL" <<'PY'
+  python3 - "$username" "$password" "$archguard_URL" <<'PY'
 import json, subprocess, sys
 user, password, url = sys.argv[1:4]
 subprocess.run([
@@ -87,33 +87,33 @@ PY
 api() {
   local token="$1" method="$2" path="$3" body="${4:-}"
   if [[ -n "$body" ]]; then
-    "${CURL[@]}" -X "$method" "$KANIDM_URL$path" \
+    "${CURL[@]}" -X "$method" "$archguard_URL$path" \
       -H "Authorization: Bearer $token" -H "Content-Type: application/json" -d "$body"
   else
-    "${CURL[@]}" -X "$method" "$KANIDM_URL$path" \
+    "${CURL[@]}" -X "$method" "$archguard_URL$path" \
       -H "Authorization: Bearer $token" -H "Content-Type: application/json"
   fi
 }
 
-# pexpect: login + password update (kanidm CLI requires TTY)
+# pexpect: login + password update (archguard CLI requires TTY)
 set_passwords_pexpect() {
   local idm_pass="$1"
   shift
   # remaining: name=pass pairs as env file path
   local creds_file="$1"
-  IDM_ADMIN_PASSWORD="$idm_pass" KANIDM_URL="$KANIDM_URL" UAT_CREDS_FILE="$creds_file" python3 - <<'PY'
+  IDM_ADMIN_PASSWORD="$idm_pass" archguard_URL="$archguard_URL" UAT_CREDS_FILE="$creds_file" python3 - <<'PY'
 import os, pexpect, tempfile, subprocess, time, json
 
 idm_pass = os.environ["IDM_ADMIN_PASSWORD"]
-kanidm_url = os.environ["KANIDM_URL"]
+archguard_url = os.environ["archguard_URL"]
 tokens = tempfile.mkdtemp()
 
-def run_kanidm(args, send_lines=None, timeout=90):
+def run_archguard(args, send_lines=None, timeout=90):
     cmd = (
         f"docker run --rm -it --network host "
         f"-v {tokens}:/root/.cache "
-        f"-e KANIDM_URL={kanidm_url} "
-        f"kanidm/tools:1.10.4 /sbin/kanidm "
+        f"-e archguard_URL={archguard_url} "
+        f"archguard/tools:1.10.4 /sbin/archguard "
         + " ".join(args)
         + " --accept-invalid-certs --name idm_admin"
     )
@@ -153,14 +153,14 @@ with open(os.environ["UAT_CREDS_FILE"]) as f:
             k,v=line.split("=",1)
             creds[k]=v
 
-run_kanidm(["login"], send_lines=[idm_pass])
+run_archguard(["login"], send_lines=[idm_pass])
 for envk, person in mapping.items():
     passw = creds.get(envk)
     if not passw:
         print(f"  [!!] missing {envk}")
         continue
-    run_kanidm(["login"], send_lines=[idm_pass])
-    out = run_kanidm(
+    run_archguard(["login"], send_lines=[idm_pass])
+    out = run_archguard(
         ["person", "credential", "update", person],
         send_lines=["password", passw, passw, "commit", "y"],
     )
@@ -231,15 +231,15 @@ d=json.load(sys.stdin); print(next((x["id"] for x in d if x.get("name")==n),""))
 }
 
 # ---------- main ----------
-CID=$(docker ps --filter "name=${KANIDM_SERVICE}" --format '{{.ID}}' | head -1)
-[[ -n "$CID" ]] || err "kanidmd not found"
-STATUS=$("${CURL[@]}" "$KANIDM_URL/status" || true)
-[[ "$STATUS" == "true" ]] || err "Kanidm unhealthy: $STATUS"
+CID=$(docker ps --filter "name=${archguard_SERVICE}" --format '{{.ID}}' | head -1)
+[[ -n "$CID" ]] || err "archguardd not found"
+STATUS=$("${CURL[@]}" "$archguard_URL/status" || true)
+[[ "$STATUS" == "true" ]] || err "archguard unhealthy: $STATUS"
 
 step "idm_admin auth"
 IDM_ADMIN_PASSWORD=$(recover_password idm_admin "$CID")
 [[ -n "$IDM_ADMIN_PASSWORD" ]] || err "empty idm_admin"
-IDM_TOKEN=$(kanidm_rest_auth "idm_admin" "$IDM_ADMIN_PASSWORD") || err "idm_admin REST auth failed"
+IDM_TOKEN=$(archguard_rest_auth "idm_admin" "$IDM_ADMIN_PASSWORD") || err "idm_admin REST auth failed"
 log "idm_admin token OK"
 
 step "Ensure groups"
@@ -298,16 +298,16 @@ for entry in "${PERSONAS[@]}"; do
 done
 chmod 600 "$UAT_CREDS_FILE"
 
-step "Set Kanidm passwords (pexpect + TTY)"
+step "Set archguard passwords (pexpect + TTY)"
 set_passwords_pexpect "$IDM_ADMIN_PASSWORD" "$UAT_CREDS_FILE"
 
-step "Verify Kanidm auth"
+step "Verify archguard auth"
 # shellcheck disable=SC1090
 set -a; source "$UAT_CREDS_FILE"; set +a
 for name in uat-admin uat-op-a uat-op-b uat-viewer; do
   key="UAT_PASS_${name//-/_}"
   pass="${!key}"
-  if kanidm_rest_auth "$name" "$pass" >/dev/null 2>&1; then
+  if archguard_rest_auth "$name" "$pass" >/dev/null 2>&1; then
     log "auth OK $name"
   else
     warn "auth FAIL $name"

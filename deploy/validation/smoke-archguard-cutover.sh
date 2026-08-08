@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Smoke de virada Kanidm → ArchGuard.
+# Smoke de virada archguard → ArchGuard.
 #
 # Roda ANTES de mexer no staging. Valida as premissas de que dependem três
 # configurações (Warpgate role_mappings, OpenBao bound_claims/bound_audiences e
@@ -72,13 +72,13 @@ TOKEN_EP=$(echo "$DISC" | jget token_endpoint)
 [ -n "$TOKEN_EP" ] && log "token_endpoint = $TOKEN_EP"  || fail "discovery sem token_endpoint"
 
 # O console deixou de montar `<issuer>/userinfo` justamente porque essa é a
-# forma do Kanidm; no Casdoor o caminho é /api/userinfo.
+# forma do archguard; no Casdoor o caminho é /api/userinfo.
 if [ -z "$USERINFO" ]; then
   fail "discovery sem userinfo_endpoint — o BFF do Connect depende dele"
 elif [ "$USERINFO" = "${ISSUER}/userinfo" ]; then
-  skip "userinfo_endpoint == <issuer>/userinfo (forma Kanidm) — confirme o IdP"
+  skip "userinfo_endpoint == <issuer>/userinfo (forma archguard) — confirme o IdP"
 else
-  log "userinfo_endpoint = $USERINFO (não é a forma Kanidm)"
+  log "userinfo_endpoint = $USERINFO (não é a forma archguard)"
 fi
 
 if [ "$ISSUER" = "$IDP_URL" ]; then
@@ -240,7 +240,7 @@ print('\n'.join(map(str,g)))")
         log "groups qualificados como ${ORG}/<nome> — premissa CONFIRMADA"
         echo "         → Warpgate role_mappings e OpenBao bound_claims usam o prefixo"
       elif echo "$CLAIM_GROUPS" | grep -q '@'; then
-        skip "groups no formato Kanidm (nome@domínio) — o IdP ativo ainda é o Kanidm?"
+        skip "groups no formato archguard (nome@domínio) — o IdP ativo ainda é o archguard?"
       else
         fail "groups SEM prefixo ${ORG}/ — premissa REFUTADA"
         echo "         → remova o prefixo de deploy/warpgate/deploy.sh e do bootstrap do OpenBao"

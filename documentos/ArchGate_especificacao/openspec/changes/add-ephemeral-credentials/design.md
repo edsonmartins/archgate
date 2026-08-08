@@ -15,7 +15,7 @@ Acesso a PostgreSQL usa o database secrets engine: usuário criado sob demanda, 
 Como o OpenBao emite tudo, ele concentra risco. Mitigações: modo HA, unseal seguro, policies mínimas, auditoria de emissão, e bootstrap guardado **fora** da plataforma (evitar dependência circular).
 
 ### D4 — Rastreabilidade principal → credencial
-Toda emissão é amarrada à identidade Kanidm do solicitante. A auditoria precisa responder: quem pediu, para qual alvo, com qual TTL, e quando expirou/foi revogado.
+Toda emissão é amarrada à identidade archguard do solicitante. A auditoria precisa responder: quem pediu, para qual alvo, com qual TTL, e quando expirou/foi revogado.
 
 ### D5 — Oracle e step-ca ficam para decisão
 - **Oracle** (Consinco/Rio Quality) não tem engine dinâmico validado ainda → **ADR-001**, tratado na Fase 3.

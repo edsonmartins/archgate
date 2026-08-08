@@ -18,7 +18,7 @@ ok()  { LINES+=("OK|$1"); }
 bad() { LINES+=("FAIL|$1"); FAIL=$((FAIL+1)); }
 
 # Swarm critical services
-for svc in archgate-edge_traefik archgate-id_kanidmd archgate-id_archguard-console \
+for svc in archgate-edge_traefik archgate-id_archguardd archgate-id_archguard-console \
   archgate-gw_warpgate archgate-gw_guacamole archgate-gw_oauth2-proxy \
   archgate-secrets_openbao; do
   rep=$(docker service ls --format '{{.Name}} {{.Replicas}}' 2>/dev/null | awk -v s="$svc" '$1==s{print $2}')
