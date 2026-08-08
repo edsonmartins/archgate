@@ -92,6 +92,24 @@ public abstract class HttpLiveAdapter implements ComponentAdapter {
     }
   }
 
+  /** Read-only calls remain available in dry-run; only mutating adapters are suppressed. */
+  protected <T> T postJsonReadOnly(String path, Object body, Class<T> responseType) {
+    if (endpoint == null || !endpoint.usable()) {
+      log.info("[{}] unavailable POST {} body={}", name(), path, body);
+      return null;
+    }
+    try {
+      return client.post()
+          .uri(path)
+          .contentType(MediaType.APPLICATION_JSON)
+          .body(body)
+          .retrieve()
+          .body(responseType);
+    } catch (RestClientResponseException e) {
+      throw new OrchestrationHttpException(name(), "POST", path, e.getStatusCode().value(), e.getResponseBodyAsString(), e);
+    }
+  }
+
   protected void patchJson(String path, Object body) {
     if (!isLiveHttp()) {
       log.info("[{}] dry-run PATCH {} body={}", name(), path, body);
