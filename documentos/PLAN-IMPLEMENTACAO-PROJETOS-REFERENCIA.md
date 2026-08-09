@@ -155,4 +155,5 @@ P0 legado/contratos
 - [x] Materialização integrada ao Admin Console: grant escreve `connect`; offboarding remove as tuplas do principal.
 - [x] W1-06 ativado em desenvolvimento com duas tuplas explícitas de laboratório para `uat-op-a`; produção permanece sem concessões implícitas.
 - [x] W1-07 ponto de encerramento server-side criado em `DELETE /api/unified/v1/sessions/:sessionId`; RustGuac fecha a sessão sem expor a API key.
-- [ ] W1-07 associar `lease_id` OpenBao dinâmico ao ciclo da sessão (KV estático não será tratado como lease).
+- [x] W1-07 `lease_id` real, quando fornecido pelo segredo, é persistido apenas server-side e revogado no encerramento.
+- [ ] W1-07 emitir credenciais dinâmicas OpenBao para cada target; KV estático não será tratado como lease.
