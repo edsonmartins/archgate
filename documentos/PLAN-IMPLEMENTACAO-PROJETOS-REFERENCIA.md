@@ -145,7 +145,7 @@ P0 legado/contratos
 ## Progresso
 
 - [x] P0-01 concluído: Connect, orchestration e o deploy suportado usam ArchGuard-only; manifests, imagens, health checks e validações do runtime local legado foram removidos dos caminhos operacionais.
-- [~] P0-02 a P0-06: deploy/smokes legados removidos, OpenSpec baseline atualizado, gate de licença/SBOM adicionado ao CI, idempotência integrada a contas/checkout e audit outbox transacional implementado no ArchGuard Console (`13778ee`); ainda falta publicar o outbox em um forwarder durável e marcar todos os runbooks históricos.
+- [~] P0-02 a P0-06: deploy/smokes legados removidos, OpenSpec baseline atualizado, gate de licença/SBOM adicionado ao CI, idempotência integrada a contas/checkout, audit outbox transacional e forwarder HTTPS configurável implementados no ArchGuard Console (`f689061`); ainda falta operar um endpoint durável real e marcar todos os runbooks históricos.
 - [x] W1-01 concluído: RustGuac implantado como gateway de sessões em `guac.archgate.com.br`, com Console → BFF → RustGuac validado.
 - [x] W1-03/W1-04 concluídos: contrato de sessão e ticket WebSocket single-use formalizados em `rustguac-proxy.ts`, com TTL de 30s, URL sem credencial administrativa e testes unitários.
 - [x] W1-05 concluído: sessão OIDC resolve `subject` no ArchGuard session-context, exige identidade ativa e anexa memberships autoritativas ao cookie server-side.
