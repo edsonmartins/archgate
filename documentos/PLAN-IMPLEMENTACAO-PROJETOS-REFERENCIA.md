@@ -154,3 +154,5 @@ P0 legado/contratos
 - [x] Sincronizador idempotente de tuples criado em `scripts/77-sync-openfga-tuples.sh` (arquivo root-only, sem permissões fictícias).
 - [x] Materialização integrada ao Admin Console: grant escreve `connect`; offboarding remove as tuplas do principal.
 - [x] W1-06 ativado em desenvolvimento com duas tuplas explícitas de laboratório para `uat-op-a`; produção permanece sem concessões implícitas.
+- [x] W1-07 ponto de encerramento server-side criado em `DELETE /api/unified/v1/sessions/:sessionId`; RustGuac fecha a sessão sem expor a API key.
+- [ ] W1-07 associar `lease_id` OpenBao dinâmico ao ciclo da sessão (KV estático não será tratado como lease).
