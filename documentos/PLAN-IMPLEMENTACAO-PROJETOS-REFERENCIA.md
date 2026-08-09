@@ -145,7 +145,7 @@ P0 legado/contratos
 ## Progresso
 
 - [x] P0-01 concluído: Connect, orchestration e o deploy suportado usam ArchGuard-only; manifests, imagens, health checks e validações do runtime local legado foram removidos dos caminhos operacionais.
-- [~] P0-02 a P0-06: deploy/smokes legados removidos e OpenSpec baseline atualizado; ainda falta marcar todos os runbooks históricos, formalizar contratos BFF do Manager e concluir o gate de licença/SBOM.
+- [~] P0-02 a P0-06: deploy/smokes legados removidos, OpenSpec baseline atualizado e gate de licença/SBOM adicionado ao CI; ainda falta marcar todos os runbooks históricos e formalizar contratos BFF do Manager.
 - [x] W1-01 concluído: RustGuac implantado como gateway de sessões em `guac.archgate.com.br`, com Console → BFF → RustGuac validado.
 - [x] W1-03/W1-04 concluídos: contrato de sessão e ticket WebSocket single-use formalizados em `rustguac-proxy.ts`, com TTL de 30s, URL sem credencial administrativa e testes unitários.
 - [x] W1-05 concluído: sessão OIDC resolve `subject` no ArchGuard session-context, exige identidade ativa e anexa memberships autoritativas ao cookie server-side.
