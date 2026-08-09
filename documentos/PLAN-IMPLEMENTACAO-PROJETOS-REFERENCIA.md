@@ -159,3 +159,4 @@ P0 legado/contratos
 - [x] W1-07 role dinâmica de laboratório configurada no OpenBao (`archgate-lab-readonly`), com TTL 15m/1h e revogação validada.
 - [x] W1-07 targets podem optar por `openbao_database_role`; emissão server-side associa `lease_id` e o encerramento revoga a credencial.
 - [x] W1-07 role dinâmica configurável no Admin Console (formulário de site e wizard), persistindo apenas o identificador da role.
+- [x] W1-08 smoke SSH RustGuac interno: sessão criada contra `archgate-lab-ssh` e encerrada pelo endpoint server-side; WebSocket interativo ainda requer validação E2E pelo navegador/Connect.
