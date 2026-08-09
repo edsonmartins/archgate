@@ -20,7 +20,7 @@ Atualizado: 2026-07-10
 | Item | Valor |
 |---|---|
 | Repo | `/Users/edsonmartins/desenvolvimento/archguard` |
-| Engines | archguard (`archguardd`) + ArchGuard Console + AliasVault |
+| Identity | ArchGuard SaaS + ArchGuard Console |
 | Setup | `scripts/setup-archguard.sh` (grupos `archguard_*`, OAuth2, SA) |
 | Identidade | ArchGuard SaaS (`https://app.archguard.com.br`) |
 
@@ -29,8 +29,6 @@ Estado atual (2026-07-10):
 | Serviço | Host | Status |
 |---|---|---|
 | Traefik | `.180` Swarm `archgate-edge_traefik` | 1/1 |
-| archguard 1.10.4 | `.180` `archgate-id_archguardd` :8443 + Traefik `id.archgate.com.br` | healthy |
-| ArchGuard Console | `.180` `archgate-id_archguard-console` + Traefik `console.archgate.com.br` | 1/1 |
 | Warpgate 0.26.1 | `.180` `archgate-gw_warpgate` + Traefik `wg.archgate.com.br` | 1/1 (SSO Minimized) |
 | Guacamole / guacd 1.6.0 | `.180` + Traefik `guac.archgate.com.br` | 1/1 (Postgres + recording) |
 | lab OpenSSH | `archgate-lab_ssh` na rede `archgate-data` | 1/1 |
