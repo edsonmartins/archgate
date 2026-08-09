@@ -151,4 +151,5 @@ P0 legado/contratos
 - [x] W1-05 concluído: sessão OIDC resolve `subject` no ArchGuard session-context, exige identidade ativa e anexa memberships autoritativas ao cookie server-side.
 - [x] W1-06 adapter concluído: `checkOpenFga` envia tuple `user/relation/object` e falha fechado quando OpenFGA está habilitado.
 - [x] W1-06 store/modelo OpenFGA provisionados na VPS; smoke sem tuple retorna `allowed=false`.
+- [x] Sincronizador idempotente de tuples criado em `scripts/77-sync-openfga-tuples.sh` (arquivo root-only, sem permissões fictícias).
 - [ ] W1-06 cadastrar tuples por tenant/conexão e ativar `OPENFGA_ENABLED=1` na janela de desenvolvimento.
