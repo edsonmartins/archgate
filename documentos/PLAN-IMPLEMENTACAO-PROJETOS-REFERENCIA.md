@@ -144,8 +144,8 @@ P0 legado/contratos
 
 ## Progresso
 
-- [x] P0-01 iniciado: Connect e orchestration passaram a ArchGuard-only; testes Go e Maven registrados em 2026-08-07.
-- [ ] P0-02 a P0-06.
+- [~] P0-01 parcial: Connect e orchestration já usam ArchGuard-only, mas ainda existem scripts, imagens, health checks e documentos operacionais do runtime legado com `archguard_*`; eles precisam ser removidos ou marcados como histórico antes do aceite final.
+- [ ] P0-02 a P0-06: substituição dos smokes/deploys legados, limpeza de stack/imagens, atualização dos OpenSpecs, contratos BFF do Manager e gate de licença/SBOM.
 - [x] W1-01 concluído: RustGuac implantado como gateway de sessões em `guac.archgate.com.br`, com Console → BFF → RustGuac validado.
 - [x] W1-03/W1-04 concluídos: contrato de sessão e ticket WebSocket single-use formalizados em `rustguac-proxy.ts`, com TTL de 30s, URL sem credencial administrativa e testes unitários.
 - [x] W1-05 concluído: sessão OIDC resolve `subject` no ArchGuard session-context, exige identidade ativa e anexa memberships autoritativas ao cookie server-side.
@@ -170,3 +170,9 @@ P0 legado/contratos
 - [~] W2-02 transporte inicial no agent: heartbeat HTTPS outbound com mTLS, envelope versionado, `message_id`, capabilities, estado `ready/degraded` e backoff exponencial com jitter; falta endpoint Manager mTLS, reconnect de stream e rotação automática.
 - [~] W2-02 endpoint Manager de heartbeat em `POST /api/org/v1/connectors/heartbeat`: exige proxy mTLS confiável, certificado verificado e `connector_id` coincidente; persiste último estado/capabilities e responde `503` por padrão quando o proxy não está habilitado. A opção TLS `connector-mtls` e o CA público do OpenBao agora estão preparados no Traefik via `scripts/81-install-connector-mtls-edge.sh`, em modo opt-in; falta associar a opção a um router/domínio de produção e implementar rotação.
 - [~] W2-02 testes de heartbeat adicionados: persistência idempotente por connector e rejeição de versão/estado inválidos. Execução completa da suíte depende de restaurar as dependências locais do Console; o build Docker de produção permanece validado.
+
+### Próximos gates recomendados
+
+1. Concluir P0-01/P0-04: retirar do runtime e marcar como superseded os artefatos legados ainda encontrados em `deploy/`, `openspec/` e `deploy/versions.env`.
+2. Concluir W1-08 a W1-11 com E2E de navegador, RDP/VNC e aposentadoria da UI stock.
+3. Fechar W2-02 a W2-04 com domínio/router mTLS, rotação, revogação e autorização tenant-scoped.
