@@ -159,7 +159,7 @@ P0 legado/contratos
 - [x] W1-07 role dinâmica de laboratório configurada no OpenBao (`archgate-lab-readonly`), com TTL 15m/1h e revogação validada.
 - [x] W1-07 targets podem optar por `openbao_database_role`; emissão server-side associa `lease_id` e o encerramento revoga a credencial.
 - [x] W1-07 role dinâmica configurável no Admin Console (formulário de site e wizard), persistindo apenas o identificador da role.
-- [x] W1-08 smoke SSH RustGuac interno: sessão criada contra `archgate-lab-ssh` e encerrada pelo endpoint server-side; WebSocket interativo ainda requer validação E2E pelo navegador/Connect.
+- [~] W1-08 smoke SSH RustGuac interno concluído; smoke E2E autenticado de navegador foi adicionado em `tests/e2e/rustguac-session.spec.ts` (`e09ce3f`) e aguarda execução com cookie de sessão/target de laboratório.
 - [~] W1-09 políticas de sessão: gravação, clipboard e intenção de drive agora são configuráveis por target no Admin Console e propagadas por sessão; transferência de arquivos permanece desligada no gateway de laboratório. Falta validação E2E no navegador e rollout controlado de upload/download.
 - [~] W1-10 catálogo server-side de gravações RustGuac exposto em `GET /api/unified/v1/recordings`, protegido por `gateways:read`; playback autenticado agora passa por `GET /api/unified/v1/recordings/:name` e só aceita artefatos `.guac` de sessões broker conhecidas. Falta evidência de retenção e integração E2E com uma gravação real.
 - [~] W2-03 contrato inicial de enrollment de connector: token aleatório com hash-only, TTL de 60–3600s, vínculo site/connector e consumo atômico single-use em `POST /api/org/v1/connectors/enrollment`; falta emissão de certificado/mTLS e integração com o agente outbound.
@@ -170,6 +170,7 @@ P0 legado/contratos
 - [~] W2-02 transporte inicial no agent: heartbeat HTTPS outbound com mTLS, envelope versionado, `message_id`, capabilities, estado `ready/degraded` e backoff exponencial com jitter; falta endpoint Manager mTLS, reconnect de stream e rotação automática.
 - [~] W2-02 endpoint Manager de heartbeat em `POST /api/org/v1/connectors/heartbeat`: exige proxy mTLS confiável, certificado verificado e `connector_id` coincidente; persiste último estado/capabilities e responde `503` por padrão quando o proxy não está habilitado. A opção TLS `connector-mtls` e o CA público do OpenBao agora estão preparados no Traefik via `scripts/81-install-connector-mtls-edge.sh`, em modo opt-in; falta associar a opção a um router/domínio de produção e implementar rotação.
 - [~] W2-02 testes de heartbeat adicionados: persistência idempotente por connector e rejeição de versão/estado inválidos. Execução completa da suíte depende de restaurar as dependências locais do Console; o build Docker de produção permanece validado.
+- [~] W2-04 lifecycle de certificados implementado no Manager: registro de serial, revogação via OpenBao e ação `rotate` com novo CSR/overlap (`67351e6`); falta o agente renovar automaticamente antes do expiry e smoke E2E com certificado revogado.
 
 ### Próximos gates recomendados
 
