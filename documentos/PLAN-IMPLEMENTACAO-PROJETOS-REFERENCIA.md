@@ -157,3 +157,4 @@ P0 legado/contratos
 - [x] W1-07 ponto de encerramento server-side criado em `DELETE /api/unified/v1/sessions/:sessionId`; RustGuac fecha a sessão sem expor a API key.
 - [x] W1-07 `lease_id` real, quando fornecido pelo segredo, é persistido apenas server-side e revogado no encerramento.
 - [ ] W1-07 emitir credenciais dinâmicas OpenBao para cada target; KV estático não será tratado como lease.
+- [!] W1-07 bloqueado no laboratório: engine `database/` existe, porém não há roles e `archgate_lab` não possui `CREATEROLE`; requer uma conta administrativa de DB explicitamente provisionada.
