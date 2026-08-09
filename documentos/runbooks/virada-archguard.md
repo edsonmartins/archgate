@@ -1,4 +1,8 @@
-# Runbook — virada do IdP: archguard → ArchGuard
+# Runbook histórico — virada do IdP
+
+> Este runbook está `superseded`. A virada para o ArchGuard SaaS já foi concluída
+> e os scripts antigos referenciados abaixo foram removidos. Use os contratos e
+> variáveis do ArchGate DevOps/Manager para novas integrações.
 
 | Campo | Valor |
 |-------|-------|
