@@ -150,4 +150,5 @@ P0 legado/contratos
 - [x] W1-03/W1-04 concluídos: contrato de sessão e ticket WebSocket single-use formalizados em `rustguac-proxy.ts`, com TTL de 30s, URL sem credencial administrativa e testes unitários.
 - [x] W1-05 concluído: sessão OIDC resolve `subject` no ArchGuard session-context, exige identidade ativa e anexa memberships autoritativas ao cookie server-side.
 - [x] W1-06 adapter concluído: `checkOpenFga` envia tuple `user/relation/object` e falha fechado quando OpenFGA está habilitado.
-- [ ] W1-06 provisionar store/modelo/tuples OpenFGA e ativar `OPENFGA_ENABLED=1` na VPS.
+- [x] W1-06 store/modelo OpenFGA provisionados na VPS; smoke sem tuple retorna `allowed=false`.
+- [ ] W1-06 cadastrar tuples por tenant/conexão e ativar `OPENFGA_ENABLED=1` na janela de desenvolvimento.
