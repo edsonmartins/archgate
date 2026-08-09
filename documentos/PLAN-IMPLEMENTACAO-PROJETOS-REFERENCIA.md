@@ -161,3 +161,4 @@ P0 legado/contratos
 - [x] W1-07 role dinâmica configurável no Admin Console (formulário de site e wizard), persistindo apenas o identificador da role.
 - [x] W1-08 smoke SSH RustGuac interno: sessão criada contra `archgate-lab-ssh` e encerrada pelo endpoint server-side; WebSocket interativo ainda requer validação E2E pelo navegador/Connect.
 - [~] W1-09 políticas de sessão: gravação, clipboard e intenção de drive agora são configuráveis por target no Admin Console e propagadas por sessão; transferência de arquivos permanece desligada no gateway de laboratório. Falta validação E2E no navegador e rollout controlado de upload/download.
+- [~] W1-10 catálogo server-side de gravações RustGuac exposto em `GET /api/unified/v1/recordings`, protegido por `gateways:read`; falta playback autenticado, vínculo completo com `broker_sessions` e evidência de retenção/integração E2E.
