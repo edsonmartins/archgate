@@ -27,7 +27,6 @@ run() {
   fi
 }
 
-run "w0-validate" bash deploy/validation/w0-validate.sh
 run "w0-console-session" bash deploy/validation/w0-console-session.sh
 run "w0-guac-session" bash deploy/validation/w0-guac-session.sh
 

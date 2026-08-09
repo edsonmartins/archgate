@@ -11,7 +11,6 @@ set -a
 # shellcheck disable=SC1090
 source "$BOOTSTRAP"
 # shellcheck disable=SC1091
-source /root/archgate/repo/deploy/versions.env 2>/dev/null || true
 set +a
 
 : "${POSTGRES_HOST:?}"
