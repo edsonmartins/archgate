@@ -170,7 +170,7 @@ P0 legado/contratos
 - [~] W2-02 testes de heartbeat adicionados: persistência idempotente por connector e rejeição de versão/estado inválidos. Execução completa da suíte depende de restaurar as dependências locais do Console; o build Docker de produção permanece validado.
 - [~] W2-04 lifecycle de certificados implementado no Manager: registro de serial, revogação via OpenBao e ação `rotate` com novo CSR/overlap (`67351e6`); o agente renova antes do expiry usando `CONNECTOR_ROTATION_TOKEN` (`4d963f4`). Falta fornecer token de rotação de laboratório e executar smoke E2E com certificado revogado.
 - [~] W2-05 inventário limitado adicionado ao heartbeat e exposto por `GET /api/org/v1/connectors/inventory`, protegido por `sites:read`; histórico limitado a 100 snapshots por connector agora está disponível em `GET /api/org/v1/connectors/inventory/history`. Falta validar redaction em E2E.
-- [~] W2-06 diagnóstico redigido disponível em `GET /api/org/v1/connectors/diagnostics`, com frescor do heartbeat, estado stale/revoked, capabilities e serial truncado dos certificados; falta validar operação com connectors reais e coleta de logs limitada.
+- [~] W2-06 diagnóstico redigido disponível no Manager em `GET /api/org/v1/connectors/diagnostics` e no agent em `GET /v1/diagnostics`, com frescor do heartbeat, estado stale/revoked, capabilities, serial truncado e journal limitado a 100 linhas redigidas; falta validar operação com connectors reais.
 
 ### Próximos gates recomendados
 
