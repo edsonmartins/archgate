@@ -26,6 +26,7 @@ Tipos previstos: `enroll`, `enroll_ack`, `heartbeat`, `capabilities`, `inventory
 - A sessão de transporte exige mTLS, `connector_id` no certificado e verificação de tenant/site.
 - Heartbeat sem certificado válido, `connector_id` desconhecido ou versão incompatível é rejeitado.
 - Reconnect usa backoff exponencial com jitter (1s, 2s, 4s … máximo 60s); mensagens possuem `message_id` idempotente.
+- O agente aceita `CONNECTOR_HEARTBEAT_URLS` como lista de endpoints HTTPS separados por vírgula; em falha ele alterna o endpoint e mantém o backoff. `CONNECTOR_HEARTBEAT_URL` permanece como atalho de endpoint único.
 - Revogação encerra a sessão atual e impede novo reconnect; não há fallback para token antigo.
 - Payloads não carregam senhas/chaves; segredos continuam no OpenBao e só são materializados no host connector.
 
