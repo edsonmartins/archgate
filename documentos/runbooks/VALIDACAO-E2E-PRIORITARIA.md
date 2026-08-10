@@ -38,6 +38,12 @@ Validar no mesmo ciclo:
 6. Rotação `action=rotate` substitui o certificado e o serial anterior é
    revogado no OpenBao; uma conexão com o certificado antigo falha.
 
+Para aplicar também a revogação no endpoint de heartbeat, habilite no Manager
+`CONNECTOR_MTLS_REQUIRE_CERT_REGISTRY=1` e configure o proxy mTLS confiável para
+encaminhar `x-connector-cert-serial` com o serial do certificado verificado.
+Sem esse cabeçalho a requisição é rejeitada; o padrão permanece desligado até a
+configuração do edge ser validada.
+
 ## Evidência mínima
 
 Guardar somente status HTTP, `request_id`, `session_id`, serial truncado e
