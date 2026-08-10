@@ -27,6 +27,7 @@ Tipos previstos: `enroll`, `enroll_ack`, `heartbeat`, `capabilities`, `inventory
 - Heartbeat sem certificado válido, `connector_id` desconhecido ou versão incompatível é rejeitado.
 - Reconnect usa backoff exponencial com jitter (1s, 2s, 4s … máximo 60s); mensagens possuem `message_id` idempotente.
 - O agente aceita `CONNECTOR_HEARTBEAT_URLS` como lista de endpoints HTTPS separados por vírgula; em falha ele alterna o endpoint e mantém o backoff. `CONNECTOR_HEARTBEAT_URL` permanece como atalho de endpoint único.
+- Upgrade controlado começa em modo plano: `GET/POST /v1/upgrade/plan` valida versão, URL HTTPS e SHA-256, mas não baixa nem substitui o binário. O resultado exige aprovação explícita antes de qualquer rollout.
 - Revogação encerra a sessão atual e impede novo reconnect; não há fallback para token antigo.
 - Payloads não carregam senhas/chaves; segredos continuam no OpenBao e só são materializados no host connector.
 
