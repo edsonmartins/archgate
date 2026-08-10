@@ -165,10 +165,17 @@ func cmdDoctor(jsonOut bool) error {
 			checks = append(checks, check{"warpgate_user", false, err.Error()})
 		}
 	}
-	sshOK, sshD := tcpCheck(cfg.Bastion.SSHHost, cfg.Bastion.SSHPort)
-	checks = append(checks, check{"ssh_bastion", sshOK, sshD})
-	pgOK, pgD := tcpCheck(cfg.Bastion.PGHost, cfg.Bastion.PGPort)
-	checks = append(checks, check{"pg_bastion", pgOK, pgD})
+	if config.MockMode() {
+		checks = append(checks,
+			check{"ssh_bastion", true, "skipped (mock mode)"},
+			check{"pg_bastion", true, "skipped (mock mode)"},
+		)
+	} else {
+		sshOK, sshD := tcpCheck(cfg.Bastion.SSHHost, cfg.Bastion.SSHPort)
+		checks = append(checks, check{"ssh_bastion", sshOK, sshD})
+		pgOK, pgD := tcpCheck(cfg.Bastion.PGHost, cfg.Bastion.PGPort)
+		checks = append(checks, check{"pg_bastion", pgOK, pgD})
+	}
 	_, errSSH := exec.LookPath("ssh")
 	checks = append(checks, check{"openssh_cli", errSSH == nil, map[bool]string{true: "on PATH", false: "MISSING"}[errSSH == nil]})
 	if logged && !config.MockMode() {
