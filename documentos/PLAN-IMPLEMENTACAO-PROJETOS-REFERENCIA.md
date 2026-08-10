@@ -170,7 +170,7 @@ P0 legado/contratos
 - [~] W2-02 transporte inicial no agent: heartbeat HTTPS outbound com mTLS, envelope versionado, `message_id`, capabilities, estado `ready/degraded` e backoff exponencial com jitter; falta endpoint Manager mTLS, reconnect de stream e rotação automática.
 - [~] W2-02 endpoint Manager de heartbeat em `POST /api/org/v1/connectors/heartbeat`: exige proxy mTLS confiável, certificado verificado e `connector_id` coincidente; persiste último estado/capabilities e responde `503` por padrão quando o proxy não está habilitado. A opção TLS `connector-mtls` e o CA público do OpenBao agora estão preparados no Traefik via `scripts/81-install-connector-mtls-edge.sh`, em modo opt-in; falta associar a opção a um router/domínio de produção e implementar rotação.
 - [~] W2-02 testes de heartbeat adicionados: persistência idempotente por connector e rejeição de versão/estado inválidos. Execução completa da suíte depende de restaurar as dependências locais do Console; o build Docker de produção permanece validado.
-- [~] W2-04 lifecycle de certificados implementado no Manager: registro de serial, revogação via OpenBao e ação `rotate` com novo CSR/overlap (`67351e6`); falta o agente renovar automaticamente antes do expiry e smoke E2E com certificado revogado.
+- [~] W2-04 lifecycle de certificados implementado no Manager: registro de serial, revogação via OpenBao e ação `rotate` com novo CSR/overlap (`67351e6`); o agente agora renova antes do expiry usando `CONNECTOR_ROTATION_TOKEN` (`4d963f4`); falta smoke E2E com certificado revogado.
 
 ### Próximos gates recomendados
 
