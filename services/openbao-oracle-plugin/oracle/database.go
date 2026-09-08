@@ -221,13 +221,12 @@ func statementsMap(cmds []string) map[string]string {
 	if len(cmds) == 0 {
 		return nil
 	}
-	m := make(map[string]string, len(cmds)+2)
-	for i, c := range cmds {
-		m[fmt.Sprintf("cmd_%d", i)] = c
-	}
-	m["creation"] = cmds[0]
-	if len(cmds) > 1 {
-		m["revocation"] = cmds[len(cmds)-1]
+	// Keep one logical value per lifecycle phase. Exposing cmd_N values makes
+	// compatibility consumers execute every command for every phase.
+	m := map[string]string{
+		"creation_statements": cmds[0],
+		"renewal_statements": cmds[0],
+		"revocation_statements": cmds[len(cmds)-1],
 	}
 	return m
 }

@@ -1,6 +1,7 @@
 /**
  * Catalog API client — BFF filtered by RBAC (W4-UI03).
- * Falls back to lab mock when BFF is unreachable (dev without API).
+ * Falls back to lab mock only when the caller is explicitly using a mock
+ * session. A production 401/403 must remain an authorization failure.
  */
 
 import { config } from '../config'
@@ -27,7 +28,8 @@ export async function fetchMyConnections(session: UserSession): Promise<CatalogR
     const data = (await res.json()) as { connections?: Connection[] } | Connection[]
     const list = Array.isArray(data) ? data : (data.connections ?? [])
     return { connections: list.map(normalizeConnection), source: 'bff' }
-  } catch {
+  } catch (error) {
+    if (session.mode !== 'mock') throw error
     const filtered = MOCK_CONNECTIONS.filter((c) => session.tenants.includes(c.tenant))
     return { connections: filtered, source: 'mock' }
   }
