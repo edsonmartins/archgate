@@ -149,6 +149,12 @@ Não foi atribuída porcentagem de conclusão: o resultado de testes mock e o vo
 
 ## Atualização de execução — 08/09/2026
 
+Revisão complementar: a primeira correção A05 negava replay, mas ainda persistia o segredo em `response_json`. Corrigido para persistir somente a resposta sanitizada em ambas as colunas, com teste de regressão. Isso protege novos registros; registros/backups antigos ainda exigem saneamento controlado. O contrato Oracle anterior também descartava comandos intermediários: agora transmite todos em ordem por uma única chave `sql`, testada no plugin.
+
+Offboarding passou a persistir bloqueio local por username, consultado no cookie, refresh e autenticação bearer, e a tentar fechar cada sessão RustGuac registrada para esse usuário. Teste confirma persistência após reabrir o banco e preservação de outro usuário. Limitações ainda bloqueantes: identidade canônica, múltiplas réplicas com SQLite separado, sessões antigas sem proprietário, reativação administrativa pela tela, testes de sessão concorrente e encerramento nos demais gateways. O status de sucesso do offboarding ainda deve distinguir login bloqueado de revogação integral.
+
+OpenBao: removidas chamadas ao prefixo global compartilhado. O adaptador remove a policy e informa falha parcial pela ausência de inventário individual de leases. Isso contém a revogação de terceiros, mas não conclui A04: permanecem inventário, ACL mínima e limpeza seletiva comprovada. Nenhuma implantação em produção foi realizada nesta rodada.
+
 Foi iniciada a correção dos bloqueios diretamente ligados ao caminho de homologação. O console efetivo recebeu a revisão `e2274d8` e o repositório DevOps recebeu `9afe154`. A validação local do console ficou em **35 arquivos / 263 testes aprovados**, `npm run typecheck` aprovado e `npm run build` aprovado. UnifiedUI também passou `npm run build`; Oracle proxy passou `mvn test`; plugin Oracle passou `go test ./...`.
 
 As correções entregues nesta rodada incluem: autorização de usuário-alvo por tenant no provisionamento/grant/offboarding; restrição de role ao catálogo do site; critérios de sucesso alinhados ao componente real do IdP; proprietário/tenant nas sessões RustGuac e autorização seletiva para encerrar/listar/reproduzir; replay de checkout sem reentrega do segredo; descoberta OIDC por metadata; fallback mock somente para sessão explicitamente mock; contrato correto do rollout; restauração que falha quando `pg_restore` falha; imagem Oracle compilada com `-Pojdbc` e renderer sem fallback que duplica statements.

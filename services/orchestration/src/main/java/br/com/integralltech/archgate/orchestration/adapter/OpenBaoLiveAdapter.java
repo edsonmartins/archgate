@@ -47,13 +47,12 @@ public class OpenBaoLiveAdapter extends HttpLiveAdapter {
 
   @Override
   public void revokeAll(String username) {
-    // Revoke dynamic DB leases (prefix). Force sync.
-    postJson("/v1/sys/leases/revoke-prefix/database/creds", Map.of("sync", true));
-    // Best-effort user-scoped prefix if roles use username_template
-    postJson("/v1/sys/leases/revoke-prefix/database/creds", Map.of(
-        "sync", true
-    ));
     delete("/v1/sys/policies/acl/" + encode(username));
+    // A database role/prefix is shared by multiple principals. Without an
+    // authoritative principal-to-lease inventory, prefix revocation would
+    // disconnect unrelated tenants. Surface incomplete cleanup explicitly.
+    throw new IllegalStateException(
+        "Policy removed; individual lease revocation requires principal lease inventory");
   }
 
   private static String encode(String s) {
