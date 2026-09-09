@@ -48,4 +48,12 @@ Validação local: 302 testes passaram em 40 arquivos, incluindo 13 testes do co
 - H04: revisar autorização por conta/organização, classificar registros/backups históricos e preparar saneamento/rotação com alvos explícitos.
 - Confirmar escopo H00 e executar evidências integradas do piloto antes do gate.
 
+## Incremento H02 — contenção do proxy global
+
+O proxy genérico de identidade agora exige `system:admin`, além das verificações existentes, para todas as operações exceto `GET /status` exato. A credencial usada pelo proxy é global e o transporte não comprova propriedade dos recursos por tenant; permissões de operação não são suficientes para delegar esse acesso. A restrição abrange leitura de coleções, pessoas, grupos, credenciais, OAuth, contas de serviço, configuração e recuperação de objetos.
+
+Impacto funcional explícito: operações delegadas que usam esse proxy passam a receber erro de autorização. Não foram implementados endpoints tenant-scoped substitutos nem validada a experiência de erro de todas as telas. A administração delegada completa (H02/H15) permanece pendente; administrador de plataforma mantém acesso. A exceção de saúde continua exigindo sessão e permissão de leitura correspondente.
+
+Validação local: 319 testes em 41 arquivos e `tsc --noEmit` passaram, incluindo 17 testes novos do handler com chamadas upstream simuladas. Os testes verificam negação antes do acesso externo, saúde somente no caminho exato e manutenção da allowlist para administrador. Não houve teste E2E nem build nesta rodada.
+
 Sem implantação e sem alterações no ambiente de clientes.

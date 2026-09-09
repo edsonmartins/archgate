@@ -1,6 +1,6 @@
 # Backlog executável para entrada em homologação — 09/09/2026
 
-Status: **detalhamento para revisão; implementação desta etapa ainda não iniciada**.
+Status: **em implementação; contenções locais não encerram o gate de homologação**. Progresso e evidências: [primeiro pacote](2026-09-09-primeiro-pacote.md).
 
 Objetivo: produzir uma candidata instalável, administrável pelo Manager e tecnicamente validada para iniciar UAT humano. Este documento não declara o produto homologado nem autoriza implantação, saneamento de dados ou mudanças no ambiente de clientes.
 
