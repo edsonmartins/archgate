@@ -56,4 +56,34 @@ Impacto funcional explícito: operações delegadas que usam esse proxy passam a
 
 Validação local: 319 testes em 41 arquivos e `tsc --noEmit` passaram, incluindo 17 testes novos do handler com chamadas upstream simuladas. Os testes verificam negação antes do acesso externo, saúde somente no caminho exato e manutenção da allowlist para administrador. Não houve teste E2E nem build nesta rodada.
 
+## Incremento H02/H15 — recuperação de credenciais e erros de consulta
+
+Console local `3d24d0a`: `personApi.createResetToken` usa um endpoint dedicado, com sessão e `persons:credentials` (ou administração de plataforma), validação de ID/TTL e limite de requisições. Resolve UUID/nome via API de identidade, confere correspondência com o ID solicitado e aplica `assertPrincipalTenantAccess` ao username antes de emitir o token. A pessoa deve ter todos os tenants dentro do escopo do operador e não pode ser privilegiada ou sem tenant; administrador de plataforma conserva autoridade global. O token não é persistido na auditoria, e corpos de erro HTTP do IdP não são devolvidos pelo endpoint.
+
+Listagem e detalhe de pessoas agora apresentam alerta e nova tentativa quando a consulta falha, explicitando a restrição de administração global. Não confundir essa correção com uma listagem tenant-scoped: essa consulta continua pendente, portanto o endpoint dedicado ainda não entrega a jornada completa de um administrador delegado pela tela.
+
+Validação: 334 testes em 42 arquivos, TypeScript e build passaram; 15 testes novos cobrem autorização, escopo, associação ID/username, entrada inválida e higiene da auditoria/erro HTTP. Sem teste de navegador ou IdP real. Ainda é preciso provar os contratos das duas interfaces de identidade usadas (consulta v1 e grupos via adapter), tratar alteração concorrente de memberships e concluir a identidade canônica H01. A checagem seguida da emissão externa não constitui operação atômica distribuída. Nenhuma dessas frentes foi encerrada.
+
+## Incremento H01/H02 — vínculo da evidência de grupos à identidade
+
+Console local `6e04966`: a consulta `getUser` exige sucesso HTTP, nome exatamente igual ao solicitado e owner igual à organização configurada. Grupos malformados são recusados. A consulta de grupos não transforma prefixos de organizações estrangeiras ou caminhos de múltiplos segmentos em autoridade local. Essa validação precede o uso dos grupos pelos guards e protege também consumidores de `getUser`, como desativação/reativação.
+
+Validação: 344 testes em 42 arquivos e TypeScript passaram. Dez testes novos verificam identidade/organização divergente, grupos inválidos/estrangeiros, falha HTTP e ausência de escrita ao receber outro usuário. Não houve build nem integração real nesta rodada. A listagem por tenant continua não implementada: esta correção fecha uma pré-condição de confiança necessária para usá-la. Não resolve a migração de issuer/identity_id nem concorrência entre leitura de grupos e mutação.
+
+## Incremento H02/H15 — consulta de pessoas por tenant
+
+Console local `def32c0`: listagem e detalhe usam endpoints dedicados, com sessão e `persons:read`, projeção explícita de atributos e validação de ID/nome. Para não administradores de plataforma, grupos são consultados pelo adapter de identidade; somente pessoas não privilegiadas com todos os tenants no escopo do operador são retornadas. Pessoas compartilhadas fora desse escopo e sem tenant são excluídas. O filtro do navegador não é a fronteira de autorização. Falha na verificação de grupos aborta a consulta; não é convertida em lista vazia bem-sucedida. Detalhe de pessoa fora do escopo é recusado mesmo com ID conhecido.
+
+A API upstream utilizada continua sem paginação: o endpoint aceita até 1.000 registros, rejeita inventários maiores/ambíguos/malformados e limita a oito consultas de grupos simultâneas. Isso limita concorrência, não o tempo total da operação; paginação real, carga e deadlines globais permanecem pendentes. A consulta global ainda ocorre internamente; apenas dados filtrados e projetados são devolvidos ao navegador.
+
+Validação local: 356 testes em 43 arquivos e TypeScript passaram; build terminou com sucesso, mas emitiu avisos de módulos Node externalizados para browser via better-sqlite3, mantendo a revisão de bundle H14 pendente. Doze testes novos cobrem isolamento, acesso direto ao detalhe, associação divergente, falha de grupos, atributos desconhecidos e inventário inválido/duplicado/excessivo. Não houve navegação autenticada ou validação do contrato com IdP real.
+
+Este incremento substitui a pendência de implementação da listagem/detalhe registrada nas rodadas anteriores, mas não seu aceite integrado. Credenciais/MFA, grupos, edição, criação e exclusão que ainda usam o proxy global continuam restritos. A jornada delegada completa, concorrência de memberships e H01 seguem abertos.
+
+## Incremento H14 — fronteira de persistência no build cliente
+
+Console local `d26d2a5`: as funções auxiliares exportadas de troca de tokens, montagem de sessão, resolução de roles e concessão foram marcadas com `createServerOnlyFn`. O grafo de importação antes da correção ligava componentes cliente a persistência por `auth.ts` e `lifecycle-fn.ts`; após a correção, a inspeção do grafo não encontrou `better-sqlite3`, `db.ts`, `principal-revocation.ts` ou `audit-outbox.ts` no ambiente cliente. Os avisos de externalização de SQLite desapareceram no build executado. Isso não é evidência de vazamento anterior de dados: a presença no grafo durante transformação e a inclusão efetiva no bundle final são distintas.
+
+Adicionada verificação de build para recusar a presença desses módulos no grafo cliente, sem mascará-los com novos stubs. Validação: 362 testes em 44 arquivos, TypeScript e build passaram; seis novos testes exercitam a barreira. O aviso de chunk grande permanece. Os stubs preexistentes de outros módulos Node/SSR não foram removidos; a barreira não é uma auditoria completa de todos os módulos servidor nem substitui teste autenticado no navegador. H14 permanece parcial.
+
 Sem implantação e sem alterações no ambiente de clientes.
