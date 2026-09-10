@@ -88,6 +88,22 @@ Adicionada verificação de build para recusar a presença desses módulos no gr
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H03/H12 — recuperação de claims da outbox
+
+Console local `4a22f2e`: a outbox passou a persistir `claimed_at`. Claims em `publishing` que excedem o limite de 60 segundos são convertidos em `failed`, recebem nova disponibilidade e podem ser tentados novamente; claims recentes não são apropriados por outro forwarder. Publicação e falha limpam o claim. A recuperação é executada antes de cada lote do forwarder, sem expor corpos de erro ou alterar a deduplicação por `event_id`.
+
+Validação local: 369 testes em 46 arquivos e build passaram. Três testes cobrem queda simulada, claim recente e retomada. Isso reduz o estado preso após crash, mas não conclui o worker periódico: se nenhum novo lote for acionado, não há processo para executar a recuperação. Retry periódico, alertas, métrica da fila, destino real e garantia de entrega idempotente continuam pendentes.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H03 — contexto de principal e tenant nos eventos
+
+Console local `71b2937`: novos eventos de atividade persistem o principal derivado da sessão autenticada e `tenant_ids` derivados dos grupos normalizados da mesma sessão. A lista é gravada no evento e no outbox; não há inferência por e-mail, username ou caminho. Foi adicionada migração compatível para as colunas novas; registros antigos permanecem sem vínculo explícito e seguem sujeitos à consulta global restrita.
+
+Validação local: 367 testes em 46 arquivos e TypeScript passaram. A cobertura existente de persistência/restart continua aprovada. Ainda falta consulta/exportação delegada por tenant, instrumentação dos eventos de todos os gateways, vínculo canônico `identity_id`, reconciliação de registros legados e validação de destino do outbox.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H03 — retenção somente para gravação existente e autorizada
 
 Console local `6444d8c`: a rota de retenção agora consulta o catálogo real do RustGuac antes de persistir qualquer política. Para operadores que não são administradores de plataforma, exige também sessão histórica persistida do próprio principal, incluindo sessões já encerradas. UUID válido, sozinho, não cria nem altera registro de retenção. Falhas de catálogo, gravação inexistente ou proprietário ausente retornam 404 sem escrita; administrador de plataforma mantém a operação global, desde que a gravação exista.
