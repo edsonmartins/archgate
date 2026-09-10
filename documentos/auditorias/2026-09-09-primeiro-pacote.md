@@ -88,6 +88,14 @@ Adicionada verificação de build para recusar a presença desses módulos no gr
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H12 — retry periódico da outbox
+
+Console local `2c56f39`: quando `AUDIT_OUTBOX_FORWARDER_URL` está configurada, o processo inicia um ciclo periódico de encaminhamento. O intervalo configurável é limitado entre 5 segundos e 15 minutos, o timer não impede o shutdown (`unref`) e nenhum ciclo é criado sem destino explícito. Claims antigos continuam sendo recuperados antes do lote.
+
+Validação local: 371 testes em 47 arquivos e build passaram. Dois testes novos cobrem ausência de destino, intervalo mínimo e não duplicação do timer. A implementação ainda depende de um único processo por instância: em múltiplas réplicas, cada processo pode encaminhar lotes da mesma base somente se a persistência for compartilhada. Destino real, idempotência confirmada no receptor, alertas e métricas da fila continuam pendentes.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H03/H12 — recuperação de claims da outbox
 
 Console local `4a22f2e`: a outbox passou a persistir `claimed_at`. Claims em `publishing` que excedem o limite de 60 segundos são convertidos em `failed`, recebem nova disponibilidade e podem ser tentados novamente; claims recentes não são apropriados por outro forwarder. Publicação e falha limpam o claim. A recuperação é executada antes de cada lote do forwarder, sem expor corpos de erro ou alterar a deduplicação por `event_id`.
