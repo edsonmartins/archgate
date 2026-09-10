@@ -87,3 +87,19 @@ Console local `d26d2a5`: as funções auxiliares exportadas de troca de tokens, 
 Adicionada verificação de build para recusar a presença desses módulos no grafo cliente, sem mascará-los com novos stubs. Validação: 362 testes em 44 arquivos, TypeScript e build passaram; seis novos testes exercitam a barreira. O aviso de chunk grande permanece. Os stubs preexistentes de outros módulos Node/SSR não foram removidos; a barreira não é uma auditoria completa de todos os módulos servidor nem substitui teste autenticado no navegador. H14 permanece parcial.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H03 — retenção somente para gravação existente e autorizada
+
+Console local `6444d8c`: a rota de retenção agora consulta o catálogo real do RustGuac antes de persistir qualquer política. Para operadores que não são administradores de plataforma, exige também sessão histórica persistida do próprio principal, incluindo sessões já encerradas. UUID válido, sozinho, não cria nem altera registro de retenção. Falhas de catálogo, gravação inexistente ou proprietário ausente retornam 404 sem escrita; administrador de plataforma mantém a operação global, desde que a gravação exista.
+
+Validação: 367 testes em 46 arquivos e build passaram. Três testes novos cobrem UUID inexistente, ausência de propriedade e operação administrativa validada. Ainda faltam retenção efetiva no storage do RustGuac, tenant persistido no registro/evento, exportação, legal hold real e teste E2E de playback/retention.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H03 — propriedade histórica de gravações encerradas
+
+Console local `ed08e9b`: a autorização da lista de gravações passou a usar um índice histórico de sessões do principal, separado da consulta de sessões abertas usada para cleanup e reativação. Com isso, o fechamento de uma sessão não remove o direito do próprio proprietário de consultar sua gravação. O detalhe de playback já exigia vínculo persistido com o principal e continua retornando 404 para identidade ou sessão fora do escopo; administrador de plataforma mantém o acesso global.
+
+Validação local: 364 testes em 45 arquivos e build passaram. Dois testes novos confirmam que sessões fechadas permanecem no índice histórico, enquanto a lista operacional continua somente com sessões abertas. O aviso de chunk grande permanece. Ainda falta validar gravações reais com RustGuac, tenant persistido no evento, exportação, retenção e registros sem vínculo.
+
+Sem implantação e sem alterações no ambiente de clientes.
