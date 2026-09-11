@@ -263,3 +263,11 @@ Console local `e90c998`: cada operação de offboarding agora persiste suas etap
 Validação local: 384 testes em 51 arquivos, TypeScript e build passaram. O histórico torna a execução verificável após a resposta da API e após reinício do processo, mas ainda não implementa retomada automática a partir da primeira etapa incompleta. Persistência compartilhada, integrações reais de OpenFGA/Warpgate/RustGuac/OpenBao, testes E2E e alertas operacionais continuam pendentes para fechar H05 e homologar.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H05 — retomada automática de operação parcial
+
+Console local `b5f07eb`: uma nova solicitação de offboarding agora reabre a última operação `partial` do principal, reaproveita o mesmo `operation_id` e ignora etapas já confirmadas com sucesso. Etapas falhas ou ainda não registradas são executadas novamente; o lock continua impedindo duas execuções simultâneas e o histórico preserva a sequência completa.
+
+Validação local: 385 testes em 51 arquivos, TypeScript e build de produção passaram. A retomada é segura para as operações locais e para chamadas externas idempotentes já existentes, mas o aceite integrado ainda exige OpenFGA, Warpgate, RustGuac e OpenBao reais, persistência compartilhada, testes E2E autenticados, métricas e alertas operacionais.
+
+Sem implantação e sem alterações no ambiente de clientes.
