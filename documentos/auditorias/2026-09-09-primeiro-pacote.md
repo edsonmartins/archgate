@@ -279,3 +279,11 @@ Console local `a432862`: operações de offboarding em estado `partial` agora ex
 Validação local: TypeScript, suíte específica de offboarding e build de produção passaram; a suíte completa anterior permaneceu com 385 testes aprovados. Ainda dependem de ambiente integrado os testes E2E autenticados, as integrações reais, persistência compartilhada e observabilidade operacional.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H12 — diagnóstico operacional da outbox no Manager
+
+Console local `537c86c`: a fila de auditoria agora expõe no painel Plataforma um estado derivado (`healthy`, `degraded` ou `blocked`), a quantidade de claims presos há mais de 60 segundos e a idade do item não publicado mais antigo. A interface continua sem payloads e sem mensagens de erro potencialmente sensíveis; o retry manual existente permanece disponível.
+
+Validação local: 386 testes em 51 arquivos, TypeScript e build de produção passaram. Isso melhora a operação e o aceite do console, mas não substitui a confirmação com destino externo real, idempotência do receptor, alertas fora da tela e persistência compartilhada entre réplicas.
+
+Sem implantação e sem alterações no ambiente de clientes.
