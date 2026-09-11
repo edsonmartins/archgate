@@ -88,6 +88,14 @@ Validação local: 379 testes em 49 arquivos, TypeScript e build passaram. A con
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H12/H15 — saúde da fila de auditoria no Manager
+
+Console local `97ae8a3`: o painel Plataforma passa a exibir contagem de eventos pendentes, em publicação, falhos e publicados, além do evento mais antigo pendente. O endpoint retorna apenas metadados operacionais; payloads e mensagens brutas de erro não são expostos ao navegador.
+
+Validação local: 383 testes em 50 arquivos, TypeScript e build passaram. Ainda faltam destino externo real, métricas/alertas, confirmação de idempotência no receptor e validação E2E da operação pelo Manager.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H07/H08 — revogação individual fail-closed para grants legados
 
 Console local `5840979`: quando OpenFGA está ativo, um grant legado sem subject/objeto exatos não pode ser marcado como revogado apenas no SQLite. A operação individual retorna erro orientando o offboarding completo, que remove os subjects conhecidos. A resposta também sinaliza quando a role Warpgate compartilhada permanece, evitando declarar revogação total.
