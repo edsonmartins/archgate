@@ -295,3 +295,11 @@ Console local `9e1d75f`: o painel Plataforma agora mostra se o agendador de reco
 Validação local: 386 testes em 51 arquivos, TypeScript e build de produção passaram. O diagnóstico não substitui a configuração operacional do worker, a persistência compartilhada entre réplicas nem a validação de expiração e ACL no OpenBao real.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H06 — reconciliação manual de leases pelo Manager
+
+Console local `9eb75bd`: o painel Plataforma agora oferece `Executar agora` para disparar a reconciliação dos leases expirados. A ação exige `settings:update` ou `system:admin`, retorna o resumo do ciclo e atualiza o diagnóstico da tela; nenhuma entrada arbitrária de lease é aceita e o escopo continua limitado ao inventário persistido pelo console.
+
+Validação local: 386 testes em 51 arquivos, TypeScript e build de produção passaram. Ainda dependem de ambiente integrado a validação de autorização real, OpenBao real, persistência compartilhada e alertas externos.
+
+Sem implantação e sem alterações no ambiente de clientes.
