@@ -80,6 +80,14 @@ Validação local: 356 testes em 43 arquivos e TypeScript passaram; build termin
 
 Este incremento substitui a pendência de implementação da listagem/detalhe registrada nas rodadas anteriores, mas não seu aceite integrado. Credenciais/MFA, grupos, edição, criação e exclusão que ainda usam o proxy global continuam restritos. A jornada delegada completa, concorrência de memberships e H01 seguem abertos.
 
+## Incremento H07 — inventário de grants na ficha da pessoa
+
+Console local `cb0061e`: a ficha de identidade agora consulta, com autorização tenant-scoped, os grants TTL emitidos pelo console e exibe target, role, vencimento e estado (ativo, expirado ou revogado). A tela mantém a revogação integral separada e informa que a revogação individual nativa ainda depende do vínculo seguro com OpenFGA e Warpgate.
+
+Validação local: 379 testes em 49 arquivos, TypeScript e build passaram. A consulta não expõe grants de pessoas fora do escopo do operador. Ainda faltam revogação individual real nos adapters, identidade canônica por `identity_id`, paginação do inventário e validação E2E com integrações reais.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H14 — fronteira de persistência no build cliente
 
 Console local `d26d2a5`: as funções auxiliares exportadas de troca de tokens, montagem de sessão, resolução de roles e concessão foram marcadas com `createServerOnlyFn`. O grafo de importação antes da correção ligava componentes cliente a persistência por `auth.ts` e `lifecycle-fn.ts`; após a correção, a inspeção do grafo não encontrou `better-sqlite3`, `db.ts`, `principal-revocation.ts` ou `audit-outbox.ts` no ambiente cliente. Os avisos de externalização de SQLite desapareceram no build executado. Isso não é evidência de vazamento anterior de dados: a presença no grafo durante transformação e a inclusão efetiva no bundle final são distintas.
