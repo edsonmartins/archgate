@@ -88,6 +88,14 @@ Validação local: 379 testes em 49 arquivos, TypeScript e build passaram. A con
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H01/H08 — subject OpenFGA alinhado à identidade estável
+
+Console local `028e80d`: grants novos materializam `user:<identity_id>` quando a ficha da pessoa fornece o identificador estável; o BFF consulta o mesmo `identityId` ao verificar `connect`. O offboarding, quando recebe `person_id`, remove tanto o subject canônico quanto o username legado, preservando a compatibilidade da migração.
+
+Validação local: 381 testes em 50 arquivos e TypeScript passaram. Isso corrige novos fluxos, mas não migra automaticamente tuplas antigas nem prova o contrato com OpenFGA real; tuplas legadas, falhas parciais e múltiplos issuers permanecem pendentes.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H06 — compensação de lease em falha de sessão
 
 Console local `391eea2`: quando credenciais dinâmicas são emitidas pelo console e a criação do ticket RustGuac falha, o lease recém-criado é revogado imediatamente. O inventário de leases também recebeu desempate determinístico para não variar quando sessões são registradas no mesmo instante.
