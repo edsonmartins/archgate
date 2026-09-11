@@ -312,6 +312,14 @@ Validação local: 387 testes em 51 arquivos, TypeScript e build de produção p
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H07 — paginação do inventário de grants
+
+Console local `474c03a`: o inventário de grants da ficha da pessoa passou a usar paginação server-side, com limite máximo de 100 itens, total, offset e indicador de próxima página. A tela oferece navegação anterior/próxima; cada consulta continua autorizada e filtrada pelo principal dentro do tenant do operador.
+
+Validação local: 388 testes em 51 arquivos, TypeScript e build de produção passaram. A revogação individual continua restrita ao vínculo local existente e ainda depende da integração real OpenFGA/Warpgate e da identidade canônica `identity_id`.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H06/H12 — auditoria das ações manuais de plataforma
 
 Console local `9e4864b`: retry manual da outbox e reconciliação manual de leases agora registram no `activity_log` o ator, endpoint, resultado e contagens operacionais. Erros são registrados com mensagem sanitizada e não impedem o retorno do erro original ao operador; payloads e segredos não entram no evento.
