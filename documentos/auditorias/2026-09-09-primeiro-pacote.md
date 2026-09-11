@@ -335,3 +335,11 @@ Console local `c533003`: grants novos agora persistem o `identity_id` canônico 
 Validação local: 389 testes em 51 arquivos, TypeScript e build de produção passaram. Ainda falta migrar registros/tuplas legados e validar o contrato completo com OpenFGA e Warpgate reais.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H07/H01 — bloqueio de novos grants sem identidade canônica
+
+Console local `dff89ce`: quando OpenFGA está habilitado, a criação de grant passa a exigir `identity_id` canônico antes de chamar adapters ou persistir qualquer concessão. O modo sem OpenFGA preserva compatibilidade legada; grants antigos sem identidade continuam sendo tratados pela política de migração existente.
+
+Validação local: 390 testes em 51 arquivos, TypeScript e build de produção passaram. Ainda falta migrar grants/tuplas legados e concluir validação E2E com OpenFGA e Warpgate reais.
+
+Sem implantação e sem alterações no ambiente de clientes.
