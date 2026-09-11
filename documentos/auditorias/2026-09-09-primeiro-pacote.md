@@ -287,3 +287,11 @@ Console local `537c86c`: a fila de auditoria agora expõe no painel Plataforma u
 Validação local: 386 testes em 51 arquivos, TypeScript e build de produção passaram. Isso melhora a operação e o aceite do console, mas não substitui a confirmação com destino externo real, idempotência do receptor, alertas fora da tela e persistência compartilhada entre réplicas.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H06 — diagnóstico do reconciliador de leases no Manager
+
+Console local `9e1d75f`: o painel Plataforma agora mostra se o agendador de reconciliação está habilitado, seu intervalo efetivo, o horário do último ciclo e o resumo de tentativas, sessões encerradas e falhas. Erros do ciclo são sinalizados sem expor detalhes potencialmente sensíveis; a reconciliação continua limitada a sessões e leases registrados pelo próprio console.
+
+Validação local: 386 testes em 51 arquivos, TypeScript e build de produção passaram. O diagnóstico não substitui a configuração operacional do worker, a persistência compartilhada entre réplicas nem a validação de expiração e ACL no OpenBao real.
+
+Sem implantação e sem alterações no ambiente de clientes.
