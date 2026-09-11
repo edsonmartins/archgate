@@ -311,3 +311,11 @@ Console local `078fb43`: cada ciclo do reconciliador agora é gravado em `broker
 Validação local: 387 testes em 51 arquivos, TypeScript e build de produção passaram. A persistência é local ao banco configurado; ainda falta validar o comportamento em múltiplas réplicas com banco compartilhado, OpenBao real e alertas externos.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H06/H12 — auditoria das ações manuais de plataforma
+
+Console local `9e4864b`: retry manual da outbox e reconciliação manual de leases agora registram no `activity_log` o ator, endpoint, resultado e contagens operacionais. Erros são registrados com mensagem sanitizada e não impedem o retorno do erro original ao operador; payloads e segredos não entram no evento.
+
+Validação local: 387 testes em 51 arquivos, TypeScript e build de produção passaram. Ainda falta validar a entrega desses eventos no destino externo e configurar alertas fora do processo do console.
+
+Sem implantação e sem alterações no ambiente de clientes.
