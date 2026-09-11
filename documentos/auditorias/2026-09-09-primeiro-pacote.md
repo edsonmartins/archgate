@@ -88,6 +88,14 @@ Validação local: 379 testes em 49 arquivos, TypeScript e build passaram. A con
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H07/H08 — revogação individual da tupla exata
+
+Console local `1d6b8c3`: grants novos passam a persistir subject e objeto OpenFGA. A ficha da pessoa oferece revogação individual; o servidor valida o proprietário e remove somente a tupla exata antes de marcar o grant local como revogado. Tuplas inseguras ou relações diferentes de `connect` são rejeitadas.
+
+Validação local: TypeScript e 7 testes específicos de OpenFGA passaram; a suíte anterior de 382 testes permaneceu verde antes deste teste adicional. A associação nativa de role no Warpgate ainda não é revogada por esta operação, e a migração de grants/tuplas legados permanece pendente.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H07 — grants sobrepostos preservam concessão válida
 
 Console local `566eb5f`: a decisão de acesso deixou de considerar apenas o grant mais recente. Quando existem concessões sobrepostas para o mesmo principal e target, o BFF permite a conexão enquanto houver ao menos uma concessão não revogada e não expirada; a expiração de uma concessão não remove outra válida.
