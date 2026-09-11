@@ -255,3 +255,11 @@ Console local `ed08e9b`: a autorização da lista de gravações passou a usar u
 Validação local: 364 testes em 45 arquivos e build passaram. Dois testes novos confirmam que sessões fechadas permanecem no índice histórico, enquanto a lista operacional continua somente com sessões abertas. O aviso de chunk grande permanece. Ainda falta validar gravações reais com RustGuac, tenant persistido no evento, exportação, retenção e registros sem vínculo.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H05 — histórico de operações de offboarding no Manager
+
+Console local `e90c998`: cada operação de offboarding agora persiste suas etapas com sequência, componente, sucesso/falha, detalhe sanitizado e horário. A tela de detalhe da pessoa consulta as operações recentes do próprio principal e exibe o status da operação e o resultado de cada etapa, incluindo execuções parciais e falhas. O acesso permanece limitado por tenant e pelas permissões `persons:read`, `persons:update` ou `system:admin`.
+
+Validação local: 384 testes em 51 arquivos, TypeScript e build passaram. O histórico torna a execução verificável após a resposta da API e após reinício do processo, mas ainda não implementa retomada automática a partir da primeira etapa incompleta. Persistência compartilhada, integrações reais de OpenFGA/Warpgate/RustGuac/OpenBao, testes E2E e alertas operacionais continuam pendentes para fechar H05 e homologar.
+
+Sem implantação e sem alterações no ambiente de clientes.
