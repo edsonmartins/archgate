@@ -88,6 +88,14 @@ Validação local: 379 testes em 49 arquivos, TypeScript e build passaram. A con
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H06 — compensação de lease em falha de sessão
+
+Console local `391eea2`: quando credenciais dinâmicas são emitidas pelo console e a criação do ticket RustGuac falha, o lease recém-criado é revogado imediatamente. O inventário de leases também recebeu desempate determinístico para não variar quando sessões são registradas no mesmo instante.
+
+Validação local: 381 testes em 50 arquivos e TypeScript passaram. A compensação cobre o erro na criação do ticket, mas ainda exige validação integrada com OpenBao/RustGuac reais e cobertura do caso de falha entre a criação do ticket e o registro final da sessão.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H06 — worker periódico de reconciliação de leases
 
 Console local `221e90a`: a reconciliação de leases expirados pode ser ativada explicitamente com `BROKER_LEASE_RECONCILER_ENABLED=1`. O intervalo é limitado entre 5 segundos e 15 minutos, o timer não mantém o processo vivo no shutdown e cada ciclo atua somente sobre leases registrados pelo próprio console, reportando tentativas fechadas e falhas para retry posterior.
