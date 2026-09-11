@@ -351,3 +351,11 @@ Console local `2bea3cd`: o overview de plataforma passou a expor a quantidade to
 Validação local: 391 testes em 51 arquivos, TypeScript e build de produção passaram. Ainda falta executar a migração controlada dos registros/tuplas legados com mapeamento aprovado e validar o fluxo completo contra OpenFGA e Warpgate reais.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H01/H07 — migração controlada de grants legados
+
+Console local `1a111d9`: a tela de plataforma agora permite informar explicitamente o `principal` legado e o `identity_id` canônico confirmado no control plane. A operação oferece prévia, exige confirmação para aplicar, atualiza somente grants sem identidade daquele principal, nunca sobrescreve vínculos canônicos existentes e registra a ação na auditoria.
+
+Validação local: 392 testes em 51 arquivos, TypeScript e build de produção passaram. A operação ainda não migra tuplas OpenFGA, pois isso exige contrato e integração real do store; a execução em dados de homologação deve ocorrer somente após aprovação do mapeamento.
+
+Sem implantação e sem alterações no ambiente de clientes.
