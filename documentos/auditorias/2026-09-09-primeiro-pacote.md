@@ -88,6 +88,14 @@ Validação local: 379 testes em 49 arquivos, TypeScript e build passaram. A con
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H07 — grants sobrepostos preservam concessão válida
+
+Console local `566eb5f`: a decisão de acesso deixou de considerar apenas o grant mais recente. Quando existem concessões sobrepostas para o mesmo principal e target, o BFF permite a conexão enquanto houver ao menos uma concessão não revogada e não expirada; a expiração de uma concessão não remove outra válida.
+
+Validação local: 382 testes em 50 arquivos e TypeScript passaram, incluindo relógio controlado para grant expirado sobreposto a grant válido. Ainda faltam migração de tuplas legadas, revogação individual nos adapters e teste E2E real.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H01/H08 — subject OpenFGA alinhado à identidade estável
 
 Console local `028e80d`: grants novos materializam `user:<identity_id>` quando a ficha da pessoa fornece o identificador estável; o BFF consulta o mesmo `identityId` ao verificar `connect`. O offboarding, quando recebe `person_id`, remove tanto o subject canônico quanto o username legado, preservando a compatibilidade da migração.
