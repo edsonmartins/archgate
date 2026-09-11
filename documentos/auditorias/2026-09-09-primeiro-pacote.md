@@ -343,3 +343,11 @@ Console local `dff89ce`: quando OpenFGA está habilitado, a criação de grant p
 Validação local: 390 testes em 51 arquivos, TypeScript e build de produção passaram. Ainda falta migrar grants/tuplas legados e concluir validação E2E com OpenFGA e Warpgate reais.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H07/H01 — inventário operacional de grants legados
+
+Console local `2bea3cd`: o overview de plataforma passou a expor a quantidade total de grants sem `identity_id`, a quantidade de principals afetados e a data do grant legado mais antigo. A tela exibe um alerta operacional quando existem registros pendentes, permitindo priorizar a migração sem criar automaticamente vínculos que não tenham uma fonte autoritativa.
+
+Validação local: 391 testes em 51 arquivos, TypeScript e build de produção passaram. Ainda falta executar a migração controlada dos registros/tuplas legados com mapeamento aprovado e validar o fluxo completo contra OpenFGA e Warpgate reais.
+
+Sem implantação e sem alterações no ambiente de clientes.
