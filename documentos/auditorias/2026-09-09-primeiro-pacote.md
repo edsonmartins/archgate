@@ -88,6 +88,14 @@ Validação local: 379 testes em 49 arquivos, TypeScript e build passaram. A con
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H06 — worker periódico de reconciliação de leases
+
+Console local `221e90a`: a reconciliação de leases expirados pode ser ativada explicitamente com `BROKER_LEASE_RECONCILER_ENABLED=1`. O intervalo é limitado entre 5 segundos e 15 minutos, o timer não mantém o processo vivo no shutdown e cada ciclo atua somente sobre leases registrados pelo próprio console, reportando tentativas fechadas e falhas para retry posterior.
+
+Validação local: 381 testes em 50 arquivos e TypeScript passaram, incluindo os limites de agendamento. A ativação continua deliberadamente explícita para evitar múltiplos workers concorrentes em réplicas; ainda falta configurar o processo singleton da candidata, validar OpenBao/RustGuac reais, métricas/alertas e compensação de emissão de credencial quando a sessão não é criada.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H14 — fronteira de persistência no build cliente
 
 Console local `d26d2a5`: as funções auxiliares exportadas de troca de tokens, montagem de sessão, resolução de roles e concessão foram marcadas com `createServerOnlyFn`. O grafo de importação antes da correção ligava componentes cliente a persistência por `auth.ts` e `lifecycle-fn.ts`; após a correção, a inspeção do grafo não encontrou `better-sqlite3`, `db.ts`, `principal-revocation.ts` ou `audit-outbox.ts` no ambiente cliente. Os avisos de externalização de SQLite desapareceram no build executado. Isso não é evidência de vazamento anterior de dados: a presença no grafo durante transformação e a inclusão efetiva no bundle final são distintas.
