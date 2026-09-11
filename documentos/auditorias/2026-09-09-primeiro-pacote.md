@@ -88,6 +88,46 @@ Adicionada verificação de build para recusar a presença desses módulos no gr
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H07 — TTL de grant efetivo no caminho de conexão
+
+Console local `ce5a144`: grants materializados pela tela agora persistem `principal`, target, role, `created_at`, `expires_at` e `revoked_at` em `access_grants`. O TTL recebe formato explícito (`s`, `m`, `h` ou `d`), com limite de 1 minuto a 24 horas e default de 8 horas; valores inválidos não chegam aos adapters. O BFF consulta o grant mais recente antes de emitir qualquer sessão e recusa grant expirado ou revogado. O offboarding também revoga os registros locais mesmo quando a remoção no OpenFGA falha.
+
+Validação local: 379 testes em 49 arquivos, TypeScript e build passaram. O controle cobre as sessões emitidas pelo console e preserva o caminho legado quando não há registro local para permitir migração gradual. Ainda falta revogar automaticamente a associação nativa de usuário-role no Warpgate no vencimento, usar `identity_id` canônico em vez de principal textual, listar/editar/revogar grants pela tela e validar o TTL em OpenFGA/Warpgate reais. Portanto H07 está parcialmente fechado e não libera homologação isoladamente.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H01/H09 — contexto estável antes da emissão da sessão
+
+Console local `4912f6c`: a sessão criada a partir de tokens agora resolve o `subject` validado no endpoint de contexto do control plane antes de emitir o cookie. O `identity_id` retornado é persistido como `identityId`, junto às memberships ativas; o bearer Connect já usava o resolvedor e passou a persistir o mesmo identificador. A revogação local e a validação de grupos continuam bloqueios anteriores à sessão.
+
+Impacto operacional: login não é concluído quando o contexto de identidade está ausente, divergente, inativo ou malformado. Isso exige configurar o endpoint e token de orquestração na candidata; não há fallback permissivo para username/e-mail. Validação: 377 testes em 48 arquivos, TypeScript e build passaram. Não houve login browser nem IdP/control plane real nesta rodada; issuer/audience/subject de múltiplos provedores, migração dos registros legados e persistência compartilhada continuam pendentes.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H08 — revogação OpenFGA paginada e validada
+
+Console local `bd6ea41`: a remoção de grants agora consulta por `user` + `relation`, segue `continuation_token` com limite e rejeita token repetido. Cada tupla precisa corresponder exatamente ao usuário/relação solicitados e possuir objeto `connection:`; a exclusão ocorre em lotes de 100. O padrão anterior, que usava `object: connection:` como falso curinga e uma única página, foi removido.
+
+Validação local: 377 testes em 48 arquivos e build passaram. Dois cenários novos cobrem 101 grants em múltiplas páginas/lotes, tupla adulterada e paginação circular. A identidade usada pelo caller ainda precisa ser alinhada ao `identity_id` canônico H01; migração de tuplas legadas, grants sobrepostos, falha após lote intermediário e validação OpenFGA real continuam pendentes.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H06 — inventário escopado de leases e expiração
+
+Console local `abce670`: sessões do broker agora persistem `target` e `lease_expires_at`, além de principal, tenant e lease ID. Emissões de credenciais dinâmicas propagam a duração retornada pelo OpenBao; registros de segredo com duração textual também são convertidos com validação. Foram adicionadas consultas de inventário e de leases expirados, sempre limitadas a registros emitidos pelo próprio console.
+
+A reconciliação tenta encerrar somente sessões registradas cujo lease expirou, revogando o ID exato e reportando `attempted/closed/failed`; não atribui nem revoga leases externos por prefixo ou role. Validação: 375 testes em 48 arquivos, TypeScript e build passaram. A reconciliação ainda precisa ser acionada por worker operacional e não prova ACL mínima do OpenBao, inventário de órfãos externos ou expiração efetiva no caminho real de acesso.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H06 — contenção da revogação manual de leases
+
+Console local `94cda3d`: `revokeOpenBaoLeaseFn` deixou de aceitar `secrets:manage` como autorização suficiente. Como a entrada legada recebe apenas um `lease_id`, sem vínculo verificável com principal, tenant, target ou sessão, a operação agora exige `system:admin`; o cleanup de sessão permanece usando o lease exato persistido no registro do broker.
+
+Validação local: 373 testes em 48 arquivos e build passaram. Dois testes novos verificam negação antes da chamada ao OpenBao e sucesso somente para administrador de plataforma. Isso é contenção, não inventário de leases: emissão, owner, expiração, reconciliação de órfãos e ACL mínima continuam pendentes.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H12 — retry periódico da outbox
 
 Console local `2c56f39`: quando `AUDIT_OUTBOX_FORWARDER_URL` está configurada, o processo inicia um ciclo periódico de encaminhamento. O intervalo configurável é limitado entre 5 segundos e 15 minutos, o timer não impede o shutdown (`unref`) e nenhum ciclo é criado sem destino explícito. Claims antigos continuam sendo recuperados antes do lote.
