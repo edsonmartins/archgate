@@ -88,6 +88,14 @@ Validação local: 379 testes em 49 arquivos, TypeScript e build passaram. A con
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H12/H15 — retry manual da outbox pelo Manager
+
+Console local `e2ebcbe`: o painel Plataforma oferece retry manual da outbox somente para sessões com `settings:update` ou `system:admin`. O destino e o token permanecem exclusivamente no servidor; a operação retorna a contagem publicada e atualiza o diagnóstico da fila. Sem destino configurado, a ação falha explicitamente.
+
+Validação local: 383 testes em 50 arquivos, TypeScript e build passaram. Ainda faltam destino externo real, alertas/métricas, confirmação de idempotência no receptor e teste E2E com operador autenticado.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H12/H15 — saúde da fila de auditoria no Manager
 
 Console local `97ae8a3`: o painel Plataforma passa a exibir contagem de eventos pendentes, em publicação, falhos e publicados, além do evento mais antigo pendente. O endpoint retorna apenas metadados operacionais; payloads e mensagens brutas de erro não são expostos ao navegador.
