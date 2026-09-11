@@ -303,3 +303,11 @@ Console local `9eb75bd`: o painel Plataforma agora oferece `Executar agora` para
 Validação local: 386 testes em 51 arquivos, TypeScript e build de produção passaram. Ainda dependem de ambiente integrado a validação de autorização real, OpenBao real, persistência compartilhada e alertas externos.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H06 — persistência do histórico de reconciliação
+
+Console local `078fb43`: cada ciclo do reconciliador agora é gravado em `broker_reconciliation_runs`, incluindo horário, tentativas, sessões encerradas, falhas e erro sanitizado. O diagnóstico do Manager recupera o último ciclo persistido após reinício do processo, mantendo a distinção entre resultado parcial e falha do próprio banco.
+
+Validação local: 387 testes em 51 arquivos, TypeScript e build de produção passaram. A persistência é local ao banco configurado; ainda falta validar o comportamento em múltiplas réplicas com banco compartilhado, OpenBao real e alertas externos.
+
+Sem implantação e sem alterações no ambiente de clientes.
