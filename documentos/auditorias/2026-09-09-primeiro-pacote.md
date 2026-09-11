@@ -88,6 +88,14 @@ Validação local: 379 testes em 49 arquivos, TypeScript e build passaram. A con
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H07/H08 — revogação individual fail-closed para grants legados
+
+Console local `5840979`: quando OpenFGA está ativo, um grant legado sem subject/objeto exatos não pode ser marcado como revogado apenas no SQLite. A operação individual retorna erro orientando o offboarding completo, que remove os subjects conhecidos. A resposta também sinaliza quando a role Warpgate compartilhada permanece, evitando declarar revogação total.
+
+Validação local: TypeScript e 10 testes focados de grants/OpenFGA passaram. A revogação nativa de roles compartilhadas continua deliberadamente fora da ação individual até existir modelagem por target sem risco de remover acesso legítimo.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H07/H08 — revogação individual da tupla exata
 
 Console local `1d6b8c3`: grants novos passam a persistir subject e objeto OpenFGA. A ficha da pessoa oferece revogação individual; o servidor valida o proprietário e remove somente a tupla exata antes de marcar o grant local como revogado. Tuplas inseguras ou relações diferentes de `connect` são rejeitadas.
