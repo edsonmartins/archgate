@@ -367,3 +367,11 @@ Console local `fdd73f0`: ao aplicar um mapeamento de grant legado com OpenFGA ha
 Validação local: 392 testes em 51 arquivos, TypeScript e build de produção passaram. Ainda falta validar a operação contra um store OpenFGA real, incluindo falha entre escrita e remoção, retomada e confirmação de não interferência entre principals.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H15 — visibilidade RBAC da migração de grants
+
+Console local `04e1df2`: os controles de prévia e aplicação da migração de grants legados passaram a ser renderizados somente para operadores com `settings:update` ou `system:admin`. A proteção server-side permanece obrigatória, evitando depender da UI para autorização.
+
+Validação local: 392 testes em 51 arquivos, TypeScript e build de produção passaram.
+
+Sem implantação e sem alterações no ambiente de clientes.
