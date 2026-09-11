@@ -368,6 +368,14 @@ Validação local: 392 testes em 51 arquivos, TypeScript e build de produção p
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H08/H15 — histórico persistido da migração de grants
+
+Console local `55b1133`: cada tentativa de migração passa a ser persistida com principal, identidade canônica, estado, quantidade afetada, horário e erro sanitizado. O overview da plataforma exibe a última tentativa, permitindo retomar a operação após reinício sem depender exclusivamente dos logs do processo.
+
+Validação local: 393 testes em 51 arquivos, TypeScript e build de produção passaram.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H15 — visibilidade RBAC da migração de grants
 
 Console local `04e1df2`: os controles de prévia e aplicação da migração de grants legados passaram a ser renderizados somente para operadores com `settings:update` ou `system:admin`. A proteção server-side permanece obrigatória, evitando depender da UI para autorização.
