@@ -271,3 +271,11 @@ Console local `b5f07eb`: uma nova solicitação de offboarding agora reabre a ú
 Validação local: 385 testes em 51 arquivos, TypeScript e build de produção passaram. A retomada é segura para as operações locais e para chamadas externas idempotentes já existentes, mas o aceite integrado ainda exige OpenFGA, Warpgate, RustGuac e OpenBao reais, persistência compartilhada, testes E2E autenticados, métricas e alertas operacionais.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H05 — retomada operacional pela tela
+
+Console local `a432862`: operações de offboarding em estado `partial` agora exibem a ação `Retomar operação` diretamente na ficha da pessoa. A ação exige a mesma permissão do offboarding, confirma o username, executa o backend idempotente e atualiza o histórico na tela ao concluir.
+
+Validação local: TypeScript, suíte específica de offboarding e build de produção passaram; a suíte completa anterior permaneceu com 385 testes aprovados. Ainda dependem de ambiente integrado os testes E2E autenticados, as integrações reais, persistência compartilhada e observabilidade operacional.
+
+Sem implantação e sem alterações no ambiente de clientes.
