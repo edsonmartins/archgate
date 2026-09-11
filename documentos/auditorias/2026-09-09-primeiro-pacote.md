@@ -88,6 +88,14 @@ Validação local: 379 testes em 49 arquivos, TypeScript e build passaram. A con
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H05 — etapas de offboarding persistidas
+
+Console local `f5d7b6c`: cada etapa do offboarding agora é persistida com sequência, componente, resultado e detalhe limitado. A operação mantém `operation_id` e estado final `completed` ou `partial`, permitindo identificar o ponto de falha após erro externo ou restart.
+
+Validação local: 384 testes em 51 arquivos e TypeScript passaram. Ainda falta expor o histórico de etapas na tela e implementar retomada automática a partir da primeira etapa incompleta; a validação com integrações reais permanece pendente.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H05 — lock e retomada de offboarding
 
 Console local `273e34d`: cada offboarding agora cria uma operação persistida por principal, impede duas revogações concorrentes e devolve `operation_id`. Execuções que permanecem em `running` por mais de 15 minutos são marcadas como parciais e permitem nova tentativa. O resultado final registra `completed` ou `partial` sem alterar a ordem das etapas externas.
