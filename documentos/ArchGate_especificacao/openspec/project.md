@@ -20,7 +20,7 @@ ArchGate é a plataforma de acesso privilegiado (bastion/gateway) da IntegrAllTe
 
 | Componente | Papel | Licença |
 |---|---|---|
-| Kanidm | Identidade / OIDC (via ArchGuard) | MPL-2.0 |
+| archguard | Identidade / OIDC (via ArchGuard) | MPL-2.0 |
 | OpenBao | Segredos efêmeros (SSH CA, DB dinâmico) | MPL-2.0 |
 | Warpgate | Gateway SSH/HTTPS/K8s/MySQL/PostgreSQL | Open-source |
 | Apache Guacamole | Gateway RDP/VNC/SSH (browser) | Apache 2.0 |
@@ -52,14 +52,14 @@ PROMPT_EXECUCAO_CLAUDE_CODE.md
 - **Specs (OpenSpec):** `changes/<verbo-kebab>/` com `proposal.md`, `design.md`, `tasks.md`, `specs/<capability>/spec.md`. Requisitos com `### Requirement:` + ao menos um `#### Scenario:` (WHEN/THEN). `MODIFIED` reescreve o requisito completo.
 - **Fluxo:** ler proposal → design → specs → tasks; implementar uma tarefa por vez; marcar `[x]` só após validar o cenário.
 - **Commits:** referenciar o change e a tarefa (ex.: `add-identity-axis #2.5`).
-- **Versões:** fixar (pin) as versões dos componentes — evitar `latest`. **[A DEFINIR — fixar versões de Kanidm/OpenBao/Warpgate/Guacamole/NetBird]**.
+- **Versões:** fixar (pin) as versões dos componentes — evitar `latest`. **[A DEFINIR — fixar versões de archguard/OpenBao/Warpgate/Guacamole/NetBird]**.
 
 ## Decisões de ambiente (pré-requisitos do kickoff)
 
 Necessárias antes de o Claude Code começar de fato:
 
 - **Estrutura de repositório** (monorepo vs polyrepo) — **[A DEFINIR]**.
-- **Alvo de deploy, domínios (DNS) e TLS** (Swarm onde? quais hosts para Kanidm/Warpgate/Guacamole? TLS via Traefik/Let's Encrypt?) — **[A DEFINIR]**.
+- **Alvo de deploy, domínios (DNS) e TLS** (Swarm onde? quais hosts para archguard/Warpgate/Guacamole? TLS via Traefik/Let's Encrypt?) — **[A DEFINIR]**.
 - **Segredos de bootstrap** (raiz/unseal do OpenBao, admin) guardados fora da plataforma — **[A DEFINIR]**.
 - **Alvos de teste** (host SSH, host Windows RDP, PostgreSQL de teste) para validar as tarefas 3.6/4.4/6.x da Fase 1 — **[A DEFINIR]**.
 - **Pinning de versões** dos componentes — **[A DEFINIR]**.

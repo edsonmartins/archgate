@@ -1,13 +1,17 @@
-# Runbook — virada do IdP: Kanidm → ArchGuard
+# Runbook histórico — virada do IdP
+
+> Este runbook está `superseded`. A virada para o ArchGuard SaaS já foi concluída
+> e os scripts antigos referenciados abaixo foram removidos. Use os contratos e
+> variáveis do ArchGate DevOps/Manager para novas integrações.
 
 | Campo | Valor |
 |-------|-------|
-| Decisão | [ADR-014](../../adr/ADR-014-archguard-substitui-kanidm-como-idp.md) |
+| Decisão | [ADR-014](../../adr/ADR-014-archguard-substitui-archguard-como-idp.md) |
 | Smoke | `deploy/validation/smoke-archguard-cutover.sh` |
-| Reversão | `ARCHGATE_IDP=kanidm` + redeploy |
+| Reversão | `ARCHGATE_IDP=archguard` + redeploy |
 | Estado | virada não executada |
 
-A troca é seletiva por variável. Com `ARCHGATE_IDP` ausente ou `kanidm`, tudo se
+A troca é seletiva por variável. Com `ARCHGATE_IDP` ausente ou `archguard`, tudo se
 comporta como antes — o código novo não muda o staging até alguém decidir.
 
 ---
@@ -105,7 +109,7 @@ Aqui a premissa central se confirma ou cai: **o claim `groups` sai qualificado
 como `archgate/<nome>`?** Três configurações dependem disso.
 
 Se sair sem prefixo, o smoke diz REFUTADA e nomeia os arquivos a editar:
-`deploy/warpgate/deploy.sh` e `deploy/openbao/bootstrap-kanidm-auth.sh`.
+`deploy/warpgate/deploy.sh` e `deploy/openbao/bootstrap-archguard-auth.sh`.
 
 ### Passo 3 — bloqueador
 
@@ -117,7 +121,7 @@ volte ao passo 2. Não siga com segredo de MFA circulando.
 ```bash
 # no host de runtime
 ./scripts/62-wire-console-integrations.sh     # console
-bash deploy/openbao/bootstrap-kanidm-auth.sh  # roles do cofre (agora IdP-aware)
+bash deploy/openbao/bootstrap-archguard-auth.sh  # roles do cofre (agora IdP-aware)
 bash deploy/warpgate/deploy.sh                # SSO + role_mappings
 bash deploy/guacamole/oauth2-proxy-deploy.sh  # portão do Guacamole
 ```
@@ -137,11 +141,11 @@ bash deploy/guacamole/oauth2-proxy-deploy.sh  # portão do Guacamole
 ## 4. Reversão
 
 ```bash
-ARCHGATE_IDP=kanidm   # ou remover a variável
+ARCHGATE_IDP=archguard   # ou remover a variável
 ```
 
-E reexecutar os quatro scripts do passo 4. Nenhum dado do Kanidm é destruído
-pela virada — os dois IdPs coexistem até você desligar o Kanidm por decisão
+E reexecutar os quatro scripts do passo 4. Nenhum dado do archguard é destruído
+pela virada — os dois IdPs coexistem até você desligar o archguard por decisão
 separada.
 
 Durante a convivência, uma sessão pode carregar grupos de qualquer um dos dois

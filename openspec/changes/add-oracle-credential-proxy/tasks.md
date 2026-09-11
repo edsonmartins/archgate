@@ -25,7 +25,7 @@
 - [ ] 4.1 Configurar a conexão de banco apontando ao plugin/plugin-name — example HCL in deploy/oracle-proxy/
 - [x] 4.2 Role statements/TTL documented (example HCL + ephemeral-ttl-politica)
 - [x] 4.3 username_template limit 30 enforced in proxy
-- [ ] 4.4 Amarrar emissão à identidade Kanidm (rastreabilidade)
+- [ ] 4.4 Amarrar emissão à identidade archguard (rastreabilidade)
 
 ## 5. Validação
 - [ ] 5.1 Emitir credencial Oracle dinâmica com TTL e conectar ao banco de teste

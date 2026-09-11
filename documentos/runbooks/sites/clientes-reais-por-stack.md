@@ -139,7 +139,7 @@ Para **cada** site produção:
 |-------|------|---------|
 | 1 | Primeiro site com stack **confirmada** e conta de serviço pronta | Valida produção com stack já testada no lab (WG ou OpenVPN) |
 | 2 | Rio Quality produção | Tenant lab maduro; Tunnel/Oracle no roadmap |
-| 3 | Grupo Marra produção | Segundo tenant já modelado no Kanidm |
+| 3 | Grupo Marra produção | Segundo tenant já modelado no archguard |
 | 4 | Demais clientes OpenVPN / Forti | Usar units `stacks/*` |
 
 ---
@@ -155,7 +155,7 @@ cp documentos/runbooks/sites/cliente-site.template.yaml \
 
 # 3. Linha na matriz §2 deste arquivo
 
-# 4. Tenant Kanidm + roles Warpgate (onboarding-cliente-site.md)
+# 4. Tenant archguard + roles Warpgate (onboarding-cliente-site.md)
 
 # 5. Deploy connector conforme stack:
 #    wireguard  → deploy/connector/… peer

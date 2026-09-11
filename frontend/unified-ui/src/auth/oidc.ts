@@ -22,11 +22,24 @@ function issuerBase(): string {
   return config.oidc.issuer.replace(/\/$/, '')
 }
 
+type OidcDiscovery = { authorization_endpoint?: string; token_endpoint?: string }
+let discoveryPromise: Promise<OidcDiscovery> | undefined
+
+async function discovery(): Promise<OidcDiscovery> {
+  discoveryPromise ??= fetch(`${issuerBase()}/.well-known/openid-configuration`)
+    .then(async (res) => {
+      if (!res.ok) throw new Error(`OIDC discovery failed (${res.status})`)
+      return (await res.json()) as OidcDiscovery
+    })
+  return discoveryPromise
+}
+
 export function isOidcEnabled(): boolean {
   return config.oidc.enabled
 }
 
 export async function beginOidcLogin(): Promise<void> {
+  const metadata = await discovery()
   const { verifier, challenge } = await createPkcePair()
   const state = randomString(16)
   const nonce = randomString(16)
@@ -34,7 +47,7 @@ export async function beginOidcLogin(): Promise<void> {
   sessionStorage.setItem(PKCE_KEY, JSON.stringify(stored))
   sessionStorage.setItem(STATE_KEY, state)
 
-  const authUrl = new URL(`${issuerBase()}/authorize`)
+  const authUrl = new URL(metadata.authorization_endpoint || `${issuerBase()}/authorize`)
   authUrl.searchParams.set('response_type', 'code')
   authUrl.searchParams.set('client_id', config.oidc.clientId)
   authUrl.searchParams.set('redirect_uri', config.oidc.redirectUri)
@@ -137,7 +150,8 @@ async function exchangeCodeDirect(
     redirect_uri: config.oidc.redirectUri,
     code_verifier: verifier,
   })
-  const res = await fetch(`${issuerBase()}/token`, {
+  const metadata = await discovery()
+  const res = await fetch(metadata.token_endpoint || `${issuerBase()}/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body,
@@ -164,8 +178,7 @@ function extractTenants(claims: Record<string, unknown>): string[] {
       .filter((g) => g.startsWith('tenant_') || g.includes('tenant'))
   }
   if (typeof claims.tenant === 'string') return [claims.tenant]
-  // Lab default if IdP omits groups claim mapping
-  return ['tenant_rio_quality']
+  return []
 }
 
 export function logoutOidc(): void {

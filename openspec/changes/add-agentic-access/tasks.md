@@ -2,17 +2,17 @@
 
 ## 1. Alta disponibilidade
 - [x] 1.1 OpenBao HA design + Raft/auto-unseal exemplos (`deploy/openbao/ha/*`) — 2026-07-17
-- [x] 1.2 Kanidm topologia HA documentada (`ha-topology.md`)
+- [x] 1.2 archguard topologia HA documentada (`ha-topology.md`)
 - [x] 1.3 Persistência externa confirmada (ADR-003 + topologia)
 - [x] 1.4 Gateways stateless pattern documentado (Traefik multi-node)
 - [x] 1.5 Runbook failover + checklist (`ha-failover-tests.md`, `ha-failover-checklist.sh`)
 - [x] 1.6 RPO/RTO documentados (`ha-rpo-rto.md`) — aceite assinatura pendente
-- [ ] 1.7 Deploy multi-node real (OpenBao Raft + Kanidm replica) em lab/prod
+- [ ] 1.7 Deploy multi-node real (OpenBao Raft + archguard replica) em lab/prod
 
 ## 2. Identidade do agente
 - [x] 2.1 Bootstrap SA OpenSRE (`deploy/agentic/bootstrap-opensre-sa.sh`) + policy YAML
 - [x] 2.2 On-behalf-of na auditoria (`humanApprover` + `agentId`) — agent-control
-- [ ] 2.3 Token/API live no Kanidm lab
+- [ ] 2.3 Token/API live no archguard lab
 - [x] 2.4 Autenticação da API do plano agêntico (fail-closed) — `AGENT_API_TOKEN` 2026-07-29
 - [x] 2.5 `agent_id` derivado da credencial, nunca do corpo — 2026-07-29
 

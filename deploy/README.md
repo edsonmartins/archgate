@@ -1,4 +1,7 @@
-# ArchGate — Deploy (Docker Swarm)
+# ArchGate — Deploy histórico (Docker Swarm)
+
+> Este diretório está superseded. O deploy suportado atualmente está em
+> `archgate-devops`; não use estes manifests para provisionar a VPS.
 
 Infraestrutura da Fase 1 (`add-identity-axis`). Engines são **operados e integrados**, não reescritos.
 
@@ -15,13 +18,12 @@ Bootstrap no host ArchGate: `/root/archgate/bootstrap.env` (mode 600, fora do gi
 
 ## Versões pinadas
 
-Ver `versions.env`. **Nunca** usar tag `latest` em stacks de staging/produção.
+As versões abaixo são apenas referência histórica da topologia Swarm anterior.
 
 | Componente | Imagem pinada |
 |---|---|
 | PostgreSQL (cliente/alvo) | cluster existente 16.x em `.110` |
 | Traefik | `traefik:v3.4.1` |
-| Kanidm | `kanidm/server:1.10.4` |
 | Warpgate | `ghcr.io/warp-tech/warpgate:v0.26.1` |
 | Guacamole / guacd | `guacamole/guacamole:1.6.0` / `guacamole/guacd:1.6.0` |
 
@@ -119,7 +121,7 @@ docker stack deploy -c deploy/traefik/stack.yml archgate-edge
 
 ## Domínios
 
-- `id.archgate.com.br` — Kanidm
+- `id.archgate.com.br` — archguard
 - `wg.archgate.com.br` — Warpgate
 - `guac.archgate.com.br` — Guacamole
 - `console.archgate.com.br` — ArchGuard

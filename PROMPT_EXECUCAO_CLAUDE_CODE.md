@@ -21,15 +21,15 @@ Se houver ferramenta `openspec` no repositório, use-a para validar/inspecionar 
 ## Princípios inegociáveis (guardrails — nunca viole)
 
 1. **Zero-credencial-no-dev.** A credencial do alvo nunca chega ao principal. O gateway injeta; o dev apenas usa. Se uma tarefa parecer exigir expor segredo ao dev, está errada — pare e sinalize.
-2. **Política no gateway, não no principal.** Autorização e limites são impostos por Warpgate/OpenBao/Kanidm, nunca delegados ao julgamento do usuário ou de um agente.
+2. **Política no gateway, não no principal.** Autorização e limites são impostos por Warpgate/OpenBao/archguard, nunca delegados ao julgamento do usuário ou de um agente.
 3. **Efemeridade por padrão** (a partir da Fase 2). Credenciais de curta duração; nada permanente na mão de ninguém — nem do gateway.
 4. **Tudo auditável e reversível.** Toda sessão gravada; toda concessão rastreável a uma identidade; revogação central.
 5. **Soberania / LGPD.** Gravações, logs e (Fase 5) inferência de IA rodam self-hosted. Dado de produção de cliente **não** sai para APIs de terceiros.
-6. **Identidade é o alicerce.** Todo acesso deriva de identidade autenticada no Kanidm. Revogar identidade = revogar acesso.
+6. **Identidade é o alicerce.** Todo acesso deriva de identidade autenticada no archguard. Revogar identidade = revogar acesso.
 
 ## Ordem de execução (respeite as dependências)
 
-1. `add-identity-axis` (Fase 1) — identidade + gateways confiando no Kanidm + console.
+1. `add-identity-axis` (Fase 1) — identidade + gateways confiando no archguard + console.
 2. `add-ephemeral-credentials` (Fase 2) — OpenBao (SSH CA + DB dinâmico).
 3. `add-network-mesh` (Fase 3) — NetBird + cobertura de protocolo. **Bloqueada pelo ADR-001 (Oracle).**
 4. `add-unified-ui-and-orchestration` (Fase 4) — React/`guacamole-common-js` + orquestração Mentors Axis.
@@ -50,8 +50,8 @@ Para cada `<change>`:
 
 - **Backend:** Spring Boot 3.x + Java 21 + PostgreSQL. **Frontend:** React 18/19 + TypeScript + Mantine v9 (Archbase quando aplicável).
 - **Deploy:** Docker Swarm + Traefik (roteamento/TLS de borda).
-- **Componentes de terceiros (não reescreva; opere e integre):** Kanidm (identidade), OpenBao (segredos efêmeros), Warpgate (SSH/HTTPS/K8s/MySQL/PostgreSQL), Apache Guacamole + guacd (RDP/VNC/browser), NetBird (malha WireGuard).
-- **Console/identidade:** ArchGuard (interno) sobre Kanidm — reaproveite o padrão de token fora do browser (proxy server-side com validação de path).
+- **Componentes de terceiros (não reescreva; opere e integre):** archguard (identidade), OpenBao (segredos efêmeros), Warpgate (SSH/HTTPS/K8s/MySQL/PostgreSQL), Apache Guacamole + guacd (RDP/VNC/browser), NetBird (malha WireGuard).
+- **Console/identidade:** ArchGuard (interno) sobre archguard — reaproveite o padrão de token fora do browser (proxy server-side com validação de path).
 - **Persistência:** Warpgate e Guacamole em **PostgreSQL externo** — nunca o SQLite default do Warpgate em produção.
 - **Autenticação:** OIDC Authorization Code + PKCE; fluxos implícitos desabilitados.
 
@@ -60,7 +60,7 @@ Para cada `<change>`:
 Uma fase só fecha quando, cumulativamente:
 - Todas as tarefas do `tasks.md` estão `[x]` e validadas.
 - Todos os cenários das specs da fase passam.
-- **Teste de offboarding** passa: desabilitar a identidade no Kanidm derruba o acesso; da Fase 2 em diante, credenciais ativas expiram sozinhas; **nenhuma senha de cliente é rotacionada**.
+- **Teste de offboarding** passa: desabilitar a identidade no archguard derruba o acesso; da Fase 2 em diante, credenciais ativas expiram sozinhas; **nenhuma senha de cliente é rotacionada**.
 - **Nenhum fluxo expõe credencial de alvo ao dev.**
 - Sessões gravadas e reproduzíveis.
 

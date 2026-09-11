@@ -29,7 +29,7 @@ Configurar peer Rio no VPS continua **ops**, fora deste plano.
 | A1 | Plugin Go **dbplugin v5** (Initialize/NewUser/UpdateUser/DeleteUser/Type/Close + RotateRoot) | archgate | Binary serve mode + CLI lab |
 | A2 | mTLS client obrigatório quando `ORACLE_PROXY_REQUIRE_MTLS=1` | archgate | Client falha sem certs |
 | A3 | HCL/catalog/register scripts + stack deploy `replicas` configurável | archgate | Docs + stack.yml |
-| A4 | Policy JWT/Kanidm example (amarração identidade) | archgate | HCL de exemplo |
+| A4 | Policy JWT/archguard example (amarração identidade) | archgate | HCL de exemplo |
 | A5 | Smoke mock E2E plugin→proxy (sem Oracle real) | archgate | Script PASS |
 
 ## Épico B — Multi-connector SoT

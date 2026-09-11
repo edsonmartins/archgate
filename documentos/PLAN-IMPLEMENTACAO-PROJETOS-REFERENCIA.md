@@ -6,7 +6,7 @@
 | Início | 2026-08-07 |
 | Objetivo | Incorporar os padrões úteis de RustGuac, Veyport, OneTerm, Remota, ThinkWatch e BastionDB sem duplicar ArchGuard, OpenFGA ou OpenBao |
 | Control plane | Toda configuração suportada termina no **ArchGate Manager** |
-| Identidade | **ArchGuard é o único IdP**; Kanidm não é suportado |
+| Identidade | **ArchGuard é o único IdP**; archguard não é suportado |
 
 ## Regras de execução
 
@@ -30,14 +30,14 @@ P0 legado/contratos
 
 ## P0 — Base coerente
 
-**Critério de saída:** nenhum runtime suporta Kanidm; contratos ArchGuard/OpenFGA/OpenBao estão explícitos; Manager é a única superfície administrativa suportada.
+**Critério de saída:** nenhum runtime suporta archguard; contratos ArchGuard/OpenFGA/OpenBao estão explícitos; Manager é a única superfície administrativa suportada.
 
 | ID | Tarefa | Entrega | Aceite |
 |---|---|---|---|
-| P0-01 | Remover fallback Kanidm de clientes e orchestration | ArchGuard-only | Testes Go/Maven; busca de runtime sem fallback |
-| P0-02 | Substituir deploy e smokes Kanidm | scripts ArchGuard | Warpgate, OpenBao, offboarding e isolamento passam com ArchGuard |
-| P0-03 | Remover stack/imagens/health checks Kanidm | deploy limpo | nenhuma imagem, serviço ou variável `KANIDM_*` ativa |
-| P0-04 | Atualizar OpenSpecs e documentos vivos | baseline coerente | Kanidm apenas em ADR/evidência histórica marcada como superseded |
+| P0-01 | Remover fallback archguard de clientes e orchestration | ArchGuard-only | Testes Go/Maven; busca de runtime sem fallback |
+| P0-02 | Substituir deploy e smokes archguard | scripts ArchGuard | Warpgate, OpenBao, offboarding e isolamento passam com ArchGuard |
+| P0-03 | Remover stack/imagens/health checks archguard | deploy limpo | nenhuma imagem, serviço ou variável `archguard_*` ativa |
+| P0-04 | Atualizar OpenSpecs e documentos vivos | baseline coerente | archguard apenas em ADR/evidência histórica marcada como superseded |
 | P0-05 | Definir contratos BFF do Manager | API de control plane | authz por ação, idempotency key, audit event e job assíncrono documentados |
 | P0-06 | Criar license gate/SBOM | CI | AGPL/BUSL falham build; Apache NOTICE preservado |
 
@@ -135,7 +135,7 @@ P0 legado/contratos
 
 ## Primeira sequência executável
 
-1. `P0-01` — remover fallback Kanidm do runtime.
+1. `P0-01` — remover fallback archguard do runtime.
 2. `W1-01` — concluir spike RustGuac.
 3. `W1-02` — decidir arquitetura.
 4. `W1-03` e `W1-04` — contrato de sessão e ticket single-use.
@@ -144,7 +144,37 @@ P0 legado/contratos
 
 ## Progresso
 
-- [x] P0-01 iniciado: Connect e orchestration passaram a ArchGuard-only; testes Go e Maven registrados em 2026-08-07.
-- [ ] P0-02 a P0-06.
-- [x] W1-01 iniciado pelo pacote `evaluate-rustguac-session-gateway`.
+- [x] P0-01 concluído: Connect, orchestration e o deploy suportado usam ArchGuard-only; manifests, imagens, health checks e validações do runtime local legado foram removidos dos caminhos operacionais.
+- [~] P0-02 a P0-06: deploy/smokes legados removidos, OpenSpec baseline atualizado, gate de licença/SBOM adicionado ao CI, idempotência integrada a contas/checkout, audit outbox transacional e forwarder HTTPS configurável implementados no ArchGuard Console (`f689061`); ainda falta operar um endpoint durável real e marcar todos os runbooks históricos.
+- [x] W1-01 concluído: RustGuac implantado como gateway de sessões em `guac.archgate.com.br`, com Console → BFF → RustGuac validado.
+- [x] W1-03/W1-04 concluídos: contrato de sessão e ticket WebSocket single-use formalizados em `rustguac-proxy.ts`, com TTL de 30s, URL sem credencial administrativa e testes unitários.
+- [x] W1-05 concluído: sessão OIDC resolve `subject` no ArchGuard session-context, exige identidade ativa e anexa memberships autoritativas ao cookie server-side.
+- [x] W1-06 adapter concluído: `checkOpenFga` envia tuple `user/relation/object` e falha fechado quando OpenFGA está habilitado.
+- [x] W1-06 store/modelo OpenFGA provisionados na VPS; smoke sem tuple retorna `allowed=false`.
+- [x] Sincronizador idempotente de tuples criado em `scripts/77-sync-openfga-tuples.sh` (arquivo root-only, sem permissões fictícias).
+- [x] Materialização integrada ao Admin Console: grant escreve `connect`; offboarding remove as tuplas do principal.
+- [x] W1-06 ativado em desenvolvimento com duas tuplas explícitas de laboratório para `uat-op-a`; produção permanece sem concessões implícitas.
+- [x] W1-07 ponto de encerramento server-side criado em `DELETE /api/unified/v1/sessions/:sessionId`; RustGuac fecha a sessão sem expor a API key.
+- [x] W1-07 `lease_id` real, quando fornecido pelo segredo, é persistido apenas server-side e revogado no encerramento.
+- [x] W1-07 role dinâmica de laboratório configurada no OpenBao (`archgate-lab-readonly`), com TTL 15m/1h e revogação validada.
+- [x] W1-07 targets podem optar por `openbao_database_role`; emissão server-side associa `lease_id` e o encerramento revoga a credencial.
+- [x] W1-07 role dinâmica configurável no Admin Console (formulário de site e wizard), persistindo apenas o identificador da role.
+- [~] W1-08 smoke SSH RustGuac interno concluído; smoke E2E autenticado de navegador foi adicionado em `tests/e2e/rustguac-session.spec.ts` (`e09ce3f`), mas aguarda `ARCHGATE_E2E_SESSION_COOKIE` e target de laboratório. O Playwright local também depende de uma instalação limpa de `node_modules`; build Docker passou.
+- [~] W1-09 políticas de sessão: gravação, clipboard e intenção de drive agora são configuráveis por target no Admin Console e propagadas por sessão; transferência de arquivos permanece desligada no gateway de laboratório. Falta validação E2E no navegador e rollout controlado de upload/download.
+- [~] W1-10 catálogo server-side de gravações RustGuac exposto em `GET /api/unified/v1/recordings`, protegido por `gateways:read`; playback autenticado passa por `GET /api/unified/v1/recordings/:name` e só aceita artefatos `.guac` de sessões broker conhecidas. Política de retenção/legal hold está disponível em `POST /api/unified/v1/recordings/:name/retention`; falta evidência E2E com uma gravação real e integração da remoção física no gateway.
+- [x] W2-03 enrollment de connector concluído para laboratório: token hash-only, TTL de 60–3600s, vínculo site/connector, consumo atômico single-use, signing bridge, cliente CSR local no agent e emissão/revogação tenant-scoped no Manager.
+- [~] W2-02 contrato de transporte documentado em `documentos/CONTRATO-CONNECTOR-OUTBOUND.md`: envelope versionado, mTLS, CSR, heartbeat, capabilities, backoff/idempotência e revogação; falta reconnect de stream/HA e ativação do router de produção.
+- [~] W2-04 PKI de laboratório provisionada por `scripts/80-bootstrap-openbao-connector-pki.sh` no mount `pki-connectors`, com registro de serial e revogação no OpenBao; falta separar CA de produção e executar smoke com certificado revogado.
+- [~] W2-02 transporte inicial no agent concluído: heartbeat HTTPS outbound com mTLS, envelope versionado, `message_id`, capabilities, estado `ready/degraded`, backoff exponencial com jitter e failover entre `CONNECTOR_HEARTBEAT_URLS`; falta reconnect de stream/HA completo.
+- [~] W2-02 endpoint Manager de heartbeat concluído para edge opt-in: exige proxy mTLS confiável, certificado verificado e `connector_id` coincidente; persiste estado/capabilities/inventário e rejeita serial ausente, desconhecido ou revogado quando `CONNECTOR_MTLS_REQUIRE_CERT_REGISTRY=1`. Falta associar a opção a um router/domínio de produção.
+- [~] W2-02 testes de heartbeat adicionados: persistência idempotente por connector e rejeição de versão/estado inválidos. Execução completa da suíte depende de restaurar as dependências locais do Console; o build Docker de produção permanece validado.
+- [~] W2-04 lifecycle de certificados implementado no Manager: registro de serial, revogação via OpenBao e ação `rotate` com novo CSR/overlap (`67351e6`); o agente renova antes do expiry usando `CONNECTOR_ROTATION_TOKEN` (`4d963f4`). Teste automatizado do ciclo de registro/revogação adicionado; falta fornecer token de rotação de laboratório e executar smoke E2E com certificado revogado.
+- [~] W2-05 inventário limitado adicionado ao heartbeat e exposto por `GET /api/org/v1/connectors/inventory`, protegido por `sites:read`; histórico limitado a 100 snapshots por connector agora está disponível em `GET /api/org/v1/connectors/inventory/history`. Contrato automatizado do inventário e limites/redaction adicionado; falta validação em connector real.
+- [~] W2-06 diagnóstico redigido disponível no Manager em `GET /api/org/v1/connectors/diagnostics` e no agent em `GET /v1/diagnostics`, com frescor do heartbeat, estado stale/revoked, capabilities, serial truncado e journal limitado a 100 linhas redigidas; contrato automatizado de redaction adicionado; falta validar operação com connectors reais.
+- [~] W2-07 plano de upgrade controlado disponível no agent em `GET/POST /v1/upgrade/plan`, staging com download HTTPS limitado e SHA-256, aplicação/restart e rollback; Manager persiste o ciclo, audita aprovação, oferece a tela `/sites/rollouts` e orquestra ondas multi-host por lote via rotas de agent; falta E2E com artefato real.
 
+### Próximos gates recomendados
+
+1. Concluir P0-01/P0-04: retirar do runtime e marcar como superseded os artefatos legados ainda encontrados em `deploy/`, `openspec/` e `deploy/versions.env`.
+2. Concluir W1-08 a W1-11 com E2E de navegador, RDP/VNC e aposentadoria da UI stock.
+3. Fechar W2-02 a W2-04 com domínio/router mTLS, rotação, revogação e autorização tenant-scoped.

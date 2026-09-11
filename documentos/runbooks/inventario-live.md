@@ -6,7 +6,7 @@ Atualizar após mudanças de DNS/stack. Template W1-OPS08.
 
 | Papel | Host | Notas |
 |-------|------|-------|
-| Runtime Swarm | `192.168.1.180` (`edson-ai`) | Traefik, Kanidm, WG, Guac, console, OpenBao |
+| Runtime Swarm | `192.168.1.180` (`edson-ai`) | Traefik, archguard, WG, Guac, console, OpenBao |
 | Postgres externo | `192.168.1.110:5434` | DBs `warpgate`, `guacamole`, `archguard_console` |
 
 ## Serviços Swarm (core)
@@ -18,7 +18,7 @@ docker service ls --format 'table {{.Name}}\t{{.Replicas}}\t{{.Image}}' | grep a
 | Serviço | Porta interna / notes |
 |---------|------------------------|
 | `archgate-edge_traefik` | 80/443 |
-| `archgate-id_kanidmd` | 8443 |
+| `archgate-id_archguardd` | 8443 |
 | `archgate-id_archguard-console` | 3000 |
 | `archgate-gw_warpgate` | HTTPS + 2222 + 55432 |
 | `archgate-gw_guacamole` / `oauth2-proxy` | 8080 via proxy |

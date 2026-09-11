@@ -37,7 +37,8 @@ class LiveDryRunAdapterTest {
     assertEquals("ok", g.status());
 
     OrchestrationResult r = svc.revoke("live.user", "test");
-    assertEquals("ok", r.status());
+    assertEquals("partial", r.status());
+    assertTrue(r.steps().contains("openbao:revokeAll:FAIL"));
     assertEquals(3, r.steps().size());
   }
 

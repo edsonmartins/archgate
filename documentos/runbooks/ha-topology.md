@@ -16,7 +16,7 @@
                           │
      ┌────────────────────┼────────────────────┐
      ▼                    ▼                    ▼
- Kanidm (replica)    OpenBao Raft          Gateways (stateless)
+ archguard (replica)    OpenBao Raft          Gateways (stateless)
      │               (auto-unseal)         Warpgate / Guac / guacd
      │                    │                    │
      └────────── PostgreSQL apps (HA/off-host) ┘
@@ -28,7 +28,7 @@
 | Serviço | HA pattern | Storage | Notas lab → prod |
 |---------|------------|---------|------------------|
 | OpenBao | Raft 3/5 | integrated storage | hoje: file + unseal timer |
-| Kanidm | replication | volume/DB | hoje: 1 task |
+| archguard | replication | volume/DB | hoje: 1 task |
 | Postgres | primary + replica / managed | externo | `.110:5434` lab |
 | Warpgate | N replicas Swarm | PG only | sem SQLite |
 | Guacamole | N + guacd pool | PG | sessions em PG |

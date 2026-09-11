@@ -31,7 +31,7 @@ Resposta (JSON + `Set-Cookie` session HttpOnly):
 
 ### `GET /api/unified/v1/connections`
 
-Filtrado por sessão (RBAC / memberships Kanidm `tenant_*`). **Sem** IPs de alvo.
+Filtrado por sessão (RBAC / memberships archguard `tenant_*`). **Sem** IPs de alvo.
 
 ```json
 {
@@ -76,7 +76,7 @@ Resposta:
 }
 ```
 
-- BFF emite **authToken do operador** via header-auth interno (`X-Forwarded-User` = username Kanidm; ADR-007A) — **não** usa `guacadmin`.  
+- BFF emite **authToken do operador** via header-auth interno (`X-Forwarded-User` = username archguard; ADR-007A) — **não** usa `guacadmin`.  
 - `connect_data` é a query string de `Guacamole.Client.connect()`.  
 - `embed_mode: "websocket"` quando o mint OK; `"iframe"` se Guac inacessível / ACL sem conexão.  
 - SPA/Connect nunca recebe token admin, senha de alvo ou JWT de serviço.  
@@ -102,3 +102,63 @@ Resposta:
 Implementação: `archguard-console` — `src/server/unified-bff.ts` + `src/routes/api/unified/v1/*`.
 
 Env: `UNIFIED_UI_ORIGIN` (CORS), `UNIFIED_OIDC_CLIENT_ID` (default compartilha fluxo token com console se mesmo client).
+
+## Contrato de mutações do Manager (P0-05)
+
+Toda mutação administrativa do BFF segue o envelope abaixo. A UI nunca chama
+Warpgate, RustGuac, OpenBao ou connectors diretamente.
+
+### Autorização por ação
+
+- O BFF valida a sessão ArchGuard, `org_id`, identidade ativa e membership do
+  tenant antes de executar a ação.
+- Cada rota declara uma permissão explícita (`sites:create`, `sites:update`,
+  `connectors:enroll`, `sessions:close`, etc.). Não existe fallback por papel
+  genérico.
+- Ausência de contexto ou falha do provider retorna `401/403/503` fail-closed.
+
+### Idempotência
+
+- Mutações externas exigem `Idempotency-Key` UUID/ULID, entre 16 e 128 bytes.
+- A chave é vinculada a `org_id`, identidade, método, rota e hash do corpo.
+- Repetição com o mesmo hash devolve a resposta original; colisão de hash
+  retorna `409`.
+- O armazenamento deve ser transacional e compartilhado (PostgreSQL/Redis),
+  nunca apenas memória de processo quando houver mais de uma réplica.
+
+### Auditoria
+
+Cada tentativa autorizada ou negada gera evento server-side com:
+
+```json
+{
+  "event_id": "uuid",
+  "occurred_at": "RFC3339",
+  "org_id": "uuid",
+  "actor_subject": "archguard-subject",
+  "action": "connectors.enroll",
+  "resource_type": "connector",
+  "resource_id": "uuid",
+  "decision": "allow|deny|error",
+  "request_id": "uuid",
+  "idempotency_key": "uuid",
+  "metadata": {}
+}
+```
+
+Segredos, tokens, CSR, credenciais e conteúdo de requests nunca entram em
+`metadata`. O evento é gravado junto da mudança ou enviado para outbox
+transacional antes de responder `2xx`.
+
+### Jobs assíncronos
+
+Operações que ultrapassam o timeout do BFF retornam `202`:
+
+```json
+{ "job_id": "uuid", "status": "queued", "poll_url": "/api/org/v1/jobs/<id>" }
+```
+
+`GET /api/org/v1/jobs/:id` só revela jobs da mesma organização e retorna
+`queued|running|succeeded|failed|cancelled`, com `error_code` redigido. Cada
+transição também gera evento de auditoria. Jobs são retomáveis por
+`Idempotency-Key` e não podem duplicar efeitos externos.

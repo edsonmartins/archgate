@@ -30,7 +30,7 @@ Validação de código: host e port obrigatórios para protocolo HTTP.
 UnifiedUI / snippets HTTP:
 
 1. Abrir URL pública do Warpgate com target (ver `frontend/unified-ui` launch `http-browser`)
-2. SSO Kanidm
+2. SSO archguard
 3. Sessão gravada no WG
 
 ## Checklist PASS

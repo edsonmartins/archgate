@@ -39,11 +39,10 @@ public final class StatementRenderer {
         splitAndAdd(raw, out);
       }
     }
-    if (out.isEmpty()) {
-      // fallback: any value in the map
-      for (String raw : statements.values()) {
-        splitAndAdd(raw, out);
-      }
+    // Never execute every map value as a fallback: plugin maps may contain
+    // compatibility aliases for different lifecycle phases.
+    if (out.isEmpty() && statements.size() == 1) {
+      splitAndAdd(statements.values().iterator().next(), out);
     }
     return out;
   }

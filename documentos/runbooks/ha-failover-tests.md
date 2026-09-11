@@ -26,7 +26,7 @@
 
 Lab single-node: **SKIP** com nota “sem Raft”.
 
-### F2 — Kanidm down
+### F2 — archguard down
 
 | Passo | Ação |
 |-------|------|

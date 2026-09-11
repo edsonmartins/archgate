@@ -46,16 +46,16 @@ Console **não** deve carregar `OPENBAO_UNSEAL_KEY` em modo W1 (`ARCHGATE_LAB=0`
 
 ---
 
-## 3. Kanidm / SSO falha
+## 3. archguard / SSO falha
 
 ```bash
 curl -sk https://id.archgate.com.br/status
-docker service logs --tail 80 archgate-id_kanidmd
+docker service logs --tail 80 archgate-id_archguardd
 # OIDC discovery
 curl -sk https://id.archgate.com.br/oauth2/openid/archguard-console/.well-known/openid-configuration | head
 ```
 
-Break-glass: `idm_admin` via `kanidmd recover-account` no container (só ops).
+Break-glass: `idm_admin` via `archguardd recover-account` no container (só ops).
 
 ---
 

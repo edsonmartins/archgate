@@ -30,11 +30,11 @@ O **ArchGate Manager** é o **único console operacional**, no mesmo espírito d
 | AWS | ArchGate |
 |-----|----------|
 | Console (UI + API) | **ArchGate Manager** (`console.archgate.com.br` + `/api/…`) |
-| IAM | Módulo identidade (Kanidm **atrás** do BFF) |
+| IAM | Módulo identidade (archguard **atrás** do BFF) |
 | Secrets Manager / Parameter Store | OpenBao **atrás** do BFF |
 | CLI (opcional) | Connect / `archgate` — **sem** vault local de org |
 
-**Regra:** o admin/operador **não** precisa de UI/CLI do Kanidm, OpenBao, Warpgate stock, etc. no fluxo normal.  
+**Regra:** o admin/operador **não** precisa de UI/CLI do archguard, OpenBao, Warpgate stock, etc. no fluxo normal.  
 Esses componentes são **backends** (como serviços AWS por trás do Console). UIs stock = “advanced / break-glass de plataforma”, não o happy path ([ADR-009](./ADR-009-control-plane-admin-console.md)).
 
 Bootstrap de instalação (deploy scripts, tokens de serviço) é **ops de plataforma 1×**, análogo a provisionar a conta AWS — não o dia a dia.
@@ -45,7 +45,7 @@ Bootstrap de instalação (deploy scripts, tokens de serviço) é **ops de plata
 |------------|--------|
 | **ArchGate Manager** | **Única** UI/API: catálogo, checkout, aprovação, store/rotate secret, audit |
 | **OpenBao** | Backend de material secreto (`secret/data/org/…`) — **sem** uso diário da UI OpenBao |
-| **Kanidm** | Backend de identidade/RBAC/OIDC clients — **via** Identidades / Grupos / OAuth2 no Manager |
+| **archguard** | Backend de identidade/RBAC/OIDC clients — **via** Identidades / Grupos / OAuth2 no Manager |
 | **ArchGate Connect** | **Não** é o vault; deep-link `archgate org-accounts` → Manager (sem storage local) |
 
 ### 2. Separar bolsos de segredo
@@ -78,7 +78,7 @@ Onde a plataforma permitir, preferir:
 
 - **GCP / Google:** usuários individuais + IAM; service accounts e chaves no OpenBao  
 - **Play / Apple:** usuários individuais com roles; API keys no OpenBao; conta owner em dual-control  
-- **Produtos próprios:** OIDC Kanidm; eliminar admin/senha local no fluxo feliz  
+- **Produtos próprios:** OIDC archguard; eliminar admin/senha local no fluxo feliz  
 
 O broker governa o **que ainda é senha**; a estratégia de produto **elimina** senha compartilhada ao longo do tempo.
 
@@ -113,7 +113,7 @@ Warpgate HTTPS / inject **apenas** onde o alvo for HTTP interno ou compatível.
 ## Consequências
 
 **+** Um lugar para contas da casa com policy e offboarding.  
-**+** Reusa Manager, Kanidm, OpenBao, audit log.  
+**+** Reusa Manager, archguard, OpenBao, audit log.  
 **+** Não dilui o bastion de cliente (Connect continua RDM de infra).  
 **−** Reveal controlado ainda é superfície de copiar senha (mitigar com TTL, dual-control, preferir keys).  
 **−** Não substitui 1Password pessoal para senhas *não* corporativas.  
@@ -130,7 +130,7 @@ Warpgate HTTPS / inject **apenas** onde o alvo for HTTP interno ou compatível.
 
 | Alternativa | Motivo |
 |-------------|--------|
-| Só planilha + 1Password time | Sem RBAC Kanidm, sem audit unificado, offboarding manual |
+| Só planilha + 1Password time | Sem RBAC archguard, sem audit unificado, offboarding manual |
 | Vault só no Connect | Endpoint é o pior lugar; contradiz ADR-008 |
 | Proxy browser para todo SaaS | Não funciona de forma confiável em GCP/Play/Apple |
 | Misturar com targets de site | Confunde tenant de cliente com conta da IntegrAllTech |

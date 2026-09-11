@@ -30,21 +30,21 @@
    - targets default: `rio-lab-postgres lab-postgres marra-lab-postgres`  
    - Manual: `systemctl start archgate-openbao-unseal.service`
 
-## Auth: OpenBao ← Kanidm (JWT)
+## Auth: OpenBao ← archguard (JWT)
 
-Operadores autenticam no Kanidm (OIDC Code + PKCE); o `id_token` entra em `auth/jwt` no OpenBao.
+Operadores autenticam no archguard (OIDC Code + PKCE); o `id_token` entra em `auth/jwt` no OpenBao.
 
 | Peça | Valor lab |
 |------|-----------|
-| OAuth2 client | `openbao` (public, Kanidm) |
+| OAuth2 client | `openbao` (public, archguard) |
 | Issuer | `https://id.archgate.com.br/oauth2/openid/openbao` |
 | Role | `archgate-operator` → policy `archgate-operator-ephemeral` |
 | Bound group | `archguard_users@id.archgate.com.br` (SPN no claim `groups`) |
 | Validação | ES256 pubkey (PEM) — evita TLS discovery do container |
 
 ```bash
-bash deploy/openbao/bootstrap-kanidm-auth.sh
-bash deploy/openbao/smoke-kanidm-jwt.sh   # PASS: JWT login → DB dynamic + SSH CA
+bash deploy/openbao/bootstrap-archguard-auth.sh
+bash deploy/openbao/smoke-archguard-jwt.sh   # PASS: JWT login → DB dynamic + SSH CA
 ```
 
 ## Scripts
@@ -53,9 +53,9 @@ bash deploy/openbao/smoke-kanidm-jwt.sh   # PASS: JWT login → DB dynamic + SSH
 |--------|--------|
 | `deploy.sh` | Serviço Swarm + init/unseal |
 | `bootstrap-engines.sh` | SSH CA + database + policies |
-| `bootstrap-kanidm-auth.sh` | OAuth2 client + `auth/jwt` + roles por grupo |
+| `bootstrap-archguard-auth.sh` | OAuth2 client + `auth/jwt` + roles por grupo |
 | `smoke-ephemeral.sh` | SSH cert + DB emit/revoke (token app) |
-| `smoke-kanidm-jwt.sh` | OIDC Kanidm → JWT OpenBao → DB + SSH |
+| `smoke-archguard-jwt.sh` | OIDC archguard → JWT OpenBao → DB + SSH |
 | `broker-warpgate-db.sh` | OpenBao → Warpgate target DB |
 | `smoke-broker-warpgate.sh` | E2E operador via proxy |
 

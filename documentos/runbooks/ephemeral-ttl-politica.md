@@ -1,6 +1,6 @@
 # Política de TTL — credenciais efêmeras (W1-EPH02)
 
-Fonte de configuração: `deploy/openbao/bootstrap-engines.sh` e `bootstrap-kanidm-auth.sh`.
+Fonte de configuração: `deploy/openbao/bootstrap-engines.sh` e `bootstrap-archguard-auth.sh`.
 
 ## Valores lab atuais (referência)
 
@@ -8,8 +8,8 @@ Fonte de configuração: `deploy/openbao/bootstrap-engines.sh` e `bootstrap-kani
 |---------|---------------|-----|--------|
 | SSH CA role `lab-user` | **15m** | **30m** | cert assinado no smoke |
 | DB role `lab-readonly` | **30m** | **2h** | broker Warpgate renova via timer |
-| JWT role `archgate-operator` | **30m** | **2h** | token OpenBao pós-Kanidm |
-| JWT role admin (se houver) | **1h** | **4h** | bootstrap-kanidm-auth |
+| JWT role `archgate-operator` | **30m** | **2h** | token OpenBao pós-archguard |
+| JWT role admin (se houver) | **1h** | **4h** | bootstrap-archguard-auth |
 | Broker timer | ~20 min | — | `archgate-broker-db.timer` |
 
 ## Política alvo produção

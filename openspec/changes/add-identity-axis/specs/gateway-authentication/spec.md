@@ -3,10 +3,10 @@
 ## ADDED Requirements
 
 ### Requirement: Warpgate Autentica via OIDC
-O Warpgate SHALL autenticar usuários via OIDC contra o Kanidm, sem autenticação local por senha.
+O Warpgate SHALL autenticar usuários via OIDC contra o archguard, sem autenticação local por senha.
 
 #### Scenario: SSO no Warpgate
-- **WHEN** um desenvolvedor autenticado no Kanidm conecta ao Warpgate
+- **WHEN** um desenvolvedor autenticado no archguard conecta ao Warpgate
 - **THEN** o Warpgate valida a identidade via OIDC e concede acesso conforme o RBAC de targets
 - **AND** a credencial do alvo é detida/injetada pelo Warpgate, nunca exposta ao desenvolvedor
 
@@ -15,18 +15,18 @@ O Warpgate SHALL autenticar usuários via OIDC contra o Kanidm, sem autenticaç�
 - **THEN** a tentativa é rejeitada
 
 ### Requirement: Guacamole Autentica via OIDC
-O Guacamole SHALL autenticar usuários via extensão OIDC contra o Kanidm.
+O Guacamole SHALL autenticar usuários via extensão OIDC contra o archguard.
 
 #### Scenario: SSO no Guacamole para RDP
-- **WHEN** um desenvolvedor autenticado no Kanidm abre uma conexão RDP no Guacamole
+- **WHEN** um desenvolvedor autenticado no archguard abre uma conexão RDP no Guacamole
 - **THEN** o Guacamole valida a identidade via OIDC e injeta a credencial do alvo
 - **AND** o desenvolvedor não vê a credencial do alvo
 
 ### Requirement: Revogação de Acesso por Identidade
-Desabilitar uma identidade no Kanidm SHALL revogar o acesso do principal em ambos os gateways.
+Desabilitar uma identidade no archguard SHALL revogar o acesso do principal em ambos os gateways.
 
 #### Scenario: Offboarding derruba SSO nos gateways
-- **WHEN** a identidade de um desenvolvedor é desabilitada no Kanidm
+- **WHEN** a identidade de um desenvolvedor é desabilitada no archguard
 - **THEN** ele não consegue mais autenticar no Warpgate nem no Guacamole
 - **AND** nenhuma senha de cliente precisa ser rotacionada, pois o desenvolvedor nunca deteve a credencial do alvo
 

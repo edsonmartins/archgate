@@ -6,14 +6,14 @@
 
 ## Contexto
 
-Mentors Axis já é multi-tenant e registra **clientes (Proprietário)**. ArchGate precisa de tenants de acesso (`tenant_*` no Kanidm), sites/conectividade e gateways. Sem fronteira clara, há risco de duplicar cadastro de cliente e de misturar orquestração comercial com bastion.
+Mentors Axis já é multi-tenant e registra **clientes (Proprietário)**. ArchGate precisa de tenants de acesso (`tenant_*` no archguard), sites/conectividade e gateways. Sem fronteira clara, há risco de duplicar cadastro de cliente e de misturar orquestração comercial com bastion.
 
 ## Decisão
 
 | Responsabilidade | Dono |
 |------------------|------|
 | Cadastro comercial do cliente (nome, CNPJ, status, contratos) | **Mentors Axis** (`/api/v1/proprietario`) |
-| Identidade técnica (pessoas, grupos, OAuth2, SSO) | **ArchGuard / Kanidm** (console) |
+| Identidade técnica (pessoas, grupos, OAuth2, SSO) | **ArchGuard / archguard** (console) |
 | Acesso privilegiado (sites, stack VPN, targets, connectors, OpenBao) | **ArchGate Control Plane** (console) |
 | Orquestração multi-sistema **full** (pessoas, grant/revoke, offboarding) | **Fase 4+** (HITL / API) |
 | Sync **leitura** Axis → fichas de site + bootstrap tenant/role | **Control plane** (CP-7, lab) |
@@ -29,14 +29,14 @@ ArchGate sites (PostgreSQL SoT, fallback SQLite)
   stack_meta.mentors_axis_id / code / status / admin_email
   stack permanece a_confirmar até ops configurar VPN
         ↓
-Kanidm: ensure grupo tenant_<slug> (idempotente)
+archguard: ensure grupo tenant_<slug> (idempotente)
 Warpgate: ensure role tenant-<slug> (idempotente)
 ```
 
 - **Não** apaga sites locais não presentes no Axis (só upsert).  
 - **Não** grava segredos Axis no browser.  
 - **Não** cria pessoas/operadores automaticamente (Fase 4 / HITL).  
-- **Sim** cria/garante grupo Kanidm `tenant_*` e role Warpgate no sync.
+- **Sim** cria/garante grupo archguard `tenant_*` e role Warpgate no sync.
 
 ### Lab (staging IntegrAllTech)
 
@@ -54,6 +54,6 @@ Warpgate: ensure role tenant-<slug> (idempotente)
 
 **+** Um cadastro comercial (Axis) alimenta inventário de acesso (ArchGate).  
 **+** Ops configura VPN/targets só no control plane.  
-**+** Bootstrap de isolamento tenant (Kanidm + Warpgate role) no sync.  
+**+** Bootstrap de isolamento tenant (archguard + Warpgate role) no sync.  
 **−** Auth/mTLS console↔Axis a endurecer em produção (hoje env/JWT lab).  
 **−** Offboarding full e provision de pessoas = Fase 4.

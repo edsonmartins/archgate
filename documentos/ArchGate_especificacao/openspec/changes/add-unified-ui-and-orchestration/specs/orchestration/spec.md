@@ -3,11 +3,11 @@
 ## ADDED Requirements
 
 ### Requirement: Provisionamento por API
-O Mentors Axis SHALL provisionar usuários e conceder acessos por API, aplicando identidade no Kanidm, targets no gateway e policies no OpenBao.
+O Mentors Axis SHALL provisionar usuários e conceder acessos por API, aplicando identidade no archguard, targets no gateway e policies no OpenBao.
 
 #### Scenario: Onboarding automatizado
 - **WHEN** um novo desenvolvedor é adicionado no Mentors Axis com um perfil e tenant
-- **THEN** a identidade é criada no Kanidm com o RBAC correto
+- **THEN** a identidade é criada no archguard com o RBAC correto
 - **AND** os acessos autorizados são configurados nos gateways e no OpenBao
 
 ### Requirement: Offboarding Automatizado
@@ -15,7 +15,7 @@ O Mentors Axis SHALL revogar todo o acesso de um principal em uma única operaç
 
 #### Scenario: Revogação em um clique
 - **WHEN** um desenvolvedor é desligado no Mentors Axis
-- **THEN** a identidade é desabilitada no Kanidm, os leases são invalidados no OpenBao e os roles removidos no gateway
+- **THEN** a identidade é desabilitada no archguard, os leases são invalidados no OpenBao e os roles removidos no gateway
 - **AND** nenhuma senha de cliente precisa ser rotacionada
 
 ### Requirement: Sincronização de Tenants

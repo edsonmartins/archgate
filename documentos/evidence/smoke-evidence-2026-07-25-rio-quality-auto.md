@@ -31,7 +31,7 @@
 | ID | Categoria | Status | Título | Detalhe | ms |
 |----|-----------|--------|--------|---------|----|
 | P1 | platform | **PASS** | Console HTTPS | HTTP 307 → /dashboard | 205 |
-| P2 | platform | **PASS** | Kanidm id HTTPS | HTTP 303 → /ui | 196 |
+| P2 | platform | **PASS** | archguard id HTTPS | HTTP 303 → /ui | 196 |
 | P3 | platform | **PASS** | Warpgate UI HTTPS | HTTP 307 → /@warpgate#/login?next=%2F | 145 |
 | P4 | platform | **PASS** | Guacamole HTTPS | HTTP 200 | 147 |
 | P5 | platform | **PASS** | Bastion SSH TCP | 217.196.60.108:2222 OPEN (18ms) | 18 |

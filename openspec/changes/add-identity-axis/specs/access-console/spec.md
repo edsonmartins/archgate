@@ -3,11 +3,11 @@
 ## ADDED Requirements
 
 ### Requirement: Login do Operador via OIDC
-O console (ArchGuard) SHALL autenticar operadores via OIDC contra o Kanidm.
+O console (ArchGuard) SHALL autenticar operadores via OIDC contra o archguard.
 
 #### Scenario: Operador autentica no console
 - **WHEN** um operador acessa o console
-- **THEN** é redirecionado ao Kanidm e autentica via OIDC
+- **THEN** é redirecionado ao archguard e autentica via OIDC
 - **AND** ao retornar, vê apenas os recursos permitidos ao seu papel e tenant
 
 ### Requirement: Tokens Sensíveis Fora do Browser
@@ -37,5 +37,5 @@ O console SHALL expor por API as operações de provisionar/desabilitar usuário
 
 #### Scenario: Revogação disparada via API
 - **WHEN** o Mentors Axis chama a operação de desabilitar um usuário
-- **THEN** o console propaga a desativação da identidade no Kanidm
+- **THEN** o console propaga a desativação da identidade no archguard
 - **AND** o acesso do usuário aos gateways é revogado

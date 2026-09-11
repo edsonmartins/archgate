@@ -32,14 +32,14 @@
 
 | ID | Entrega | Status | Evidência |
 |----|---------|--------|-----------|
-| H1.1 | Contas UAT Kanidm+WG | ✅ | `/root/archgate/uat-credentials.env`; REST auth 4 personas OK; groups bound |
+| H1.1 | Contas UAT archguard+WG | ✅ | `/root/archgate/uat-credentials.env`; REST auth 4 personas OK; groups bound |
 | H1.2 | Targets lab WG + roles tenant | ✅ | SSH/PG E2E lab PASS 2026-07-17; isolamento op-a↛marra; ver `LAB-BASTION-TARGETS.md` |
-| H1.3 | Smokes no Hostinger | ✅ | Kanidm `/status=true`; WG admin login 201; console healthy; inventory roles/targets |
+| H1.3 | Smokes no Hostinger | ✅ | archguard `/status=true`; WG admin login 201; console healthy; inventory roles/targets |
 | H1.4 | OpenBao APP_TOKEN | ✅ | policy `archgate-console` + token em `bootstrap.env` + console env |
 | H1.5 | TLS endpoints públicos | ✅ | console 307 · id 303 · wg 307 · guac 200 · secrets 307 |
 | H1.6 | Viewer deny-by-default | ⏳ revisor | personas OK; UI deny = revisor; **WG:** `uat-op-a` só vê `rio-lab-*` (não marra) ✅ |
 | H1.7 | Data-alvo UAT + on-call | ✅ | **2026-07-24** · Edson Martins |
-| H1.8 | Kanidm health | ✅ | Recreate compose: HC `kanidmd version` → **healthy**; `/status=true` |
+| H1.8 | archguard health | ✅ | Recreate compose: HC `archguardd version` → **healthy**; `/status=true` |
 
 **Evidência H1:** `/root/archgate/H1-HOSTINGER-2026-07-17.md`  
 **Freeze H3 prep:** `/root/archgate/H3-FREEZE-2026-07-17.md`  
@@ -53,7 +53,7 @@
 | UAT formal revisor browser | ⏳ Edson até **2026-07-24** |
 | Peer real / waiver §6.2 | ⏳ H2 ou assinatura c/ ressalva |
 
-**Admin unificado:** console = única UI diária; stock WG/Guac/OpenBao/Kanidm = break-glass (`archgate-devops/docs/ADMIN-UNIFICADO.md`).
+**Admin unificado:** console = única UI diária; stock WG/Guac/OpenBao/archguard = break-glass (`archgate-devops/docs/ADMIN-UNIFICADO.md`).
 
 ### W1 Ops Hostinger (paralelo a H3)
 
@@ -71,7 +71,7 @@
 
 Um revisor (humano) consegue, em **≤ 30 minutos** com o runbook de UAT:
 
-1. Entrar no console via **OIDC Kanidm**.
+1. Entrar no console via **OIDC archguard**.
 2. Ver inventário / saúde (`/sites`, `/platform`).
 3. Como **operador do tenant A**, abrir **SSH e/ou Postgres** via Warpgate até um alvo **no site do cliente piloto**.
 4. Confirmar que **não** alcança o tenant B.
@@ -171,7 +171,7 @@ Dono + cliente piloto + protocolos UAT definidos por escrito neste arquivo. ✅
 
 - [x] **F1.1** Login no console → dashboard (sessão).  
   _2026-07-17: `w0-console-session.sh` — cookie + dashboard 200 (uat-*/testadmin). OIDC browser real 1× opcional para revisor._
-- [x] **F1.2** Reteste **offboarding** interativo: disable user no Kanidm → próximo SSO falha (console e/ou WG).  
+- [x] **F1.2** Reteste **offboarding** interativo: disable user no archguard → próximo SSO falha (console e/ou WG).  
   _2026-07-17: `offboarding-e2e.sh` **PASSED** (account expired). Browser opcional._
 - [x] **F1.3** Guacamole: portão SSO + sessão API + ACL.  
   _2026-07-17: `guacamole-sso-proxy-e2e` + `w0-guac-session` PASS (uat-op-a → rio-lab-ssh-browser). Visual browser opcional._
@@ -184,7 +184,7 @@ Dono + cliente piloto + protocolos UAT definidos por escrito neste arquivo. ✅
 - [x] **F1.7** Revalidar smoke automático:
   ```bash
   WG_HOST=192.168.1.180 bash deploy/validation/smoke-operator-access.sh
-  bash deploy/openbao/smoke-kanidm-jwt.sh
+  bash deploy/openbao/smoke-archguard-jwt.sh
   # isolamento manual: rio OK / marra denied
   ```
   _SSH+PG PASS · JWT PASS · isolamento PASS · WG admin API PASS._
@@ -214,9 +214,9 @@ Aceite lab assinado; waivers restantes só com prazo e aprovador.
   - tempo-alvo ≤ 30 min;
   - lista “fora de escopo” (link §2.2).  
   _Feito 2026-07-11 — rascunho v0.1; contas UAT e alvo real ainda F2.2 / F3._
-- [x] **F2.2** Provisionar **contas Kanidm de UAT** (não reutilizar só `testuser` de lab se possível):
+- [x] **F2.2** Provisionar **contas archguard de UAT** (não reutilizar só `testuser` de lab se possível):
   - `uat-admin`, `uat-op-a`, `uat-op-b`, `uat-viewer`  
-  _2026-07-11: Kanidm + Warpgate. Script `deploy/validation/provision-uat-users.sh`. Creds: `/root/archgate/uat-credentials.env`._
+  _2026-07-11: archguard + Warpgate. Script `deploy/validation/provision-uat-users.sh`. Creds: `/root/archgate/uat-credentials.env`._
 - [x] **F2.3** Matriz RBAC na evidência: o que cada persona **vê / não vê** em `/sites` e targets WG.  
   _Ver tabela em `HOMOLOGACAO-UAT.md` §0.3 + smoke `uat-op-a` rio OK / marra deny._
 - [ ] **F2.4** Demo browser: user **sem** super-admin e **sem** `tenant_*` amplo → deny-by-default (sites filtrados).  
@@ -437,7 +437,7 @@ Atualizar a cada sync.
 | F1.8 | F1 | Evidência homolog-prep | **done** | | smoke-evidence-…-homolog-prep |
 | F1.9 | F1 | Assinatura lab | todo | Edson | |
 | F2.1 | F2 | Escrever HOMOLOGACAO-UAT.md | **done** | | |
-| F2.2 | F2 | Contas UAT | **done** | | uat-* Kanidm+WG |
+| F2.2 | F2 | Contas UAT | **done** | | uat-* archguard+WG |
 | F2.3 | F2 | Matriz RBAC | **done** | | HOMOLOGACAO-UAT §0.3 |
 | F2.5 | F2 | Endpoints | **done** | | |
 | F2.7 | F2 | Dry-run UAT auto | **done** | | SSH/PG/isol PASS |
@@ -512,7 +512,7 @@ irmãos `_archguard/archguard-console` e `archgate-devops`.
 | `deploy/mentors-axis/sync-tenants-cli.sh` | `&&` no topo abortava o script sob `set -e` |
 | `archguard-console/src/server/logger.ts` | `pino-pretty` ausente derrubava o dev server no boot (E2E não subia) |
 | `archguard-console/src/server/org-accounts.ts` | Backfill sem `name` lançava “name required” |
-| `_archguard/.github/workflows/e2e.yml` | Kanidm sem TLS — o job nunca subia |
+| `_archguard/.github/workflows/e2e.yml` | archguard sem TLS — o job nunca subia |
 | `clients/archgate-connect/.../icons/` | `AppIcon.iconset` com nomes corrompidos; `iconutil` falhava |
 
 ### 11.3 O que a auditoria **não** mudou

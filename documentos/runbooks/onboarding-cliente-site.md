@@ -7,7 +7,7 @@
 
 ```
 Config do cliente ACME
-├── 1. Identidade (tenant / grupos Kanidm)
+├── 1. Identidade (tenant / grupos archguard)
 ├── 2. Conectividade (VPN/túnel/connector)     ← "como o bastion chega lá"
 ├── 3. Targets (SSH, DB, RDP, HTTPS…)
 ├── 4. Credenciais (somente no gateway)
@@ -18,10 +18,10 @@ Operadores usam [runbook cliente operador](./cliente-operador-multi-os.md).
 
 ## 1. Identidade
 
-- [ ] Grupo tenant no Kanidm: `tenant_<slug>` (ex. `tenant_rio_quality`)
+- [ ] Grupo tenant no archguard: `tenant_<slug>` (ex. `tenant_rio_quality`)
 - [ ] Operadores no grupo do tenant + `archguard_users` (ou papel adequado)
 - [ ] Tenant admins (se houver): `archguard_tenant_admins` + membership no tenant
-- [ ] Roles Warpgate alinhadas (ex. `tenant-rio-quality`) e SSO mapping Kanidm → role
+- [ ] Roles Warpgate alinhadas (ex. `tenant-rio-quality`) e SSO mapping archguard → role
 
 ## 2. Conectividade (obrigatório na ficha do cliente)
 
@@ -62,7 +62,7 @@ Inventário produção: [sites/clientes-reais-por-stack.md](./sites/clientes-rea
 - [ ] MFA exigido na VPN do cliente
 - [ ] Proibido varrer rede; só targets listados
 - [ ] Plano e prazo de migração para connector
-- [ ] Offboarding: revogar VPN **e** Kanidm/bastion
+- [ ] Offboarding: revogar VPN **e** archguard/bastion
 
 ## 3. Targets
 
@@ -95,17 +95,17 @@ Checklist por target:
 
 - [ ] Usuário do tenant A **não** vê targets do tenant B (isolamento)
 - [ ] Operador sem role do target recebe negação clara
-- [ ] Offboarding: disable no Kanidm; remover roles; (Guac local se ainda JDBC)
+- [ ] Offboarding: disable no archguard; remover roles; (Guac local se ainda JDBC)
 - [ ] Teste multi-OS do **operador** (Linux **ou** macOS **ou** Windows basta no smoke; ideal um de cada no lab genérico)
 
 ## 5b. Guacamole 1:1 + multi-tenant (browser / Parte A)
 
-Após identities no Kanidm (grupo `archguard_users` + tenant):
+Após identities no archguard (grupo `archguard_users` + tenant):
 
 ```bash
 # no runtime — users + conexões por tenant + ACLs
-bash /root/archgate/repo/deploy/guacamole/provision-kanidm-users.sh
-# DRY_RUN=1 bash .../provision-kanidm-users.sh
+bash /root/archgate/repo/deploy/guacamole/provision-archguard-users.sh
+# DRY_RUN=1 bash .../provision-archguard-users.sh
 ```
 
 | Conexão Guac | Quem vê |
@@ -114,7 +114,7 @@ bash /root/archgate/repo/deploy/guacamole/provision-kanidm-users.sh
 | `marra-lab-ssh-browser` | membros `tenant_grupo_marra` |
 | `lab-ssh-browser` | só `archguard_super_admins` |
 
-- Username Guac = short name Kanidm (`preferred_username`)  
+- Username Guac = short name archguard (`preferred_username`)  
 - Header-auth via oauth2-proxy (ADR-007A)  
 - Reexecutar o sync após onboard/offboard  
 - PATCH de permissão: `remove` **exige** `"value":"READ"` (senão HTTP 500)

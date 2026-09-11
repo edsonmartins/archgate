@@ -7,7 +7,7 @@
 - [x] 0.3 API `GET/POST /api/org/v1/accounts` + server fns (sem secret na listagem)  
 - [x] 0.4 UI Manager: **Contas da org** + CRUD dialog  
 - [x] 0.5 Template YAML exemplo (`documentos/runbooks/org-accounts.inventory.example.yaml`)  
-- [x] 0.6 Permissions `org_accounts:read|admin|checkout|approve` + grupos Kanidm  
+- [x] 0.6 Permissions `org_accounts:read|admin|checkout|approve` + grupos archguard  
 
 
 ## OCB-1 — OpenBao + checkout
@@ -41,7 +41,7 @@
 ## OCB-4 — Federar produtos
 
 - [x] 4.1 Inventário + matriz no runbook `org-product-oidc-federation.md`  
-- [x] 4.2 Plano OIDC Kanidm por produto (client ids + checklist)  
+- [x] 4.2 Plano OIDC archguard por produto (client ids + checklist)  
 - [x] 4.3 Metadados `federation_status` + `oidc_client_id`; seed `oidc_primary` / break-glass  
 - [ ] 4.4 Implementar clients OIDC em cada codebase de produto (fora do console — por squad)
 

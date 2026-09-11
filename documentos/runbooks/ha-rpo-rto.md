@@ -7,7 +7,7 @@ Valores **alvo de produto** (aceitação arquitetura). Lab pode ter RTO pior (un
 | Domínio | RPO (perda máx. dados) | RTO (retorno serviço) | Notas |
 |---------|------------------------|------------------------|-------|
 | **OpenBao secrets engine** | ≤ 5 min (Raft) | ≤ 15 min (quorum + unseal auto) | Centro crítico |
-| **Kanidm identidades** | ≤ 15 min | ≤ 30 min | Auth bloqueante |
+| **archguard identidades** | ≤ 15 min | ≤ 30 min | Auth bloqueante |
 | **Postgres apps** (WG/Guac/console) | ≤ 15 min (WAL/backup) | ≤ 1 h | Restore testado |
 | **Traefik / edge** | N/A (stateless) | ≤ 5 min | Multi-node |
 | **Warpgate / Guac** | 0 config (PG) | ≤ 10 min scale | Sessões ativas podem cair |

@@ -12,7 +12,7 @@ Alguns clientes só expõem terminais/serviços **atrás de VPN**. A tentação 
 
 - acesso privilegiado via **bastion** (Warpgate + Guacamole);
 - **sem credencial de alvo no endpoint**;
-- identidade central (Kanidm / ArchGuard);
+- identidade central (archguard / ArchGuard);
 - auditoria / gravação no gateway;
 - multi-tenant e offboarding por identidade.
 
@@ -38,7 +38,7 @@ Fluxo padrão do operador:
 
 ```
 Notebook (Linux | macOS | Windows)
-  → autenticação ArchGate (SSO Kanidm onde disponível)
+  → autenticação ArchGate (SSO archguard onde disponível)
   → Warpgate e/ou Guacamole (targets autorizados)
   → [conectividade do site: VPN/túnel/connector]
   → alvo do cliente
@@ -86,7 +86,7 @@ Contrato de acesso **único** (mesmos hosts/portas/comandos); apêndices mínimo
 
 O gap OIDC implicit do Guacamole 1.6 permanece **ADR-007**. Esta ADR **não** exige resolver 4.2 para adotar o modelo híbrido:
 
-- Personas SSH/DB podem operar **só Warpgate** (SSO Kanidm já ok);
+- Personas SSH/DB podem operar **só Warpgate** (SSO archguard já ok);
 - Personas RDP-browser usam Guacamole com as limitações atuais até proxy / 1.7 Code+PKCE / UnifiedUI.
 
 ### 7. Evolução (Fase 4)
@@ -101,7 +101,7 @@ UnifiedUI: catálogo único “minhas conexões” no ArchGate; embed de sessão
 - Menos dependência de “instalar RDP client” e de VPN full no notebook.
 - SSH/DB com ferramentas que o time já conhece, sem abrir mão do bastion.
 - Onboarding de cliente inclui conectividade (VPN) como item de plataforma.
-- Uma VPN/túnel institucional serve **N** operadores (identidade no Kanidm).
+- Uma VPN/túnel institucional serve **N** operadores (identidade no archguard).
 
 ### Negativas / trade-offs
 
@@ -128,7 +128,7 @@ UnifiedUI: catálogo único “minhas conexões” no ArchGate; embed de sessão
 - [x] Runbook **Onboarding de cliente (site)** — `documentos/runbooks/onboarding-cliente-site.md`
   - checklist conectividade (connector VPN/túnel vs exceção VPN-user);
   - cadastro de targets (SSH, DB, RDP…);
-  - roles Kanidm / Warpgate;
+  - roles archguard / Warpgate;
   - credenciais só no gateway.
 - [x] Política de personas (Parte A browser / Parte B desktop / exceção VPN-user) — nas seções 3–4 desta ADR + runbooks.
 
@@ -174,7 +174,7 @@ UnifiedUI: catálogo único “minhas conexões” no ArchGate; embed de sessão
 
 ## Referências
 
-- `adr/ADR-007-guacamole-oidc-implicit-vs-kanidm.md`
+- `adr/ADR-007-guacamole-oidc-implicit-vs-archguard.md`
 - `deploy/archguard-integration.md`
 - `openspec/changes/add-identity-axis/tasks.md`
 - Warpgate: SSH / PostgreSQL / MySQL / HTTP targets  

@@ -25,5 +25,5 @@
 
 - Operador **não** recebe rota full da LAN do cliente no modelo preferido.
 - Targets Warpgate/Guac usam host **visto pelo connector** (nunca “IP só na VPN do notebook”).
-- Isolamento multi-tenant: Kanidm + roles Warpgate; **um connector (ou VRF de rotas) por cliente**.
+- Isolamento multi-tenant: archguard + roles Warpgate; **um connector (ou VRF de rotas) por cliente**.
 - A stack (OpenVPN / WG / Forti) é campo de inventário, não escolha do operador.

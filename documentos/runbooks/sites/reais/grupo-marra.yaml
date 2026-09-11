@@ -35,7 +35,7 @@ conectividade:
   contato_ops_cliente: ""
   janela_peer: ""
   notas: >
-    Tenant já modelado no lab Kanidm (isolação uat-op-b). Confirmar VPN
+    Tenant já modelado no lab archguard (isolação uat-op-b). Confirmar VPN
     com o time (OpenVPN / WG / Forti) e conta de serviço institucional.
 
 targets: []

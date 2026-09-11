@@ -121,3 +121,26 @@ jobs:
         run: |
           find deploy clients -name '*.sh' -type f -print0 \
             | xargs -0 shellcheck --severity=error
+
+  license-gate:
+    name: License gate and SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reject prohibited licenses in active source
+        run: bash scripts/license-gate.sh
+
+      - name: Generate CycloneDX SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          artifact-name: archgate-sbom.cdx.json
+          output-file: archgate-sbom.cdx.json
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: archgate-sbom
+          path: archgate-sbom.cdx.json

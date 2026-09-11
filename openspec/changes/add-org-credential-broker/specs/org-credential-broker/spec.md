@@ -48,7 +48,7 @@ Contas P0 (ou com `requires_dual_control`) SHALL exigir aprovação de um segund
 - **THEN** o sistema rejeita com 403
 
 ### Requirement: Offboarding corta acesso
-Revogar ou desabilitar o principal no Kanidm SHALL impedir novos checkouts e o acesso à UI do módulo.
+Revogar ou desabilitar o principal no archguard SHALL impedir novos checkouts e o acesso à UI do módulo.
 
 #### Scenario: Usuário desabilitado
 - **WHEN** a sessão OIDC do principal deixa de ser válida ou o usuário está desabilitado

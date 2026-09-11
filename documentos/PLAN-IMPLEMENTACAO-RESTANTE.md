@@ -68,7 +68,7 @@
 |----|--------|------|------|--------|
 | **A3.1** | Plano `ARCHGATE_LAB=0` + desligar E2E login se desejado | `ops` | devops | Env documentado |
 | **A3.2** | OPENBAO_APP_TOKEN only (sem root no console diário) | `ops` | devops | Console usa app token |
-| **A3.3** | MFA enforcement operadores (Kanidm policy) | `ops`+`code` | archguard / kanidm | Policy aplicada; doc `mfa-operadores.md` |
+| **A3.3** | MFA enforcement operadores (archguard policy) | `ops`+`code` | archguard / archguard | Policy aplicada; doc `mfa-operadores.md` |
 
 **Gate A:** M1 fechado → pode chamar “homologado (com ressalvas se waiver)”.
 
@@ -81,7 +81,7 @@
 | ID | Tarefa | Tipo | Repo | Aceite |
 |----|--------|------|------|--------|
 | **B1** | 4 operadores no tenant + provision/grant na UI | `ops` | archguard | Logins SSO; targets corretos |
-| **B2** | Offboarding E2E real (sair 1 dev) | `uat` | archguard | Kanidm expire + sem SSH |
+| **B2** | Offboarding E2E real (sair 1 dev) | `uat` | archguard | archguard expire + sem SSH |
 | **B3** | Runbook incidente 1 página (só console + break-glass) | `ops` | devops docs | Link no README devops |
 | **B4** | Secrets só OpenBao (zero senha em inventário/git) | `ops` | archguard | Audit: secret_ref em todos targets sensíveis |
 | **B5** | Orch **live** calibrado (não mock) para revoke/grant | `ops`+`code` | archgate orch + devops | `ORCH_MODE=live`, dry-run false em janela controlada; smoke PASS |
@@ -97,7 +97,7 @@
 | **C1** | JDBC real no oracle-proxy (`ORACLE_PROXY_MOCK=false`) + secret admin | `ops`+`data` | devops + oracle-proxy | Health + create user no PDB/serviço real |
 | **C2** | Build + register plugin OpenBao no VPS | `ops` | devops `config/oracle` + monorepo plugin | `database/creds/oracle-readonly` 200 |
 | **C3** | mTLS proxy↔plugin (ou rede só internal + doc risco) | `code`+`ops` | archgate + devops | Enforce documentado |
-| **C4** | Policy JWT/Kanidm → quem pode emitir lease | `ops` | openbao | Policy bound a grupo tenant |
+| **C4** | Policy JWT/archguard → quem pode emitir lease | `ops` | openbao | Policy bound a grupo tenant |
 | **C5** | E2E: UI Oracle → emitir → SQL\*Plus/DBeaver → revogar | `uat` | archguard `/oracle` | Smoke-evidence |
 | **C6** | Amarração site Rio: target meta + secret_ref opcional | `ops` | archguard | Ficha site com nota Oracle |
 
@@ -123,10 +123,10 @@
 | ID | Tarefa | Tipo | Repo | Aceite |
 |----|--------|------|------|--------|
 | **E1** | Deploy SPA UnifiedUI em `app.archgate.com.br` | `ops` | devops + archgate frontend | HTTPS 200 |
-| **E2** | Client OIDC `archgate-unified-ui` no Kanidm | `ops` | devops script 60 | Login real |
+| **E2** | Client OIDC `archgate-unified-ui` no archguard | `ops` | devops script 60 | Login real |
 | **E3** | BFF cookie session (já em archguard) + CORS | `ops` | archguard | Catálogo sem mock |
 | **E4** | E2E browser smoke UnifiedUI (Playwright) | `code` | archgate/archguard | CI ou script PASS |
-| **E5** | Orch live paths WG/Kanidm calibrados (ver B5) | `ops` | archgate | Grant/revoke live |
+| **E5** | Orch live paths WG/archguard calibrados (ver B5) | `ops` | archgate | Grant/revoke live |
 | **E6** | Terraform provider WG | `code` | — | Opcional / N/A |
 
 **Critério M4:** operador não precisa de 3 UIs no happy path; offboarding 1 ação (já no admin).
@@ -150,10 +150,10 @@
 | ID | Tarefa | Tipo | Repo | Aceite |
 |----|--------|------|------|--------|
 | **G1** | OpenBao Raft multi-node + auto-unseal | `ops` | devops | Failover checklist PASS |
-| **G2** | Kanidm topologia HA (se SLA exigir) | `ops` | devops | Doc + smoke |
+| **G2** | archguard topologia HA (se SLA exigir) | `ops` | devops | Doc + smoke |
 | **G3** | Traefik multi-node pattern | `ops` | linktor/devops | Doc |
 | **G4** | Agent-control E2E live (HITL + kill-switch) | `code`+`uat` | archgate | Smoke live |
-| **G5** | Bootstrap OpenSRE SA live Kanidm | `ops` | devops | SA + policy |
+| **G5** | Bootstrap OpenSRE SA live archguard | `ops` | devops | SA + policy |
 | **G6** | Atualizar `MATRIZ_FUNCIONALIDADES.md` zero Pendente crítico | `ops` | documentos | PR |
 | **G7** | Aceite 100% assinatura arquiteto | `uat` | — | Assinatura |
 
@@ -171,7 +171,7 @@
 | **H1** | CLI Go `archgate` (login/ls/ssh/config/doctor) | `code` | archgate `clients/archgate-connect` | `go test` + doctor mock |
 | **H2** | BFF `operator/bootstrap` + Bearer path | `code` | archguard | 200 bootstrap |
 | **H3** | Tray Tauri MVP (login + lista + connect) | `code` | archgate desktop | Janela MVP abre SSH/open (system tray residual) |
-| **H4** | OIDC client `archgate-connect` Kanidm | `ops`+`code` | devops + kanidm | **preflight PASS** 2026-07-19 (SSO browser residual) |
+| **H4** | OIDC client `archgate-connect` archguard | `ops`+`code` | devops + archguard | **preflight PASS** 2026-07-19 (SSO browser residual) |
 | **H5** | Smoke macOS lab sem VPN cliente | `uat` | devops | **PASS** evidence `documentos/evidence/2026-07-19-archgate-connect-h4-h5.md` |
 | **H6** | Migração Rio: Connect substitui `conecta_rq`/OVPN diário | `uat` | — | checklist em `runbooks/h6-migracao-rio-connect.md` (adoção por operador) |
 
@@ -237,7 +237,7 @@ Sprint 6+            F* polish · G* HA/agêntico            → M5
 | NetBird como default | ADR-010: connectors first |
 | SIEM enterprise | Fora visão 100% atual |
 | Multi-região global | Não no M5 atual |
-| Reescrever Warpgate/Kanidm | Integração, não fork |
+| Reescrever Warpgate/archguard | Integração, não fork |
 
 ---
 

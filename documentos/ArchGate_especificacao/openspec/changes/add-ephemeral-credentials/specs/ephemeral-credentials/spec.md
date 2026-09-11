@@ -7,7 +7,7 @@ O sistema SHALL usar o OpenBao como emissor central de credenciais efêmeras, co
 
 #### Scenario: Emissão amarrada à identidade
 - **WHEN** um principal autenticado solicita acesso a um alvo
-- **THEN** o OpenBao emite uma credencial efêmera amarrada à identidade Kanidm do solicitante
+- **THEN** o OpenBao emite uma credencial efêmera amarrada à identidade archguard do solicitante
 - **AND** a emissão é registrada na auditoria (quem, alvo, TTL, momento)
 
 ### Requirement: Certificado SSH de Curta Duração
@@ -34,6 +34,6 @@ O sistema SHALL conceder acesso a PostgreSQL via credencial dinâmica criada sob
 O sistema SHALL suportar revogação imediata de leases e expiração automática por TTL.
 
 #### Scenario: Offboarding sem exposição residual
-- **WHEN** a identidade de um principal é desabilitada no Kanidm
+- **WHEN** a identidade de um principal é desabilitada no archguard
 - **THEN** o OpenBao não emite novas credenciais para ele
 - **AND** quaisquer credenciais ativas expiram sozinhas ao fim do TTL curto

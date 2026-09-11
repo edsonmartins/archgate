@@ -26,7 +26,7 @@ Este runbook permanece o **fallback manual** (OpenSSH/DBeaver + browser).
 | Warpgate SSH | Cliente OpenSSH | `wg.archgate.com.br:2222` (ou IP/host interno conforme deploy) |
 | Warpgate Postgres | Cliente SQL | porta publicada do serviço (ex. `55432` no host runtime) |
 | Guacamole | RDP / SSH / VNC no **browser** | `https://guac.archgate.com.br` |
-| Identidade (OIDC) | Login Kanidm | `https://id.archgate.com.br` |
+| Identidade (OIDC) | Login archguard | `https://id.archgate.com.br` |
 
 Valores de lab podem usar `127.0.0.1` + Host header no host Swarm; operadores remotos usam os hostnames públicos/CF.
 
@@ -36,7 +36,7 @@ Valores de lab podem usar `127.0.0.1` + Host header no host Swarm; operadores re
 
 | Ação | Onde |
 |------|------|
-| Gestão de identidades / grupos | Console ArchGuard (SSO Kanidm) |
+| Gestão de identidades / grupos | Console ArchGuard (SSO archguard) |
 | RDP / desktop remoto | Guacamole → conexão autorizada |
 | SSH no browser | Guacamole (SSH web) ou UI Warpgate |
 | Painéis HTTP internos | Via target HTTP no Warpgate, quando cadastrado |
@@ -45,18 +45,18 @@ Valores de lab podem usar `127.0.0.1` + Host header no host Swarm; operadores re
 
 ### Guacamole (ADR-007 / ADR-007A)
 
-1. Abrir `https://guac.archgate.com.br` → **SSO Kanidm** (oauth2-proxy, Code+PKCE).
+1. Abrir `https://guac.archgate.com.br` → **SSO archguard** (oauth2-proxy, Code+PKCE).
 2. Happy path: identidade vira user Guacamole (`preferred_username` = user JDBC 1:1) via header — **sem segundo login**.
 3. Break-glass: `guacadmin` só equipe plataforma.
 4. Use só conexões liberadas; não reutilize senha de alvo.
 
 Validação portão: `deploy/validation/guacamole-sso-proxy-e2e.sh`  
 
-Sync automático de operadores (membros Kanidm `archguard_users` → Guacamole):
+Sync automático de operadores (membros archguard `archguard_users` → Guacamole):
 
 ```bash
-bash deploy/guacamole/provision-kanidm-users.sh
-# DRY_RUN=1 bash deploy/guacamole/provision-kanidm-users.sh
+bash deploy/guacamole/provision-archguard-users.sh
+# DRY_RUN=1 bash deploy/guacamole/provision-archguard-users.sh
 ```
 
 ## Parte B — Desktop via bastion
@@ -163,5 +163,5 @@ Mesmo assim: preferir saltar só para hosts do inventário; MFA na VPN; migrar p
 
 ## Suporte
 
-Problemas de login Kanidm / roles → plataforma / ArchGuard.  
+Problemas de login archguard / roles → plataforma / ArchGuard.  
 Target inacessível → conectividade do **site** (connector/VPN), não “falta VPN no seu PC” no modelo padrão.

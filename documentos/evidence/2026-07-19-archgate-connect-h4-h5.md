@@ -112,6 +112,6 @@ Connect **não** instalou nem configurou esses peers nesta smoke.
 
 ## Conclusão
 
-- **H4 preflight:** client Kanidm `archgate-connect` vivo; path PKCE documentado e alcançável.  
+- **H4 preflight:** client archguard `archgate-connect` vivo; path PKCE documentado e alcançável.  
 - **H5:** lab mock + live BFF PASS no macOS sem materializar VPN de cliente via Connect.  
 - **Próximo:** login SSO interativo com evidence de token; H6 migração diária Rio; codesign.

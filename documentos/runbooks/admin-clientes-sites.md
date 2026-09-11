@@ -17,7 +17,7 @@
 
 | Módulo | Rotas | Configura |
 |--------|-------|-----------|
-| Identidade | `/identities`, `/groups`, `/oauth2`, … | Kanidm via proxy |
+| Identidade | `/identities`, `/groups`, `/oauth2`, … | archguard via proxy |
 | **Clientes / Sites** | `/sites` | Stack VPN, connector, targets inventário |
 | **Gateways** | `/gateways` | Warpgate + Guacamole CRUD |
 | **Segredos** | `/secrets` | OpenBao status, engines, leases, unseal |

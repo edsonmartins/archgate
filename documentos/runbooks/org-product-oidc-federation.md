@@ -4,23 +4,23 @@
 |-------|--------|
 | Status | Plano operacional + metadados no Manager |
 | ADR | [ADR-013](../../adr/ADR-013-org-credential-broker.md) |
-| IdP | Kanidm `https://id.archgate.com.br` |
+| IdP | archguard `https://id.archgate.com.br` |
 | Checklist clients | [oidc-clients-checklist.md](./oidc-clients-checklist.md) |
 
 ## Objetivo
 
 Reduzir **senhas compartilhadas** de admins de produto e lojas:
 
-1. Dia a dia → **SSO** (Kanidm ou IdP da loja) com usuário individual  
+1. Dia a dia → **SSO** (archguard ou IdP da loja) com usuário individual  
 2. Automação → **API key / SA** no OpenBao  
 3. Break-glass → checkout dual-control no Manager (OCB-1/2)
 
 ## Matriz de produtos (IntegrAllTech)
 
-| Produto | Estado alvo | Kanidm client id (proposto) | Notas |
+| Produto | Estado alvo | archguard client id (proposto) | Notas |
 |---------|-------------|------------------------------|--------|
 | **ArchGate Manager** | `oidc_primary` | `archguard-console` | Já OIDC; break-glass só se existir admin local |
-| **Vendax** | `oidc_primary` → `oidc_only` | `vendax-admin` | Registrar client no Kanidm; redirect do admin UI |
+| **Vendax** | `oidc_primary` → `oidc_only` | `vendax-admin` | Registrar client no archguard; redirect do admin UI |
 | **ArchFlow** | `oidc_primary` → `oidc_only` | `archflow-admin` | Idem |
 | **BrainSentry** | `oidc_primary` → `oidc_only` | `brainsentry-admin` | Idem |
 | **Gestor RQ** | `oidc_primary` → `oidc_only` | `gestor-admin` | Idem |
@@ -31,11 +31,11 @@ Reduzir **senhas compartilhadas** de admins de produto e lojas:
 
 `federation_status` no inventário Manager reflete esta matriz.
 
-## Checklist por produto (Kanidm OIDC)
+## Checklist por produto (archguard OIDC)
 
 Para cada app que suportará SSO:
 
-1. **Criar client OAuth2** no Kanidm (`client_id` = coluna acima)  
+1. **Criar client OAuth2** no archguard (`client_id` = coluna acima)  
 2. **Redirect URIs** exatos do admin do produto  
 3. **Scopes:** `openid profile email groups`  
 4. **PKCE** se client public; secret só em secret store se confidential  
@@ -43,7 +43,7 @@ Para cada app que suportará SSO:
 6. **Desligar** login local admin no happy path (deixar só break-glass)  
 7. No Manager: `auth_kind=oidc`, `federation_status=oidc_primary`, `oidc_client_id=…`  
 8. Secret no OpenBao = **apenas** break-glass (se ainda necessário)  
-9. Smoke: login com usuário Kanidm + offboarding (disable user → sem acesso)
+9. Smoke: login com usuário archguard + offboarding (disable user → sem acesso)
 
 ## Critérios de “federado”
 

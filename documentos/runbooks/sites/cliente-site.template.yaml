@@ -4,7 +4,7 @@
 
 cliente: ""                    # nome comercial
 slug: ""                       # ex. acme
-tenant_group: tenant_          # Kanidm: tenant_<slug>
+tenant_group: tenant_          # archguard: tenant_<slug>
 ambiente: producao             # producao | preprod | dr
 warpgate_roles:
   - tenant-                    # ex. tenant-acme

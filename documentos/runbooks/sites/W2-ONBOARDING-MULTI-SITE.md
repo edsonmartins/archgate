@@ -10,7 +10,7 @@ Ordem para N sites reais sem NetBird (ADR-010).
 4. **Peer/VPN** — `deploy/connector/onboarding-cliente-peer.md`.  
 5. **Targets** — host/port internos; secrets `TARGET_SECRET_*` / OpenBao.  
 6. **Apply** Warpgate + Guac (ACL tenant).  
-7. **Kanidm** — grupo `tenant_<slug>` + membros.  
+7. **archguard** — grupo `tenant_<slug>` + membros.  
 8. **Matriz protocolos** — atualizar `matriz-protocolos.md`.  
 9. **Smoke** — operador do tenant: SSH e/ou PG; isolamento cruzado.  
 10. **Evidência** — `smoke-evidence-YYYY-MM-DD-<slug>.md`.

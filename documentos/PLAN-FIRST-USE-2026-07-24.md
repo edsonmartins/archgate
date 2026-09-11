@@ -16,7 +16,7 @@
 
 | ID | Achado | Severidade | Tipo |
 |----|--------|------------|------|
-| C-OK | Staging Hostinger ensaiável; Kanidm/WG/Guac/OpenBao/console healthy | — | ok |
+| C-OK | Staging Hostinger ensaiável; archguard/WG/Guac/OpenBao/console healthy | — | ok |
 | C-OK | Dual peer Rio (Forti+OpenVPN) materializado; targets AWS SSH no WG | — | ok |
 | C1 | UAT formal + assinatura §6.2 pendente | P0 | processo |
 | C2 | Gestor LAN `rio-gestor-linux`: authorized_keys Warpgate pendente | P0 ops | ops |
@@ -34,8 +34,8 @@
 | A-OK | Sites SoT, wizard, apply, platform, BFF Connect, lifecycle UI | — | ok |
 | A1 | `grantPersonTargetFn` só chama orch (mock default) → grant **falso positivo** | P0 code | code |
 | A2 | Apply WG admin API instável no lab → scripts 71–73 | P1 | ops+code |
-| A3 | `kanidm-proxy` só `requireSession` — viewer pode mutar IAM via SA | P0 code | code |
-| A4 | Offboard: expire Kanidm forte; orch/leases best-effort | P1 | code |
+| A3 | `archguard-proxy` só `requireSession` — viewer pode mutar IAM via SA | P0 code | code |
+| A4 | Offboard: expire archguard forte; orch/leases best-effort | P1 | code |
 | A5 | Tenant admin sem `sites:create` / `gateways:manage` | P2 | product |
 | A6 | Path deploy docs `archguard/` vs código em `_archguard/` | P1 | ops |
 | A7 | Secrets VPN/SSH still one-shot do cliente | P1 | data |
@@ -65,7 +65,7 @@
 | ID | Tarefa | Repo | Aceite |
 |----|--------|------|--------|
 | **F0.1** | Fix compile Connect + estabilizar `archgate manager` + tests | archgate | `go test ./...` PASS |
-| **F0.2** | RBAC server no `kanidm-proxy` (method+path → permission) | archguard-console | unit tests + deny viewer mutation |
+| **F0.2** | RBAC server no `archguard-proxy` (method+path → permission) | archguard-console | unit tests + deny viewer mutation |
 | **F0.3** | Grant target **live no Warpgate** (ensure user + bind role), orch best-effort | archguard-console | grant ok se WG admin OK mesmo com orch mock |
 | **F0.4** | Registrar este plano + atualizar residual first-use | archgate docs | arquivo versionado |
 
@@ -98,7 +98,7 @@ UnifiedUI OIDC lab, Oracle JDBC real, NetBird, HA Raft, agent-control live, SIEM
 ## 3. Definition of Done — 1ª versão de uso
 
 - [x] F0.1 Connect compila e testa
-- [x] F0.2 kanidm-proxy deny-by-default perms
+- [x] F0.2 archguard-proxy deny-by-default perms
 - [x] F0.3 grant Warpgate real no Manager
 - [ ] F1.1–F1.4 ops/UAT (humano)
 - [ ] Operador piloto 1 dia sem VPN cliente (H6 lifestyle)
@@ -110,7 +110,7 @@ UnifiedUI OIDC lab, Oracle JDBC real, NetBird, HA Raft, agent-control live, SIEM
 | Data | Entrega |
 |------|---------|
 | 2026-07-24 | **F0.1** Connect: fix `strings` import, `manager` CLI, tests |
-| 2026-07-24 | **F0.2** Manager: RBAC em `kanidm-proxy` (`requiredPermsForKanidmProxy`) |
+| 2026-07-24 | **F0.2** Manager: RBAC em `archguard-proxy` (`requiredPermsForarchguardProxy`) |
 | 2026-07-24 | **F0.3** Manager: grant live via Warpgate ensure user + bind role |
 | 2026-07-24 | **F0.4** Este plano versionado |
 

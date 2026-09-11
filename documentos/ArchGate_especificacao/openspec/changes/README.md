@@ -4,12 +4,12 @@ Sequência de mudanças que constroem a plataforma, na ordem de dependência. Ca
 
 | Ordem | Change | Fase | Entrega |
 |---|---|---|---|
-| 1 | `add-identity-axis` | 1 — Identidade | Kanidm como IdP OIDC; Warpgate/Guacamole confiam nele; console ArchGuard. **Já resolve o núcleo do offboarding.** |
+| 1 | `add-identity-axis` | 1 — Identidade | archguard como IdP OIDC; Warpgate/Guacamole confiam nele; console ArchGuard. **Já resolve o núcleo do offboarding.** |
 | 2 | `add-ephemeral-credentials` | 2 — Credenciais efêmeras | OpenBao (SSH CA + DB dinâmico); remove credencial de longa vida até do gateway. |
 | 3a | `add-oracle-credential-proxy` | 3 — Pré-requisito Oracle | Proxy Java (ojdbc thin) para credencial dinâmica Oracle. Implementa o ADR-001. |
 | 3 | `add-network-mesh` | 3 — Rede e protocolo | NetBird (malha); RDP/K8s ponta a ponta; Oracle via `add-oracle-credential-proxy`. |
 | 4 | `add-unified-ui-and-orchestration` | 4 — UnifiedUI e orquestração | React + `guacamole-common-js`; automação via Mentors Axis. |
-| 5 | `add-agentic-access` | 5 — Escala e agêntico | HA (OpenBao/Kanidm); OpenSRE como service account com HITL e kill-switch. |
+| 5 | `add-agentic-access` | 5 — Escala e agêntico | HA (OpenBao/archguard); OpenSRE como service account com HITL e kill-switch. |
 
 ## Capabilities e evolução
 

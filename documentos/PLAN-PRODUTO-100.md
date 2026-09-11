@@ -37,7 +37,7 @@
 | **M2** Produção 1º cliente | ~55% | Peer prod, backups, sem root no fluxo diário, runbooks ops |
 | **M3** Rede + protocolos reais | ~70% | Multi-site, RDP/K8s, Oracle se necessário |
 | **M4** UnifiedUI + orquestração | ~85% | Catálogo + provision/revoke pessoas |
-| **M5** HA + agêntico | **100%** | OpenBao/Kanidm HA + OpenSRE HITL |
+| **M5** HA + agêntico | **100%** | OpenBao/archguard HA + OpenSRE HITL |
 
 Use este plano para **marcar tarefas**; a % é orientação, não KPI rígido.
 
@@ -100,7 +100,7 @@ _Roteiro unificado: [`runbooks/W0-EXECUCAO.md`](./runbooks/W0-EXECUCAO.md) § Pa
   _2026-07-17: lab path `test-login` + `ARCHGUARD_E2E_LOGIN=1` — session cookie + dashboard 200 para todas personas UAT (`w0-console-session.sh`). OIDC browser real ainda recomendado 1× para revisor._
 - [x] **W0-A02** Guac: SSO gate + sessão API + ACL browser SSH.  
   _2026-07-17: `w0-guac-session.sh` PASS=7 (header-auth uat-op-a → rio-lab-ssh-browser; ACL sem marra). Abertura visual no browser = opcional revisor._
-- [x] **W0-A03** Offboarding interativo: disable user Kanidm → SSO falha.  
+- [x] **W0-A03** Offboarding interativo: disable user archguard → SSO falha.  
   _2026-07-17: `offboarding-e2e.sh` PASSED (account expired)._
 - [x] **W0-A04** Activity log / audit shell acessível com sessão admin.  
   _`/audit` 200 + activity_log rows≥2; mutação UI real ainda nice-to-have._
@@ -118,7 +118,7 @@ _Roteiro unificado: [`runbooks/W0-EXECUCAO.md`](./runbooks/W0-EXECUCAO.md) § Pa
 - [x] **W0-H03** OpenBao `OPENBAO_APP_TOKEN` + policy console
 - [x] **W0-H04** Endpoints TLS públicos respondendo (console/id/wg/guac/secrets)
 - [x] **W0-H05** Data-alvo UAT **2026-07-24** + on-call Edson
-- [x] **W0-H06** Kanidm Docker **healthy** (`kanidmd version` HC) + freeze digests H3
+- [x] **W0-H06** archguard Docker **healthy** (`archguardd version` HC) + freeze digests H3
 - [ ] **W0-H07** Revisor browser: OIDC + viewer deny UI + assinatura §6.2 (ou waiver peer)
 
 #### W0-B — Cliente real (crítico de calendário) = Sprint H2
@@ -141,12 +141,12 @@ _Prep ficha: [`runbooks/sites/reais/rio-quality.yaml`](./runbooks/sites/reais/ri
 
 #### W0-C — Já feito / tooling (não reabrir sem regressão)
 
-- [x] Contas UAT Kanidm+WG (`provision-uat-users.sh`)
+- [x] Contas UAT archguard+WG (`provision-uat-users.sh`)
 - [x] Dry-run bastion SSH/PG/isolamento lab
 - [x] Backup PG + restore dry-run
 - [x] Runbook unseal OpenBao
 - [x] Warpgate admin API do console (CONNECT_HOST + SNI)
-- [x] JWT Kanidm → OpenBao
+- [x] JWT archguard → OpenBao
 - [x] Control plane sites SoT Postgres + Axis sync lab
 - [x] **W0-TOOL01** `deploy/validation/w0-validate.sh` — baseline auto W0
 - [x] **W0-TOOL02** Runbook `runbooks/W0-EXECUCAO.md`
@@ -176,7 +176,7 @@ Homologação MVP **assinada** + pelo menos um caminho bastion → **alvo real**
   _Mesmo path; unseal = systemd, não console._
 - [x] **W1-SEC03** `ARCHGATE_LAB=0` por default no deploy; harden aplica no runtime.  
   _Lab UAT e2e: `ARCHGATE_LAB=1` temporário se precisar test-login._
-- [x] **W1-SEC04** Rotação documentada: `SESSION_SECRET`, SA Kanidm, admin WG, APP_TOKEN.  
+- [x] **W1-SEC04** Rotação documentada: `SESSION_SECRET`, SA archguard, admin WG, APP_TOKEN.  
   _[`runbooks/segredos-rotacao.md`](./runbooks/segredos-rotacao.md)_
 - [x] **W1-SEC05** mTLS Axis — waiver W1 + política rede privada.  
   _[`runbooks/politica-tls-e-rede.md`](./runbooks/politica-tls-e-rede.md)_
@@ -193,7 +193,7 @@ Homologação MVP **assinada** + pelo menos um caminho bastion → **alvo real**
   _Hostinger: `archgate-recordings-backup.timer` → `/var/backups/archgate-recordings`._
 - [x] **W1-OPS03** Restore dry-run documentado (sites).  
   _Hostinger: `/usr/local/sbin/archgate-restore-dry-run` PASS 2026-07-17._
-- [x] **W1-OPS04** Runbook incidente: bastion / OpenBao sealed / Kanidm.  
+- [x] **W1-OPS04** Runbook incidente: bastion / OpenBao sealed / archguard.  
   _[`runbooks/incidentes-lab.md`](./runbooks/incidentes-lab.md)_
 - [x] **W1-OPS05** Monitoramento mínimo.  
   _Hostinger: `archgate-health-monitor.timer` (15 min) — fail=0 em 2026-07-17._
@@ -307,7 +307,7 @@ Pelo menos dois caminhos site reais **ou** um site com matriz protocolo mínima 
 |-------|--------|
 | Status | `doing` (scaffold) |
 | Pacote | `add-oracle-credential-proxy` (ADR-001) |
-| Critério de saída | Lease Oracle dinâmico E2E + amarração identidade Kanidm |
+| Critério de saída | Lease Oracle dinâmico E2E + amarração identidade archguard |
 | Runbook | [`runbooks/oracle-credential-proxy.md`](./runbooks/oracle-credential-proxy.md) |
 
 ### Tarefas
@@ -320,7 +320,7 @@ Pelo menos dois caminhos site reais **ou** um site com matriz protocolo mínima 
   _`services/openbao-oracle-plugin` build OK 2026-07-17_
 - [x] **W3-ORACLE04** Role dinâmica OpenBao + policies (example HCL).  
   _`deploy/oracle-proxy/openbao-oracle.example.hcl` + register-plugin.sh_
-- [x] **W3-ORACLE05** Integração identidade (JWT Kanidm sketch em HCL).  
+- [x] **W3-ORACLE05** Integração identidade (JWT archguard sketch em HCL).  
   _Amarração live = config OpenBao no VPS_
 - [x] **W3-ORACLE06** Deploy Swarm + secrets.  
   _`stack.yml` replicas configurável; mock default_
@@ -361,7 +361,7 @@ E2E PASS **ou** N/A formal assinado.
 - [x] **W4-UI08** UX “sem conexões” no catálogo vazio.
 - [ ] **W4-UI09** Testes E2E browser (smoke crítico).
 - [x] **W4-UI10** OIDC real via BFF cookie session.  
-  _`POST /api/unified/v1/auth/callback` + UNIFIED_OIDC_CLIENT_ID; client Kanidm no VPS = ops_
+  _`POST /api/unified/v1/auth/callback` + UNIFIED_OIDC_CLIENT_ID; client archguard no VPS = ops_
 - [x] **W4-UI11** guacamole-common-js no painel de sessão (token via BFF; demo local opcional).
 
 #### W4-ORCH — Orquestração Axis
@@ -398,7 +398,7 @@ Operador do 1º cliente não precisa de 3 UIs no happy path; offboarding pessoas
 
 - [x] **W5-HA01** OpenBao HA (Raft) + auto-unseal — **design + exemplos config** (`deploy/openbao/ha/*`); cluster live TBD.  
   _[ADR-011](../adr/ADR-011-alta-disponibilidade-proporcional.md)_
-- [x] **W5-HA02** Kanidm replicação / topologia — documentado em `ha-topology.md` (deploy multi-node TBD).
+- [x] **W5-HA02** archguard replicação / topologia — documentado em `ha-topology.md` (deploy multi-node TBD).
 - [x] **W5-HA03** Warpgate/Guacamole stateless + PG externo — já ADR-003; topologia HA documentada.
 - [x] **W5-HA04** Traefik multi-node — pattern em `ha-topology.md` (deploy multi TBD).
 - [x] **W5-HA05** Teste de failover — runbook + `ha-failover-checklist.sh` (evidência multi-node TBD).
@@ -407,7 +407,7 @@ Operador do 1º cliente não precisa de 3 UIs no happy path; offboarding pessoas
 #### W5-AGENT — Agêntico / OpenSRE
 
 - [x] **W5-AG01** Service account OpenSRE — bootstrap script + policy (`deploy/agentic/*`).  
-  _Live Kanidm: `bootstrap-opensre-sa.sh`_
+  _Live archguard: `bootstrap-opensre-sa.sh`_
 - [x] **W5-AG02** On-behalf-of — audit events com `agentId` + `humanApprover` (agent-control).
 - [x] **W5-AG03** Allow-list targets/ações — `opensre-allowlist.yaml` + PolicyEngine.
 - [x] **W5-AG04** JIT ticket + rate limit — sessions/request + RateLimiter.
@@ -424,7 +424,7 @@ Operador do 1º cliente não precisa de 3 UIs no happy path; offboarding pessoas
 - [ ] **W5-CL03** Aceite produto completo (doc + assinatura revisor/arquiteto).
 - [ ] **W5-CL04** Comunicar 100% vs itens §10 (estacionamento).
 - [ ] **W5-CL05** Deploy multi-node OpenBao Raft + unseal auto em ambiente real.
-- [ ] **W5-CL06** Bootstrap SA live + kill-switch E2E no lab Kanidm.
+- [ ] **W5-CL06** Bootstrap SA live + kill-switch E2E no lab archguard.
 
 ### Critério de saída W5
 

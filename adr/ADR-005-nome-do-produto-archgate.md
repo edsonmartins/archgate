@@ -6,7 +6,7 @@
 
 ## Contexto
 
-A plataforma de acesso privilegiado precisa de um nome. O produto já contém o **ArchGuard** (console/identidade sobre Kanidm) como um de seus módulos, o que torna a decisão de nome também uma decisão de arquitetura de marca: o produto ganha nome próprio, ou o ArchGuard vira o guarda-chuva?
+A plataforma de acesso privilegiado precisa de um nome. O produto já contém o **ArchGuard** (console/identidade sobre archguard) como um de seus módulos, o que torna a decisão de nome também uma decisão de arquitetura de marca: o produto ganha nome próprio, ou o ArchGuard vira o guarda-chuva?
 
 Convenções de marca da IntegrAllTech:
 - **Família Arch-** (marca-casa): ArchFlow (runtime), ArchGuard (identidade/acesso), Archbase (componentes).

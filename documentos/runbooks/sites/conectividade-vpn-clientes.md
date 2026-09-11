@@ -40,7 +40,7 @@ Operador (Linux|macOS|Windows)
 
 1. **Uma** sessão VPN/peer por site (ou por tenant/site), não N VPNs de devs.  
 2. Warpgate/Guac veem só IPs **alcançáveis pelo connector** (host interno ou VIP no connector).  
-3. Operador autentica no **Kanidm**; offboarding desliga SSO, não “revoga 40 configs OpenVPN de notebook”.  
+3. Operador autentica no **archguard**; offboarding desliga SSO, não “revoga 40 configs OpenVPN de notebook”.  
 4. Credenciais de VPN do cliente ficam em **bootstrap/secret do connector** (fora do git), não no endpoint do dev.  
 5. Multi-tenant: um connector (ou namespace de rotas) por cliente — sem rota cruzada.
 

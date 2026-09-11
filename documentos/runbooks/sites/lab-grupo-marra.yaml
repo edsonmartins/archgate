@@ -10,7 +10,7 @@ conectividade:
   tipo: tunnel_agent
   notas: >
     Mesmo runtime 192.168.1.180 que Rio Quality (lab multi-tenant).
-    Isolamento por role Warpgate + grupo Kanidm, não por VPN separada.
+    Isolamento por role Warpgate + grupo archguard, não por VPN separada.
     Produção: connector dedicado se a rede do cliente for distinta.
 
 targets:

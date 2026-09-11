@@ -5,20 +5,20 @@
 | Segredo | Onde vive | Rotação (resumo) | Impacto |
 |---------|-----------|------------------|---------|
 | `SESSION_SECRET` | bootstrap + env console | Gerar 32+ bytes hex; update bootstrap; `deploy-console.sh` ou `service update --env-add` | Sessões console invalidadas |
-| `ARCHGUARD_SA_TOKEN` | bootstrap + console | `kanidm` service account API token novo; atualizar bootstrap + console | Provision/admin API console |
+| `ARCHGUARD_SA_TOKEN` | bootstrap + console | `archguard` service account API token novo; atualizar bootstrap + console | Provision/admin API console |
 | `WARPGATE_ADMIN_PASSWORD` | bootstrap + console + ops | Admin API Warpgate + env console | Apply gateways / admin WG |
 | `OPENBAO_APP_TOKEN` | bootstrap + console + broker | Policy token OpenBao; revogar antigo | Secrets UI, broker DB, smokes |
 | `OPENBAO_ROOT_TOKEN` | bootstrap **só ops** (não no console W1) | Re-init só em disaster — evitar | Full OpenBao |
 | `OPENBAO_UNSEAL_KEY` | bootstrap + **systemd unseal** (não app) | Shamir rekey (ops) | Unseal |
 | `POSTGRES_*_PASSWORD` | bootstrap + PG | `ALTER ROLE` + update bootstrap + services | Warpgate/Guac/console DBs |
-| OIDC client secrets | bootstrap + Kanidm OAuth2 | `kanidm system oauth2` reset secret | SSO clients |
+| OIDC client secrets | bootstrap + archguard OAuth2 | `archguard system oauth2` reset secret | SSO clients |
 | `TARGET_SECRET_*` | env console ou OpenBao | Por alvo; sem senha no inventário sites | Apply targets |
 | UAT passwords | `/root/archgate/uat-credentials.env` | `provision-uat-users.sh` | Lab UAT only |
 
 ## Procedimento genérico
 
 1. Gerar novo valor (`openssl rand -hex 32` ou ferramenta do produto).  
-2. Aplicar no **sistema de origem** (Kanidm / OpenBao / PG / WG).  
+2. Aplicar no **sistema de origem** (archguard / OpenBao / PG / WG).  
 3. Atualizar `bootstrap.env` no host.  
 4. Redeploy / `docker service update --env-add` dos consumidores.  
 5. Smoke mínimo: `health-monitor.sh` + login ou smoke-operator.  

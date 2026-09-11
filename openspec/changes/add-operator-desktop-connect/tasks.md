@@ -13,14 +13,14 @@
 - [x] 1.2 `login` (device stub + file token) / `logout` / `status`
 - [x] 1.3 `ls` / `doctor` (mock + API)
 - [x] 1.4 `ssh` / `config apply|remove` / `db` / `open`
-- [x] 1.5 OIDC PKCE browser (`internal/oidc`) — Kanidm sem device_code
+- [x] 1.5 OIDC PKCE browser (`internal/oidc`) — archguard sem device_code
 - [x] 1.6 `login --lab` fallback
 
 ## 2. BFF
 
 - [x] 2.1 `GET /api/unified/v1/operator/bootstrap`
 - [x] 2.2 Bearer userinfo + lab token path
-- [x] 2.3 OIDC client `archgate-connect` no Kanidm (confidential + scopemap via SA; secret em bootstrap.env / `~/.config/archgate/oidc.env`)
+- [x] 2.3 OIDC client `archgate-connect` no archguard (confidential + scopemap via SA; secret em bootstrap.env / `~/.config/archgate/oidc.env`)
 
 ## 3. Tray Tauri
 

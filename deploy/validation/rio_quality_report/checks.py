@@ -40,7 +40,7 @@ def check_https_edge(cfg: Config) -> list[CheckResult]:
 
     for cid, name, url, ok_codes in [
         ("P1", "Console HTTPS", cfg.console_url, {200, 301, 302, 303, 307, 308}),
-        ("P2", "Kanidm id HTTPS", cfg.id_url, {200, 301, 302, 303, 307, 308}),
+        ("P2", "archguard id HTTPS", cfg.id_url, {200, 301, 302, 303, 307, 308}),
         ("P3", "Warpgate UI HTTPS", cfg.wg_url, {200, 301, 302, 303, 307, 308}),
         ("P4", "Guacamole HTTPS", cfg.guac_url, {200, 301, 302, 303, 307, 308}),
     ]:

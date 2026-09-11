@@ -29,7 +29,7 @@
 ## 5. Políticas e revogação
 - [x] 5.1 TTLs lab: SSH 15m / DB 30m
 - [x] 5.2 Revogação de lease DB validada
-- [x] 5.3 Emissão amarrada a identidade Kanidm (OIDC/JWT auth no OpenBao) — **PASS** `smoke-kanidm-jwt.sh` (2026-07-10): client `openbao`, role `archgate-operator` bound a `archguard_users@id…`, DB dynamic + SSH CA
+- [x] 5.3 Emissão amarrada a identidade archguard (OIDC/JWT auth no OpenBao) — **PASS** `smoke-archguard-jwt.sh` (2026-07-10): client `openbao`, role `archgate-operator` bound a `archguard_users@id…`, DB dynamic + SSH CA
 
 ## 6. Validação de ponta a ponta
 - [x] 6.1 DB path: target `rio-lab-postgres` usa user OpenBao (não `archgate_lab` fixo) após broker — SSH targets ainda password lab
@@ -40,6 +40,6 @@
 - `deploy/openbao/deploy.sh` (+ unseal + install systemd)
 - `deploy/openbao/systemd/install-timer.sh` — unseal timer 2m + broker 20m
 - `deploy/openbao/bootstrap-engines.sh`
-- `deploy/openbao/bootstrap-kanidm-auth.sh` + `smoke-kanidm-jwt.sh` **PASSED** 2026-07-10
+- `deploy/openbao/bootstrap-archguard-auth.sh` + `smoke-archguard-jwt.sh` **PASSED** 2026-07-10
 - `deploy/openbao/smoke-ephemeral.sh` **PASSED**
 - `deploy/openbao/broker-warpgate-db.sh` + `smoke-broker-warpgate.sh` **PASSED** 2026-07-10

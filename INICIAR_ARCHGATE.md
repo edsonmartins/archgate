@@ -20,10 +20,10 @@ Você vai implementar o **ArchGate**, a plataforma de acesso privilegiado (basti
 Confirme comigo as decisões `[A DEFINIR]` de `openspec/project.md`, pois o restante depende delas:
 
 1. **Estrutura de repositório** — monorepo (sugerido) ou polyrepo?
-2. **Alvo de deploy, DNS e TLS** — onde roda o Swarm; quais domínios para Kanidm/Warpgate/Guacamole; TLS via Traefik/Let's Encrypt?
+2. **Alvo de deploy, DNS e TLS** — onde roda o Swarm; quais domínios para archguard/Warpgate/Guacamole; TLS via Traefik/Let's Encrypt?
 3. **Segredos de bootstrap** — onde ficam raiz/unseal do OpenBao e admin, fora da própria plataforma?
 4. **Alvos de teste** — host SSH, host Windows (RDP) e PostgreSQL de teste para validar a Fase 1.
-5. **Pinning de versões** — fixar versões de Kanidm/OpenBao/Warpgate/Guacamole/NetBird.
+5. **Pinning de versões** — fixar versões de archguard/OpenBao/Warpgate/Guacamole/NetBird.
 
 Não avance sem essas respostas. Se eu não as tiver agora, proponha padrões razoáveis e peça confirmação.
 
@@ -48,7 +48,7 @@ Comece pela tarefa **1.1** de `add-identity-axis/tasks.md`, **uma tarefa por vez
 
 ## Definition of done da Fase 1
 
-Todas as tarefas `[x]` e validadas; todos os cenários passando; **teste de offboarding** (desabilitar identidade no Kanidm derruba o SSO nos gateways); **nenhuma credencial de alvo exposta ao dev**; sessões gravadas e reproduzíveis.
+Todas as tarefas `[x]` e validadas; todos os cenários passando; **teste de offboarding** (desabilitar identidade no archguard derruba o SSO nos gateways); **nenhuma credencial de alvo exposta ao dev**; sessões gravadas e reproduzíveis.
 
 ---
 

@@ -124,10 +124,10 @@ PLATAFORMA_ACESSO_PRIVILEGIADO.md
 # ver deploy/README.md e deploy/env.example/bootstrap.env
 
 ./deploy/bootstrap-networks.sh
-# stacks: traefik → postgres (externo) → ArchGuard → warpgate → guacamole → openbao → Manager
+# O deploy oficial da VPS é feito pelo repositório `archgate-devops`.
 ```
 
-Versões **pinadas** em [`deploy/versions.env`](./deploy/versions.env) — nunca `latest` em staging/prod.
+O diretório `deploy/` deste repositório é histórico; não use seus manifests para provisionar a VPS.
 
 Segredos: `bootstrap.env` e chaves age **fora do git** (ver [`.gitignore`](./.gitignore)).
 
@@ -157,7 +157,7 @@ Segredos: `bootstrap.env` e chaves age **fora do git** (ver [`.gitignore`](./.gi
 - [ADR-007A](adr/ADR-007A-oauth2-proxy-guacamole-sso.md) — SSO Guacamole via oauth2-proxy
 - [ADR-008](adr/ADR-008-cliente-operador-hibrido-multi-os.md) — Cliente operador híbrido (browser + desktop)
 - [ADR-009](adr/ADR-009-control-plane-admin-console.md) — Control plane no console
-- [ADR-014](adr/ADR-014-archguard-substitui-kanidm-como-idp.md) — ArchGuard substitui o Kanidm como IdP
+- [ADR-014](adr/ADR-014-archguard-substitui-archguard-como-idp.md) — ArchGuard substitui o archguard como IdP
 
 ---
 
@@ -190,7 +190,7 @@ WG_HOST=192.168.1.180 bash deploy/validation/smoke-operator-access.sh
 |--------------|-----|
 | `deploy/validation/smoke-operator-access.sh` | SSH + PG via bastion |
 | `deploy/validation/tenant-isolation-e2e.sh` | Isolamento tenant |
-| `deploy/validation/smoke-archguard-cutover.sh` | OIDC/JWT ArchGuard → OpenBao |
+| `deploy/validation/smoke-operator-access.sh` | Acesso operacional via gateway |
 | `documentos/runbooks/ACEITE-PILOTO-LAB.md` | Checklist pass/fail lab |
 | `documentos/runbooks/sites/smoke-evidence-*.md` | Evidências datadas |
 
@@ -209,7 +209,7 @@ WG_HOST=192.168.1.180 bash deploy/validation/smoke-operator-access.sh
 | Console | Node / TanStack Start (repo `../_archguard/archguard-console`) |
 | Axis (lab) | Spring Boot :9031 |
 
-Detalhes e pins: [`deploy/versions.env`](./deploy/versions.env) · [`openspec/project.md`](./openspec/project.md).
+Detalhes de arquitetura: [`openspec/project.md`](./openspec/project.md).
 
 ---
 

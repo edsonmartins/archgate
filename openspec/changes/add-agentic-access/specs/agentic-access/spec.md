@@ -7,7 +7,7 @@ O sistema SHALL tratar um agente de IA como um principal (service account) não-
 
 #### Scenario: Agente autentica como service account
 - **WHEN** o OpenSRE inicia uma operação
-- **THEN** ele autentica como service account no Kanidm com escopo mínimo
+- **THEN** ele autentica como service account no archguard com escopo mínimo
 - **AND** recebe credencial efêmera via OpenBao, escopada ao incidente/host
 
 ### Requirement: Política Imposta no Gateway
@@ -59,10 +59,10 @@ O sistema SHALL amarrar cada ação do agente à service account e ao humano que
 - **THEN** a auditoria registra a service account e o humano autorizador
 
 ### Requirement: Kill-Switch do Agente
-O sistema SHALL interromper um agente revogando sua service account no Kanidm, com efeito imediato.
+O sistema SHALL interromper um agente revogando sua service account no archguard, com efeito imediato.
 
 #### Scenario: Agente descarrilado é interrompido
-- **WHEN** a service account do agente é revogada no Kanidm
+- **WHEN** a service account do agente é revogada no archguard
 - **THEN** o OpenBao não emite novas credenciais para ele
 - **AND** as credenciais ativas expiram em minutos
 

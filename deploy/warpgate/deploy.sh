@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
-# Deploy Warpgate (Fase 1 tasks 3.1–3.5 foundation) with Postgres + OIDC Kanidm.
+# Deploy Warpgate with Postgres + ArchGuard OIDC.
 set -euo pipefail
 
 BOOTSTRAP="${BOOTSTRAP:-/root/archgate/bootstrap.env}"
 DATA="${WARPGATE_DATA:-/var/lib/archgate/warpgate}"
 IMAGE="${WARPGATE_IMAGE:-ghcr.io/warp-tech/warpgate:0.26.1}"
 DOMAIN_WG="${WARPGATE_DOMAIN:-wg.archgate.com.br}"
-KANIDM_DOMAIN="${KANIDM_DOMAIN:-id.archgate.com.br}"
 
 set -a
 # shellcheck disable=SC1090
 source "$BOOTSTRAP"
 # shellcheck disable=SC1091
-source /root/archgate/repo/deploy/versions.env 2>/dev/null || true
 set +a
 
 : "${POSTGRES_HOST:?}"
@@ -47,26 +45,19 @@ else
 fi
 
 echo "==> patch SSO (custom OIDC)"
-# Kanidm publishes one issuer per client; ArchGuard a single issuer for the
-# deployment. ARCHGATE_IDP selects which shape to write (default: kanidm, so an
-# existing install is untouched).
-ARCHGATE_IDP="${ARCHGATE_IDP:-kanidm}"
-ARCHGATE_IDP_URL="${ARCHGATE_IDP_URL:-https://${KANIDM_DOMAIN}}"
-export DATA DOMAIN_WG KANIDM_DOMAIN WARPGATE_OIDC_CLIENT_SECRET ARCHGATE_IDP ARCHGATE_IDP_URL
+ARCHGATE_IDP_URL="${ARCHGATE_IDP_URL:-https://app.archguard.com.br}"
+export DATA DOMAIN_WG WARPGATE_OIDC_CLIENT_SECRET ARCHGATE_IDP_URL
 python3 - <<'PY'
 import os, re, pathlib
 path = pathlib.Path(os.environ["DATA"]) / "warpgate.yaml"
 text = path.read_text()
 domain = os.environ["DOMAIN_WG"]
 secret = os.environ["WARPGATE_OIDC_CLIENT_SECRET"]
-idp = os.environ.get("ARCHGATE_IDP", "kanidm")
 idp_url = os.environ["ARCHGATE_IDP_URL"].rstrip("/")
-issuer = idp_url if idp == "archguard" else f"{idp_url}/oauth2/openid/warpgate"
+issuer = idp_url
 
 # Warpgate matches group values from the claim EXACTLY. ArchGuard qualifies them
-# as "<org>/<name>", so the mapping keys carry the prefix there and are bare on
-# Kanidm (audit 2026-08-01).
-gprefix = f"{os.environ.get('ARCHGATE_IDP_ORG', 'archgate')}/" if idp == "archguard" else ""
+gprefix = f"{os.environ.get('ARCHGATE_IDP_ORG', 'archgate')}/"
 
 if re.search(r"^external_host:", text, re.M):
     text = re.sub(r"^external_host:.*$", f"external_host: {domain}", text, flags=re.M)
@@ -75,7 +66,7 @@ else:
 
 sso_block = f"""
 sso_providers:
-  - name: kanidm
+  - name: archguard
     label: ArchGuard
     auto_create_users: true
     provider:
@@ -115,8 +106,6 @@ mv /tmp/bs.env "$BOOTSTRAP"
 echo "WARPGATE_ADMIN_PASSWORD=${ADMIN_PASSWORD}" >> "$BOOTSTRAP"
 chmod 600 "$BOOTSTRAP"
 
-grep -q "wg.archgate.com.br" /etc/hosts || echo "127.0.0.1 wg.archgate.com.br" >> /etc/hosts
-
 echo "==> deploy Swarm service"
 docker service rm archgate-gw_warpgate 2>/dev/null || true
 sleep 2
@@ -125,7 +114,6 @@ docker service create \
   --network archgate-public \
   --network archgate-data \
   --constraint 'node.labels.archgate.runtime == true' \
-  --host "${KANIDM_DOMAIN}:192.168.1.180" \
   --mount type=bind,source="$DATA",target=/data \
   --publish mode=host,target=2222,published=2222 \
   --publish mode=host,target=55432,published=55432 \

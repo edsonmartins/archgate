@@ -14,10 +14,10 @@ A UnifiedUI usa a biblioteca `guacamole-common-js` (implementação oficial do p
 O componente de sessão injeta o token OIDC no handshake do túnel, mas tokens administrativos continuam server-side (proxy). O browser fala só com o proxy do console.
 
 ### D3 — Mentors Axis como fonte de verdade e orquestrador
-Provisionamento por API/IaC, versionável. Terraform para o Warpgate; API para Kanidm, OpenBao, Guacamole, NetBird. Onboarding/offboarding viram operações idempotentes com reconciliação (estado desejado vs. real).
+Provisionamento por API/IaC, versionável. Terraform para o Warpgate; API para archguard, OpenBao, Guacamole, NetBird. Onboarding/offboarding viram operações idempotentes com reconciliação (estado desejado vs. real).
 
 ### D4 — Offboarding automatizado = o clique único
-`revogar_tudo(usuario)` encadeia: desabilita no Kanidm, invalida leases no OpenBao, remove/roles no gateway. Sem rotação de senha (garantido desde a Fase 1/2).
+`revogar_tudo(usuario)` encadeia: desabilita no archguard, invalida leases no OpenBao, remove/roles no gateway. Sem rotação de senha (garantido desde a Fase 1/2).
 
 ## Riscos e mitigações
 - **Subestimar o guacamole-common-js** → faseamento explícito; começar pelo caminho feliz (uma conexão) e evoluir o chrome.

@@ -30,7 +30,7 @@ O canal entre plugin Go e proxy Java SHALL usar mTLS, e o proxy SHALL operar com
 - **AND** o proxy executa usando um usuário Oracle com apenas os privilégios necessários (não DBA)
 
 ### Requirement: Rastreabilidade da Emissão
-A emissão de credencial Oracle SHALL ser amarrada à identidade Kanidm do solicitante.
+A emissão de credencial Oracle SHALL ser amarrada à identidade archguard do solicitante.
 
 #### Scenario: Auditoria da credencial Oracle
 - **WHEN** uma credencial Oracle é emitida

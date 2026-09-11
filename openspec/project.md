@@ -4,7 +4,7 @@ Contexto e convenções do projeto, lido pelo ferramental OpenSpec e pelo Claude
 
 ## Visão geral
 
-ArchGate é a plataforma de acesso privilegiado (bastion/gateway) da IntegrAllTech. Desenvolvedores acessam máquinas, bancos, Kubernetes e painéis de clientes sem ver a credencial do alvo; offboarding é central; tudo é auditado. ArchGuard é o módulo de identidade dentro do ArchGate.
+ArchGate é a plataforma de acesso privilegiado (bastion/gateway) da IntegrAllTech. Desenvolvedores acessam máquinas, bancos, Kubernetes e painéis de clientes sem ver a credencial do alvo; offboarding é central; tudo é auditado. ArchGuard SaaS é a fonte externa de identidade.
 
 ## Stack técnica
 
@@ -20,20 +20,19 @@ ArchGate é a plataforma de acesso privilegiado (bastion/gateway) da IntegrAllTe
 
 | Componente | Papel | Licença |
 |---|---|---|
-| Kanidm | Identidade / OIDC (via ArchGuard) | MPL-2.0 |
+| ArchGuard SaaS | Identidade / OIDC e API | Proprietário |
 | OpenBao | Segredos efêmeros (SSH CA, DB dinâmico) | MPL-2.0 |
 | Warpgate | Gateway SSH/HTTPS/K8s/MySQL/PostgreSQL | Open-source |
 | Apache Guacamole | Gateway RDP/VNC/SSH (browser) | Apache 2.0 |
 | NetBird | Malha WireGuard | BSD-3 |
-| ArchGuard | **Produto de identidade** (Kanidm + Console + AliasVault) — repo `../_archguard` (console em `archguard-console`) | Proprietário |
+| ArchGuard | **Produto de identidade** (fork Casdoor + Console) — serviço `app.archguard.com.br` | Proprietário |
 | Mentors Axis | Plano de controle / tenants (interno) | Proprietário |
 
 ### Fronteira ArchGuard × ArchGate (obrigatória)
 
-- **ArchGuard** é a fonte de verdade de identidade: Kanidm (OIDC/API), console operador, service accounts, RBAC (`archguard_*`).
-- **ArchGate** opera gateways (Warpgate/Guacamole), rede e (Fase 2+) OpenBao. **Não** sobe um segundo Kanidm nem reimplementa o console IAM.
-- Integração: clients OIDC `warpgate` / `guacamole` / `archguard-console` no Kanidm do ArchGuard; `ARCHGUARD_ID_URL` = issuer (`id.archgate.com.br`).
-- Detalhes: `deploy/archguard-integration.md`.
+- **ArchGuard** é a fonte de verdade de identidade: OIDC/API, console operador, service accounts e RBAC.
+- **ArchGate** opera gateways (Warpgate/Guacamole), rede e (Fase 2+) OpenBao. **Não** sobe um segundo archguard nem reimplementa o console IAM.
+- Integração: clients OIDC `warpgate`, `guacamole` e Console no ArchGuard SaaS; `ARCHGUARD_ID_URL` aponta para `https://app.archguard.com.br`.
 
 ## Estrutura de repositório
 
@@ -48,7 +47,7 @@ ArchGate é a plataforma de acesso privilegiado (bastion/gateway) da IntegrAllTe
   /orchestration/     # integração Mentors Axis (Spring Boot)
   /agent-control/     # OpenSRE HITL / kill-switch / policy (Spring Boot) — Fase 5
 /frontend/            # UnifiedUI (React/TS) — Fase 4
-/deploy/              # Docker Swarm stacks + Traefik + secrets
+/deploy/              # referências históricas; deploy suportado está em archgate-devops
 CONSTITUTION.md
 PLATAFORMA_ACESSO_PRIVILEGIADO.md
 PROMPT_EXECUCAO_CLAUDE_CODE.md
@@ -60,7 +59,7 @@ PROMPT_EXECUCAO_CLAUDE_CODE.md
 - **Specs (OpenSpec):** `changes/<verbo-kebab>/` com `proposal.md`, `design.md`, `tasks.md`, `specs/<capability>/spec.md`. Requisitos com `### Requirement:` + ao menos um `#### Scenario:` (WHEN/THEN). `MODIFIED` reescreve o requisito completo.
 - **Fluxo:** ler proposal → design → specs → tasks; implementar uma tarefa por vez; marcar `[x]` só após validar o cenário.
 - **Commits:** referenciar o change e a tarefa (ex.: `add-identity-axis #2.5`).
-- **Versões:** pinadas em `deploy/versions.env` (sem `latest`).
+- **Versões:** pinadas nos manifests do repositório `archgate-devops` (sem `latest`).
 
 ## Decisões de ambiente (kickoff 2026-07-10)
 
@@ -77,7 +76,7 @@ PROMPT_EXECUCAO_CLAUDE_CODE.md
 
 | Papel | Host | Hostname / notas |
 |---|---|---|
-| **ArchGate runtime** (Swarm, Traefik, Kanidm, Warpgate, Guacamole) | `192.168.1.180` | `edson-ai` — VPS local dedicada ao produto |
+| **ArchGate runtime** (Traefik, RustGuac, Warpgate e OpenBao) | `217.196.60.108` | VPS de desenvolvimento |
 | **Infra compartilhada** (PostgreSQL externo, etc.) | `192.168.1.110` | Swarm/infra legada; `root-postgres-1` (`postgres:16`) em **:5434** |
 
 PostgreSQL ArchGate **não** sobe container novo: reutiliza o Postgres em `.110:5434` com databases/roles isolados `warpgate` e `guacamole` (ADR-003).
@@ -86,7 +85,7 @@ PostgreSQL ArchGate **não** sobe container novo: reutiliza o Postgres em `.110:
 
 Domínio base: **`archgate.com.br`**
 
-- `id.archgate.com.br` — Kanidm
+- `app.archguard.com.br` — ArchGuard SaaS
 - `wg.archgate.com.br` — Warpgate
 - `guac.archgate.com.br` — Guacamole
 - `console.archgate.com.br` — ArchGuard
@@ -99,7 +98,6 @@ Exposição pública preferencial via Cloudflare Tunnel no host `.180` (padrão 
 |---|---|
 | PostgreSQL | 16.9-alpine |
 | Traefik | v3.4.1 |
-| Kanidm | 1.10.4 |
 | Warpgate | v0.26.1 |
 | Guacamole / guacd | 1.6.0 |
 

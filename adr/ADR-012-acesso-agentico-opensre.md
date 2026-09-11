@@ -14,7 +14,7 @@ OpenSRE (e futuros agentes) precisam operar o bastion **sem** ser um super-admin
 
 | Princípio | Implementação |
 |-----------|----------------|
-| Principal | Service account Kanidm (`opensre` / `sa-opensre`) escopo mínimo |
+| Principal | Service account archguard (`opensre` / `sa-opensre`) escopo mínimo |
 | Confiança | **Não-confiável por padrão** — política no gateway, não no LLM |
 | Read | Diagnóstico/listagem automática (allow-list) |
 | Write / mutante | **HITL** obrigatório (`services/agent-control`) |

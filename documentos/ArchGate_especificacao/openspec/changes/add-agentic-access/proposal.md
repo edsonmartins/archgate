@@ -8,17 +8,17 @@ O valor central: transformar "IA com acesso privilegiado" de pesadelo em algo **
 
 ## What Changes
 
-- **Alta disponibilidade:** OpenBao em HA, Kanidm com replicação, persistência externa, gateways stateless atrás do Traefik.
-- **Acesso agêntico:** agente como **service account** no Kanidm, escopo mínimo.
+- **Alta disponibilidade:** OpenBao em HA, archguard com replicação, persistência externa, gateways stateless atrás do Traefik.
+- **Acesso agêntico:** agente como **service account** no archguard, escopo mínimo.
 - **JIT por incidente:** credencial efêmera via OpenBao com escopo por incidente/host.
 - **HITL obrigatório** para ações mutantes/destrutivas (base: fluxo de aprovação web do Warpgate); leitura ampla pode ser automática.
 - **On-behalf-of:** toda ação amarrada à service account **e** ao humano que autorizou.
-- **Kill-switch:** revogar a service account no Kanidm interrompe o agente (mesmo mecanismo do offboarding).
+- **Kill-switch:** revogar a service account no archguard interrompe o agente (mesmo mecanismo do offboarding).
 - **Inferência local** (vLLM na RTX 3060 / Mac Mini M4) para não vazar dado de produção de cliente.
 
 ## Impact
 
 - **Novas capabilities:** `agentic-access`, `high-availability`.
-- **Componentes:** OpenSRE (service account), OpenBao/Kanidm em HA, gateways, inferência local.
+- **Componentes:** OpenSRE (service account), OpenBao/archguard em HA, gateways, inferência local.
 - **Depende de:** Fases 1–4.
 - **Postura:** read-only primeiro; write só com HITL; relaxar gates apenas após histórico/gravação comprovarem comportamento.

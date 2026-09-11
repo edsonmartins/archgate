@@ -8,14 +8,14 @@
 
 ## Contexto
 
-Lab/staging roda single-node (OpenBao file storage + unseal timer, um Kanidm, um Traefik). Produção multi-cliente exige HA **proporcional**: o centro de gravidade (OpenBao + IdP) tem requisitos mais rígidos que gateways.
+Lab/staging roda single-node (OpenBao file storage + unseal timer, um archguard, um Traefik). Produção multi-cliente exige HA **proporcional**: o centro de gravidade (OpenBao + IdP) tem requisitos mais rígidos que gateways.
 
 ## Decisão
 
 | Camada | Modelo alvo | Lab atual | Transição |
 |--------|-------------|-----------|-----------|
 | **OpenBao** | Raft HA ≥3 nós + **auto-unseal** (Transit/KMS/HSM) | file + unseal key em host | `deploy/openbao/ha/*` |
-| **Kanidm** | Replicação (write-leader + read replicas ou cluster suportado) | single `kanidmd` | runbook topologia |
+| **archguard** | Replicação (write-leader + read replicas ou cluster suportado) | single `archguardd` | runbook topologia |
 | **Postgres apps** | PG gerenciado/HA (já externo — ADR-003) | `.110:5434` | manter off-host backup |
 | **Warpgate / Guac / guacd** | Stateless (N réplicas) + PG | 1 réplica Swarm | scale service |
 | **Traefik** | ≥2 nodes / edge redundante | 1 | Swarm placement + VIP |

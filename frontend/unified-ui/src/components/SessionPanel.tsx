@@ -98,6 +98,7 @@ export function SessionPanel({ connection, username }: Props) {
     connection.engine === 'guacamole' &&
     tunnel != null &&
     (state === 'connecting' || state === 'connected' || state === 'error')
+  const embeddedClient = tunnel?.embedUrl
 
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -125,6 +126,13 @@ export function SessionPanel({ connection, username }: Props) {
             <p style={{ margin: '0 0 0.75rem', textAlign: 'center' }}>{note}</p>
             <LaunchSnippets bundle={launch} />
           </div>
+        ) : embeddedClient ? (
+          <iframe
+            title={`Sessão ${connection.name}`}
+            src={embeddedClient}
+            style={{ width: '100%', height: '100%', border: 0 }}
+            allow="clipboard-read; clipboard-write"
+          />
         ) : guacActive && tunnel ? (
           <GuacamoleDisplay session={tunnel} active onState={onGuacState} />
         ) : (

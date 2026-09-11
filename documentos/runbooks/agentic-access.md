@@ -41,7 +41,7 @@ OpenSRE (SA) ──request──► agent-control ──policy──► allow | 
 # dry-run:
 DRY_RUN=1 bash deploy/agentic/bootstrap-opensre-sa.sh
 
-# live (host com Kanidm tools + bootstrap.env):
+# live (host com archguard tools + bootstrap.env):
 bash deploy/agentic/bootstrap-opensre-sa.sh
 ```
 
@@ -80,7 +80,7 @@ Smoke: `bash deploy/validation/smoke-agent-control-mock.sh`
 ## Kill-switch
 
 1. API agent-control marca SA como **disabled**.  
-2. Em live: chama orchestration revoke / Kanidm expire (mesmo offboarding).  
+2. Em live: chama orchestration revoke / archguard expire (mesmo offboarding).  
 3. OpenBao deixa de emitir leases para a SA; TTLs ativos expiram.
 
 ## Consentimento cliente
