@@ -359,3 +359,11 @@ Console local `1a111d9`: a tela de plataforma agora permite informar explicitame
 Validação local: 392 testes em 51 arquivos, TypeScript e build de produção passaram. A operação ainda não migra tuplas OpenFGA, pois isso exige contrato e integração real do store; a execução em dados de homologação deve ocorrer somente após aprovação do mapeamento.
 
 Sem implantação e sem alterações no ambiente de clientes.
+
+## Incremento H08 — migração segura das tuplas OpenFGA
+
+Console local `fdd73f0`: ao aplicar um mapeamento de grant legado com OpenFGA habilitado, o console valida `subject` e `object`, escreve primeiro o subject canônico `user:<identity_id>`, remove somente a tupla legada exata e atualiza o SQLite apenas após a etapa externa concluir. Dados incompletos, configuração ausente ou falha de adapter interrompem a operação e mantêm o grant pendente, com evento de erro auditado.
+
+Validação local: 392 testes em 51 arquivos, TypeScript e build de produção passaram. Ainda falta validar a operação contra um store OpenFGA real, incluindo falha entre escrita e remoção, retomada e confirmação de não interferência entre principals.
+
+Sem implantação e sem alterações no ambiente de clientes.
