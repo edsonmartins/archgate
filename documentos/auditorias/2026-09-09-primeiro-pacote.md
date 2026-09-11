@@ -88,6 +88,14 @@ Validação local: 379 testes em 49 arquivos, TypeScript e build passaram. A con
 
 Sem implantação e sem alterações no ambiente de clientes.
 
+## Incremento H05 — lock e retomada de offboarding
+
+Console local `273e34d`: cada offboarding agora cria uma operação persistida por principal, impede duas revogações concorrentes e devolve `operation_id`. Execuções que permanecem em `running` por mais de 15 minutos são marcadas como parciais e permitem nova tentativa. O resultado final registra `completed` ou `partial` sem alterar a ordem das etapas externas.
+
+Validação local: 384 testes em 51 arquivos e TypeScript passaram, incluindo concorrência e retomada após operação stale. Ainda falta persistir cada etapa individual, recuperar automaticamente uma operação interrompida no meio sem nova solicitação e validar gateway/orquestração reais.
+
+Sem implantação e sem alterações no ambiente de clientes.
+
 ## Incremento H12/H15 — retry manual da outbox pelo Manager
 
 Console local `e2ebcbe`: o painel Plataforma oferece retry manual da outbox somente para sessões com `settings:update` ou `system:admin`. O destino e o token permanecem exclusivamente no servidor; a operação retorna a contagem publicada e atualiza o diagnóstico da fila. Sem destino configurado, a ação falha explicitamente.
