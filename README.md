@@ -38,7 +38,9 @@ Ops / VPS / Cloudflare: repositório irmão **`archgate-devops`** (`../archgate-
 
 ## Arquitetura (visão)
 
-![Arquitetura do ArchGate](documentos/arquitetura/archgate-arquitetura.svg)
+[![Arquitetura do ArchGate](documentos/arquitetura/archgate-arquitetura.svg)](documentos/arquitetura/archgate-arquitetura.png?raw=true)
+
+<sub>Clique na imagem para abrir a versão em alta resolução (PNG 4800×3030).</sub>
 
 Caixas tracejadas são componentes planejados ou parciais (NetBird, HA do OpenBao, Oracle real, Agent-control em produção). O fluxo detalhado de cada sessão está em [`PLATAFORMA_ACESSO_PRIVILEGIADO.md`](./PLATAFORMA_ACESSO_PRIVILEGIADO.md).
 
