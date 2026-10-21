@@ -6,7 +6,7 @@ Operadores e agentes acessam máquinas, bancos, Kubernetes e painéis de cliente
 
 **ArchGuard** é o módulo de identidade dentro do ArchGate — *“o Guard controla quem passa pelo Gate”* (ver [ADR-005](adr/ADR-005-nome-do-produto-archgate.md)).
 
-> Repositório privado · monorepo de produto, governança OpenSpec, ADRs e deploy Docker Swarm.
+> Open source (Apache 2.0) · monorepo de produto, governança OpenSpec, ADRs e deploy Docker Swarm.
 
 ---
 
@@ -38,36 +38,16 @@ Ops / VPS / Cloudflare: repositório irmão **`archgate-devops`** (`../archgate-
 
 ## Arquitetura (visão)
 
-```
-Operador / agente
-       │
-       ▼
-┌──────────────────┐     ┌─────────────────┐
-│ ArchGate Manager │────▶│ ArchGuard OIDC  │  identidade
-└────────┬─────────┘     └────────┬────────┘
-         │                        │ JWT / SSO
-         ▼                        ▼
-┌──────────────────┐     ┌─────────────────┐
-│ Control plane    │     │ OpenBao         │  segredos efêmeros
-│ (sites, apply,   │     │ (SSH CA, DB dyn)│
-│  Axis sync)      │     └────────┬────────┘
-└────────┬─────────┘              │
-         │                        │
-         ▼                        ▼
-┌──────────────────────────────────────────┐
-│ Gateways: Warpgate (SSH/PG/…) + Guacamole│
-│           (browser RDP/VNC/SSH)          │
-└────────────────────┬─────────────────────┘
-                     │ connector / VPN site
-                     ▼
-              Redes dos clientes
-```
+![Arquitetura do ArchGate](documentos/arquitetura/archgate-arquitetura.svg)
+
+Caixas tracejadas são componentes planejados ou parciais (NetBird, HA do OpenBao, Oracle real, Agent-control em produção). O fluxo detalhado de cada sessão está em [`PLATAFORMA_ACESSO_PRIVILEGIADO.md`](./PLATAFORMA_ACESSO_PRIVILEGIADO.md).
 
 | Camada | Papel | Componente |
 |--------|-------|------------|
 | Controle | Tenants, sites, orquestração | Mentors Axis + console ArchGuard |
 | Identidade | SSO, memberships, MFA/step-up, service accounts | **ArchGuard** (fork Casdoor) |
-| Gateway | Proxy + gravação | **Warpgate** + **Apache Guacamole** |
+| Autorização | Tuplas checadas na abertura de sessão | **OpenFGA** |
+| Gateway | Proxy + gravação | **Warpgate** (SSH/PG) + **RustGuac**/guacd (RDP/VNC/SSH web); Apache Guacamole como legado |
 | Segredos | Credenciais de curta duração | **OpenBao** |
 | Rede | Alcance aos sites | Connector site (WG/OpenVPN/…) · NetBird (fase futura) |
 | Borda | TLS / roteamento | **Traefik** + Cloudflare Tunnel |
@@ -157,7 +137,7 @@ Segredos: `bootstrap.env` e chaves age **fora do git** (ver [`.gitignore`](./.gi
 - [ADR-007A](adr/ADR-007A-oauth2-proxy-guacamole-sso.md) — SSO Guacamole via oauth2-proxy
 - [ADR-008](adr/ADR-008-cliente-operador-hibrido-multi-os.md) — Cliente operador híbrido (browser + desktop)
 - [ADR-009](adr/ADR-009-control-plane-admin-console.md) — Control plane no console
-- [ADR-014](adr/ADR-014-archguard-substitui-archguard-como-idp.md) — ArchGuard substitui o archguard como IdP
+- [ADR-014](adr/ADR-014-archguard-como-idp.md) — ArchGuard substitui o Kanidm como IdP
 
 ---
 
@@ -227,13 +207,17 @@ Itens **fora** do aceite lab: peer VPN de cliente real em produção, UnifiedUI,
 
 ---
 
-## Contribuição interna
+## Contribuição
+
+Contribuições são bem-vindas! Antes de abrir um PR, leia o [guia de contribuição](CONTRIBUTING.md): ele cobre os invariantes do `CONSTITUTION.md`, o fluxo spec-driven (OpenSpec), como rodar o CI localmente, o padrão de commits e a assinatura DCO (`git commit -s`).
+
+Resumo:
 
 1. Ler `CONSTITUTION.md` e o change OpenSpec da fase.
 2. Implementar **uma** tarefa de `tasks.md` por vez; marcar `[x]` só após validar o cenário.
 3. Commits: referenciar change e tarefa quando aplicável (`add-identity-axis #2.5`).
 4. Documentação e specs em **pt-BR**; código/identificadores em **inglês**.
-5. Nunca commitar `bootstrap.env`, tokens ou gravações de sessão.
+5. Nunca commitar `bootstrap.env`, tokens, gravações de sessão ou dados de clientes.
 
 Relacionados:
 
@@ -245,4 +229,4 @@ Relacionados:
 
 ## Licença
 
-Código e documentação proprietários da **IntegrAllTech**. O ArchGuard preserva a licença Apache-2.0 da base Casdoor; engines de terceiros mantêm suas respectivas licenças.
+Distribuído sob a [Apache License 2.0](LICENSE). O ArchGuard preserva a licença Apache-2.0 da base Casdoor; engines de terceiros mantêm suas respectivas licenças.
