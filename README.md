@@ -6,7 +6,7 @@ Operadores e agentes acessam máquinas, bancos, Kubernetes e painéis de cliente
 
 **ArchGuard** é o módulo de identidade dentro do ArchGate — *“o Guard controla quem passa pelo Gate”* (ver [ADR-005](adr/ADR-005-nome-do-produto-archgate.md)).
 
-> Repositório privado · monorepo de produto, governança OpenSpec, ADRs e deploy Docker Swarm.
+> Open source (Apache 2.0) · monorepo de produto, governança OpenSpec, ADRs e deploy Docker Swarm.
 
 ---
 
@@ -227,13 +227,17 @@ Itens **fora** do aceite lab: peer VPN de cliente real em produção, UnifiedUI,
 
 ---
 
-## Contribuição interna
+## Contribuição
+
+Contribuições são bem-vindas! Antes de abrir um PR, leia o [guia de contribuição](CONTRIBUTING.md): ele cobre os invariantes do `CONSTITUTION.md`, o fluxo spec-driven (OpenSpec), como rodar o CI localmente, o padrão de commits e a assinatura DCO (`git commit -s`).
+
+Resumo:
 
 1. Ler `CONSTITUTION.md` e o change OpenSpec da fase.
 2. Implementar **uma** tarefa de `tasks.md` por vez; marcar `[x]` só após validar o cenário.
 3. Commits: referenciar change e tarefa quando aplicável (`add-identity-axis #2.5`).
 4. Documentação e specs em **pt-BR**; código/identificadores em **inglês**.
-5. Nunca commitar `bootstrap.env`, tokens ou gravações de sessão.
+5. Nunca commitar `bootstrap.env`, tokens, gravações de sessão ou dados de clientes.
 
 Relacionados:
 
@@ -245,4 +249,4 @@ Relacionados:
 
 ## Licença
 
-Código e documentação proprietários da **IntegrAllTech**. O ArchGuard preserva a licença Apache-2.0 da base Casdoor; engines de terceiros mantêm suas respectivas licenças.
+Distribuído sob a [Apache License 2.0](LICENSE). O ArchGuard preserva a licença Apache-2.0 da base Casdoor; engines de terceiros mantêm suas respectivas licenças.
