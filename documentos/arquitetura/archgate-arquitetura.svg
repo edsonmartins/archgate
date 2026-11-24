@@ -1,0 +1,214 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1010" width="1600" height="1010" font-family="Inter, Manrope, 'Segoe UI', system-ui, -apple-system, sans-serif">
+<title>Arquitetura do ArchGate</title>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#030712"/><stop offset="1" stop-color="#07111F"/></linearGradient><linearGradient id="card" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B1526"/><stop offset="1" stop-color="#0D1B31"/></linearGradient><linearGradient id="focal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0C1930"/><stop offset="1" stop-color="#0F2140"/></linearGradient><filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<marker id="a-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#38A8FF"/></marker>
+<marker id="a-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#A855F7"/></marker>
+<marker id="a-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#F59E0B"/></marker>
+<marker id="a-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#65E572"/></marker>
+<marker id="a-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5A6E8C"/></marker>
+<marker id="a-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#22D3EE"/></marker>
+</defs>
+<rect width="1600" height="1010" fill="url(#bg)"/>
+<text x="30" y="48" fill="#E2E8F0" font-size="26" font-weight="700">ArchGate · arquitetura</text>
+<text x="30" y="76" fill="#94A3B8" font-size="14">Acesso privilegiado sem credencial na mão do operador: identidade central, gateways que injetam o segredo, credenciais efêmeras e sessões gravadas.</text>
+<rect x="30" y="110" width="230" height="560" rx="16" fill="#38A8FF" fill-opacity="0.035" stroke="#38A8FF" stroke-opacity="0.35" stroke-dasharray="2 6" stroke-linecap="round"/>
+<text x="44" y="130" fill="#38A8FF" font-size="11" font-weight="700" letter-spacing="1.6">USUÁRIOS</text>
+<rect x="290" y="110" width="160" height="560" rx="16" fill="#94A3B8" fill-opacity="0.035" stroke="#94A3B8" stroke-opacity="0.35" stroke-dasharray="2 6" stroke-linecap="round"/>
+<text x="304" y="130" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="1.6">BORDA</text>
+<rect x="480" y="110" width="660" height="130" rx="16" fill="#A855F7" fill-opacity="0.035" stroke="#A855F7" stroke-opacity="0.35" stroke-dasharray="2 6" stroke-linecap="round"/>
+<text x="494" y="130" fill="#A855F7" font-size="11" font-weight="700" letter-spacing="1.6">IDENTIDADE E AUTORIZAÇÃO</text>
+<rect x="480" y="270" width="340" height="400" rx="16" fill="#22D3EE" fill-opacity="0.035" stroke="#22D3EE" stroke-opacity="0.35" stroke-dasharray="2 6" stroke-linecap="round"/>
+<text x="494" y="290" fill="#22D3EE" font-size="11" font-weight="700" letter-spacing="1.6">PLANO DE CONTROLE</text>
+<rect x="850" y="270" width="290" height="400" rx="16" fill="#38A8FF" fill-opacity="0.035" stroke="#38A8FF" stroke-opacity="0.35" stroke-dasharray="2 6" stroke-linecap="round"/>
+<text x="864" y="290" fill="#38A8FF" font-size="11" font-weight="700" letter-spacing="1.6">GATEWAYS · PLANO DE DADOS</text>
+<rect x="480" y="700" width="660" height="190" rx="16" fill="#F59E0B" fill-opacity="0.035" stroke="#F59E0B" stroke-opacity="0.35" stroke-dasharray="2 6" stroke-linecap="round"/>
+<text x="494" y="720" fill="#F59E0B" font-size="11" font-weight="700" letter-spacing="1.6">SEGREDOS</text>
+<rect x="1170" y="110" width="170" height="560" rx="16" fill="#65E572" fill-opacity="0.035" stroke="#65E572" stroke-opacity="0.35" stroke-dasharray="2 6" stroke-linecap="round"/>
+<text x="1184" y="130" fill="#65E572" font-size="11" font-weight="700" letter-spacing="1.6">REDE ATÉ OS SITES</text>
+<rect x="1170" y="700" width="170" height="190" rx="16" fill="#94A3B8" fill-opacity="0.035" stroke="#94A3B8" stroke-opacity="0.35" stroke-dasharray="2 6" stroke-linecap="round"/>
+<text x="1184" y="720" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="1.6">PERSISTÊNCIA</text>
+<rect x="1370" y="110" width="200" height="780" rx="16" fill="#65E572" fill-opacity="0.035" stroke="#65E572" stroke-opacity="0.35" stroke-dasharray="2 6" stroke-linecap="round"/>
+<text x="1384" y="130" fill="#65E572" font-size="11" font-weight="700" letter-spacing="1.6">REDES DOS CLIENTES</text>
+<text x="45" y="152" fill="#94A3B8" font-size="10.5" font-weight="700" letter-spacing="1.2">OPERADOR</text>
+<rect x="45" y="162" width="200" height="76" rx="10" fill="url(#card)" stroke="#38A8FF" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="59" y="185" fill="#E2E8F0" font-size="14.5" font-weight="700">ArchGate Connect</text>
+<text x="59" y="204" fill="#94A3B8" font-size="11.5">CLI Go + desktop Tauri</text>
+<text x="59" y="220" fill="#94A3B8" font-size="11.5">login PKCE · terminal · sessões</text>
+<rect x="45" y="252" width="200" height="76" rx="10" fill="url(#card)" stroke="#38A8FF" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="59" y="275" fill="#E2E8F0" font-size="14.5" font-weight="700">Navegador</text>
+<text x="59" y="294" fill="#94A3B8" font-size="11.5">UnifiedUI (fase 4)</text>
+<text x="59" y="310" fill="#94A3B8" font-size="11.5">RDP · VNC · SSH na web</text>
+<rect x="45" y="342" width="200" height="76" rx="10" fill="url(#card)" stroke="#38A8FF" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="59" y="365" fill="#E2E8F0" font-size="14.5" font-weight="700">Clientes nativos</text>
+<text x="59" y="384" fill="#94A3B8" font-size="11.5">ssh · psql · DBeaver</text>
+<text x="59" y="400" fill="#94A3B8" font-size="11.5">user:alvo@bastion</text>
+<text x="45" y="450" fill="#94A3B8" font-size="10.5" font-weight="700" letter-spacing="1.2">ADMIN</text>
+<rect x="45" y="460" width="200" height="76" rx="10" fill="url(#card)" stroke="#38A8FF" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="59" y="483" fill="#E2E8F0" font-size="14.5" font-weight="700">Navegador</text>
+<text x="59" y="502" fill="#94A3B8" font-size="11.5">ArchGate Manager</text>
+<text x="59" y="518" fill="#94A3B8" font-size="11.5">tenants · sites · grants</text>
+<text x="45" y="568" fill="#94A3B8" font-size="10.5" font-weight="700" letter-spacing="1.2">EXTERNOS</text>
+<rect x="45" y="578" width="200" height="76" rx="10" fill="url(#card)" stroke="#5A6E8C" stroke-opacity="0.45" stroke-width="1.3"/>
+<text x="59" y="601" fill="#94A3B8" font-size="14.5" font-weight="700">Mentors Axis</text>
+<text x="59" y="620" fill="#94A3B8" font-size="11.5">control plane de tenants</text>
+<text x="59" y="636" fill="#94A3B8" font-size="11.5">webhook → Orchestration</text>
+<rect x="305" y="180" width="130" height="76" rx="10" fill="url(#card)" stroke="#94A3B8" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="319" y="203" fill="#E2E8F0" font-size="14.5" font-weight="700">Cloudflare</text>
+<text x="319" y="222" fill="#94A3B8" font-size="11.5">Tunnel</text>
+<text x="319" y="238" fill="#94A3B8" font-size="11.5">borda pública</text>
+<rect x="305" y="330" width="130" height="76" rx="10" fill="url(#card)" stroke="#94A3B8" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="319" y="353" fill="#E2E8F0" font-size="14.5" font-weight="700">Traefik v3</text>
+<text x="319" y="372" fill="#94A3B8" font-size="11.5">TLS · roteamento</text>
+<rect x="495" y="140" width="320" height="84" rx="10" fill="url(#focal)" stroke="#A855F7" stroke-opacity="0.9" stroke-width="1.8" filter="url(#glow)"/>
+<text x="509" y="163" fill="#E2E8F0" font-size="14.5" font-weight="700">ArchGuard IdP</text>
+<text x="509" y="182" fill="#94A3B8" font-size="11.5">OIDC Auth Code + PKCE · JWT RS256</text>
+<text x="509" y="198" fill="#94A3B8" font-size="11.5">MFA · memberships &lt;org&gt;/&lt;grupo&gt; · fork Casdoor</text>
+<rect x="870" y="140" width="255" height="84" rx="10" fill="url(#card)" stroke="#A855F7" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="884" y="163" fill="#E2E8F0" font-size="14.5" font-weight="700">OpenFGA</text>
+<text x="884" y="182" fill="#94A3B8" font-size="11.5">autorização por tuplas</text>
+<text x="884" y="198" fill="#94A3B8" font-size="11.5">check fail-closed na sessão</text>
+<rect x="495" y="300" width="310" height="110" rx="10" fill="url(#focal)" stroke="#22D3EE" stroke-opacity="0.9" stroke-width="1.8" filter="url(#glow)"/>
+<text x="509" y="323" fill="#E2E8F0" font-size="14.5" font-weight="700">ArchGate Manager + BFF</text>
+<text x="509" y="342" fill="#94A3B8" font-size="11.5">/api/unified/v1 · /api/org/v1</text>
+<text x="509" y="358" fill="#94A3B8" font-size="11.5">Org Credential Broker (checkout, TTL)</text>
+<text x="509" y="374" fill="#94A3B8" font-size="11.5">auditoria · offboarding em um ponto</text>
+<rect x="495" y="440" width="145" height="100" rx="10" fill="url(#card)" stroke="#22D3EE" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="509" y="463" fill="#E2E8F0" font-size="14.5" font-weight="700">Orchestration</text>
+<text x="509" y="482" fill="#94A3B8" font-size="11.5">:8090 · Spring</text>
+<text x="509" y="498" fill="#94A3B8" font-size="11.5">adapters dos</text>
+<text x="509" y="514" fill="#94A3B8" font-size="11.5">engines · revoke</text>
+<rect x="660" y="440" width="145" height="100" rx="10" fill="url(#card)" stroke="#22D3EE" stroke-opacity="0.9" stroke-width="1.3" stroke-dasharray="6 5"/>
+<text x="674" y="463" fill="#E2E8F0" font-size="14.5" font-weight="700">Agent-control</text>
+<text x="674" y="482" fill="#94A3B8" font-size="11.5">:8091 · allow-list</text>
+<text x="674" y="498" fill="#94A3B8" font-size="11.5">HITL · kill-switch</text>
+<text x="674" y="514" fill="#94A3B8" font-size="11.5">agente OpenSRE</text>
+<rect x="865" y="300" width="260" height="100" rx="10" fill="url(#focal)" stroke="#38A8FF" stroke-opacity="0.9" stroke-width="1.8" filter="url(#glow)"/>
+<text x="879" y="323" fill="#E2E8F0" font-size="14.5" font-weight="700">Warpgate</text>
+<text x="879" y="342" fill="#94A3B8" font-size="11.5">SSH :2222 · PostgreSQL :55432</text>
+<text x="879" y="358" fill="#94A3B8" font-size="11.5">injeta a credencial do alvo</text>
+<text x="879" y="374" fill="#94A3B8" font-size="11.5">grava a sessão · login OIDC</text>
+<rect x="865" y="420" width="260" height="100" rx="10" fill="url(#card)" stroke="#38A8FF" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="879" y="443" fill="#E2E8F0" font-size="14.5" font-weight="700">RustGuac + guacd</text>
+<text x="879" y="462" fill="#94A3B8" font-size="11.5">RDP · VNC · SSH via WebSocket</text>
+<text x="879" y="478" fill="#94A3B8" font-size="11.5">ticket de uso único (30 s)</text>
+<text x="879" y="494" fill="#94A3B8" font-size="11.5">gravação .guac</text>
+<rect x="865" y="540" width="260" height="64" rx="10" fill="url(#card)" stroke="#5A6E8C" stroke-opacity="0.45" stroke-width="1.3"/>
+<text x="879" y="563" fill="#94A3B8" font-size="14.5" font-weight="700">Guacamole + oauth2-proxy</text>
+<text x="879" y="582" fill="#94A3B8" font-size="11.5">legado · fallback em iframe</text>
+<rect x="1185" y="300" width="140" height="200" rx="10" fill="url(#focal)" stroke="#65E572" stroke-opacity="0.9" stroke-width="1.8" filter="url(#glow)"/>
+<text x="1199" y="323" fill="#E2E8F0" font-size="14.5" font-weight="700">Connector</text>
+<text x="1199" y="342" fill="#94A3B8" font-size="11.5">um por site</text>
+<text x="1199" y="358" fill="#94A3B8" font-size="11.5">WireGuard</text>
+<text x="1199" y="374" fill="#94A3B8" font-size="11.5">OpenVPN</text>
+<text x="1199" y="390" fill="#94A3B8" font-size="11.5">FortiGate</text>
+<text x="1199" y="406" fill="#94A3B8" font-size="11.5"></text>
+<text x="1199" y="422" fill="#94A3B8" font-size="11.5">connector-agent:</text>
+<text x="1199" y="438" fill="#94A3B8" font-size="11.5">heartbeat mTLS</text>
+<text x="1199" y="454" fill="#94A3B8" font-size="11.5">→ Manager</text>
+<rect x="1185" y="530" width="140" height="76" rx="10" fill="url(#card)" stroke="#65E572" stroke-opacity="0.9" stroke-width="1.3" stroke-dasharray="6 5"/>
+<text x="1199" y="553" fill="#E2E8F0" font-size="14.5" font-weight="700">NetBird</text>
+<text x="1199" y="572" fill="#94A3B8" font-size="11.5">malha opcional</text>
+<text x="1199" y="588" fill="#94A3B8" font-size="11.5">futuro (ADR-010)</text>
+<rect x="1385" y="150" width="170" height="70" rx="10" fill="url(#card)" stroke="#94A3B8" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="1399" y="173" fill="#E2E8F0" font-size="14.5" font-weight="700">Hosts Linux</text>
+<text x="1399" y="192" fill="#94A3B8" font-size="11.5">SSH · CA do OpenBao</text>
+<rect x="1385" y="250" width="170" height="70" rx="10" fill="url(#card)" stroke="#94A3B8" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="1399" y="273" fill="#E2E8F0" font-size="14.5" font-weight="700">Windows</text>
+<text x="1399" y="292" fill="#94A3B8" font-size="11.5">RDP</text>
+<rect x="1385" y="350" width="170" height="70" rx="10" fill="url(#card)" stroke="#94A3B8" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="1399" y="373" fill="#E2E8F0" font-size="14.5" font-weight="700">PostgreSQL</text>
+<text x="1399" y="392" fill="#94A3B8" font-size="11.5">creds dinâmicas</text>
+<rect x="1385" y="450" width="170" height="70" rx="10" fill="url(#card)" stroke="#94A3B8" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="1399" y="473" fill="#E2E8F0" font-size="14.5" font-weight="700">Oracle</text>
+<text x="1399" y="492" fill="#94A3B8" font-size="11.5">via Oracle proxy</text>
+<rect x="1385" y="550" width="170" height="70" rx="10" fill="url(#card)" stroke="#94A3B8" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="1399" y="573" fill="#E2E8F0" font-size="14.5" font-weight="700">HTTP interno</text>
+<text x="1399" y="592" fill="#94A3B8" font-size="11.5">painéis web</text>
+<text x="1385" y="660" fill="#94A3B8" font-size="11.5">um conjunto por tenant/site;</text>
+<text x="1385" y="676" fill="#94A3B8" font-size="11.5">o operador nunca recebe</text>
+<text x="1385" y="692" fill="#94A3B8" font-size="11.5">a senha desses alvos</text>
+<rect x="495" y="730" width="260" height="140" rx="10" fill="url(#focal)" stroke="#F59E0B" stroke-opacity="0.9" stroke-width="1.8" filter="url(#glow)"/>
+<text x="509" y="753" fill="#E2E8F0" font-size="14.5" font-weight="700">OpenBao 2.x</text>
+<text x="509" y="772" fill="#94A3B8" font-size="11.5">SSH CA (certificados curtos)</text>
+<text x="509" y="788" fill="#94A3B8" font-size="11.5">DB dinâmico · KV org/cliente</text>
+<text x="509" y="804" fill="#94A3B8" font-size="11.5">auth JWT ← ArchGuard</text>
+<text x="509" y="820" fill="#94A3B8" font-size="11.5">audit em arquivo</text>
+<text x="509" y="836" fill="#94A3B8" font-size="11.5">lab single-node</text>
+<rect x="775" y="730" width="160" height="64" rx="10" fill="url(#card)" stroke="#F59E0B" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="789" y="753" fill="#E2E8F0" font-size="14.5" font-weight="700">Broker DB</text>
+<text x="789" y="772" fill="#94A3B8" font-size="11.5">creds 30 min → Warpgate</text>
+<rect x="965" y="730" width="160" height="64" rx="10" fill="url(#card)" stroke="#F59E0B" stroke-opacity="0.9" stroke-width="1.3" stroke-dasharray="6 5"/>
+<text x="979" y="753" fill="#E2E8F0" font-size="14.5" font-weight="700">HA Raft ×3</text>
+<text x="979" y="772" fill="#94A3B8" font-size="11.5">auto-unseal · fase 5</text>
+<rect x="775" y="806" width="160" height="64" rx="10" fill="url(#card)" stroke="#F59E0B" stroke-opacity="0.9" stroke-width="1.3" stroke-dasharray="6 5"/>
+<text x="789" y="829" fill="#E2E8F0" font-size="14.5" font-weight="700">Plugin Oracle</text>
+<text x="789" y="848" fill="#94A3B8" font-size="11.5">Go · dbplugin v5</text>
+<rect x="965" y="806" width="160" height="64" rx="10" fill="url(#card)" stroke="#F59E0B" stroke-opacity="0.9" stroke-width="1.3" stroke-dasharray="6 5"/>
+<text x="979" y="829" fill="#E2E8F0" font-size="14.5" font-weight="700">Oracle proxy</text>
+<text x="979" y="848" fill="#94A3B8" font-size="11.5">Java · mTLS · ojdbc</text>
+<rect x="1185" y="730" width="140" height="64" rx="10" fill="url(#card)" stroke="#94A3B8" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="1199" y="753" fill="#E2E8F0" font-size="14.5" font-weight="700">PostgreSQL 16</text>
+<text x="1199" y="772" fill="#94A3B8" font-size="11.5">externo (sem SQLite)</text>
+<rect x="1185" y="806" width="140" height="64" rx="10" fill="url(#card)" stroke="#94A3B8" stroke-opacity="0.9" stroke-width="1.3"/>
+<text x="1199" y="829" fill="#E2E8F0" font-size="14.5" font-weight="700">Gravações</text>
+<text x="1199" y="848" fill="#94A3B8" font-size="11.5">backup off-host</text>
+<path d="M245 200 C 275 200 275 218 303 218" fill="none" stroke="#38A8FF" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#a-blue)"/>
+<path d="M245 290 C 275 290 275 218 303 218" fill="none" stroke="#38A8FF" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#a-blue)"/>
+<path d="M245 380 C 275 380 275 218 303 218" fill="none" stroke="#38A8FF" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#a-blue)"/>
+<path d="M245 498 C 275 498 275 218 303 218" fill="none" stroke="#38A8FF" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#a-blue)"/>
+<path d="M370 256 V 328" fill="none" stroke="#38A8FF" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-blue)"/>
+<rect x="370" y="285" width="41" height="17" rx="4" fill="#050C18" fill-opacity="0.92"/>
+<text x="375" y="297" fill="#38A8FF" font-size="11" font-weight="600" text-anchor="start">HTTPS</text>
+<path d="M435 196 C 465 196 465 182 493 182" fill="none" stroke="#A855F7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-purple)"/>
+<rect x="447" y="164" width="35" height="17" rx="4" fill="#050C18" fill-opacity="0.92"/>
+<text x="464" y="176" fill="#A855F7" font-size="11" font-weight="600" text-anchor="middle">OIDC</text>
+<path d="M435 372 H 493" fill="none" stroke="#38A8FF" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-blue)"/>
+<rect x="450" y="380" width="28" height="17" rx="4" fill="#050C18" fill-opacity="0.92"/>
+<text x="464" y="392" fill="#38A8FF" font-size="11" font-weight="600" text-anchor="middle">BFF</text>
+<path d="M435 350 H 462 V 256 H 842 V 340 H 863" fill="none" stroke="#38A8FF" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-blue)"/>
+<path d="M842 340 V 470 H 863" fill="none" stroke="#38A8FF" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-blue)"/>
+<rect x="580" y="248" width="176" height="17" rx="4" fill="#050C18" fill-opacity="0.92"/>
+<text x="668" y="260" fill="#38A8FF" font-size="11" font-weight="600" text-anchor="middle">SSH :2222 · PG :55432 · WSS</text>
+<path d="M545 300 V 226" fill="none" stroke="#A855F7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-purple)"/>
+<path d="M790 300 V 248 H 990 V 226" fill="none" stroke="#A855F7" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-purple)"/>
+<rect x="970" y="234" width="41" height="17" rx="4" fill="#050C18" fill-opacity="0.92"/>
+<text x="990" y="246" fill="#A855F7" font-size="11" font-weight="600" text-anchor="middle">check</text>
+<path d="M805 395 H 826 V 500 H 863" fill="none" stroke="#22D3EE" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#a-cyan)"/>
+<rect x="805" y="516" width="47" height="17" rx="4" fill="#050C18" fill-opacity="0.92"/>
+<text x="828" y="528" fill="#22D3EE" font-size="11" font-weight="600" text-anchor="middle">ticket</text>
+<path d="M567 410 V 438" fill="none" stroke="#5A6E8C" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-muted)"/>
+<path d="M245 616 C 380 616 380 640 470 640 H 567 V 542" fill="none" stroke="#5A6E8C" stroke-width="1.8" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#a-muted)"/>
+<path d="M650 410 V 728" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-orange)"/>
+<rect x="651" y="598" width="72" height="17" rx="4" fill="#050C18" fill-opacity="0.92"/>
+<text x="656" y="610" fill="#F59E0B" font-size="11" font-weight="600" text-anchor="start">lease · KV</text>
+<path d="M755 762 H 773" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-orange)"/>
+<path d="M755 838 H 773" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#a-orange)"/>
+<path d="M935 838 H 963" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linejoin="round" stroke-dasharray="6 5" marker-end="url(#a-orange)"/>
+<path d="M935 762 H 950 V 688 H 1150 V 380 H 1127" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-orange)"/>
+<rect x="999" y="672" width="102" height="17" rx="4" fill="#050C18" fill-opacity="0.92"/>
+<text x="1050" y="684" fill="#F59E0B" font-size="11" font-weight="600" text-anchor="middle">atualiza o alvo</text>
+<path d="M1125 330 H 1183" fill="none" stroke="#65E572" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-green)"/>
+<path d="M1125 465 H 1183" fill="none" stroke="#65E572" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a-green)"/>
+<path d="M1325 400 C 1352 400 1355 185 1383 185" fill="none" stroke="#65E572" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#a-green)"/>
+<path d="M1325 400 C 1352 400 1355 285 1383 285" fill="none" stroke="#65E572" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#a-green)"/>
+<path d="M1325 400 C 1352 400 1355 385 1383 385" fill="none" stroke="#65E572" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#a-green)"/>
+<path d="M1325 400 C 1352 400 1355 485 1383 485" fill="none" stroke="#65E572" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#a-green)"/>
+<path d="M1325 400 C 1352 400 1355 585 1383 585" fill="none" stroke="#65E572" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#a-green)"/>
+<rect x="1330" y="280" width="41" height="17" rx="4" fill="#050C18" fill-opacity="0.92"/>
+<text x="1350" y="292" fill="#65E572" font-size="11" font-weight="600" text-anchor="middle">túnel</text>
+<line x1="30" y1="908" x2="1570" y2="908" stroke="#13233D"/>
+<line x1="30" y1="930" x2="64" y2="930" stroke="#38A8FF" stroke-width="2"/>
+<text x="72" y="934" fill="#94A3B8" font-size="12">sessão do operador</text>
+<line x1="224.8" y1="930" x2="258.8" y2="930" stroke="#A855F7" stroke-width="2"/>
+<text x="266.8" y="934" fill="#94A3B8" font-size="12">identidade e autorização</text>
+<line x1="459.2" y1="930" x2="493.2" y2="930" stroke="#F59E0B" stroke-width="2"/>
+<text x="501.2" y="934" fill="#94A3B8" font-size="12">segredos e credenciais efêmeras</text>
+<line x1="739.8" y1="930" x2="773.8" y2="930" stroke="#65E572" stroke-width="2"/>
+<text x="781.8" y="934" fill="#94A3B8" font-size="12">túnel até o site do cliente</text>
+<line x1="994.0" y1="930" x2="1028.0" y2="930" stroke="#22D3EE" stroke-width="2"/>
+<text x="1036.0" y="934" fill="#94A3B8" font-size="12">controle interno</text>
+<line x1="1175.6" y1="930" x2="1209.6" y2="930" stroke="#5A6E8C" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="1217.6" y="934" fill="#94A3B8" font-size="12">planejado, parcial ou externo</text>
+<text x="30" y="970" fill="#94A3B8" font-size="12">Fluxo SSH: Connect → Cloudflare/Traefik → Warpgate (injeta a credencial e grava) → connector do site → host. Sessões web: BFF valida JWT + OpenFGA, pede lease ao OpenBao e emite ticket de uso único no RustGuac.</text>
+<text x="30" y="990" fill="#94A3B8" font-size="12">Offboarding: Manager bloqueia o login no ArchGuard e revoga usuários do Warpgate, sessões abertas e leases do OpenBao.</text>
+</svg>
