@@ -45,7 +45,9 @@ public class OrchestrationConfig {
   }
 
   @Bean
-  public LifecycleService lifecycleService(OrchestrationProperties props) {
+  public LifecycleService lifecycleService(
+      OrchestrationProperties props,
+      br.com.integralltech.archgate.orchestration.service.OperationRepository operationRepository) {
     List<ComponentAdapter> adapters = new ArrayList<>();
     if (props.isLive()) {
       boolean dry = props.dryRun();
@@ -59,7 +61,7 @@ public class OrchestrationConfig {
       adapters.add(new MockComponentAdapter("guacamole"));
       adapters.add(new MockComponentAdapter("openbao"));
     }
-    return new LifecycleService(adapters);
+    return new LifecycleService(adapters, operationRepository);
   }
 
   @Bean

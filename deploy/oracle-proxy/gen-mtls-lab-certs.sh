@@ -6,7 +6,8 @@ set -euo pipefail
 OUT="${1:-./certs}"
 mkdir -p "$OUT"
 cd "$OUT"
-PASS="${CERT_PASSWORD:-changeit}"
+: "${CERT_PASSWORD:?Set CERT_PASSWORD before generating lab mTLS certificates}"
+PASS="$CERT_PASSWORD"
 
 # CA
 openssl req -x509 -newkey rsa:2048 -nodes -keyout ca.key -out ca.crt -days 3650 \
@@ -34,5 +35,5 @@ keytool -importcert -noprompt -alias lab-ca -file ca.crt \
   || openssl pkcs12 -export -nokeys -in ca.crt -out truststore.p12 -password "pass:${PASS}"
 
 chmod 600 ./*.key ./*.p12 2>/dev/null || true
-echo "Lab certs in $OUT (password default: changeit)"
+echo "Lab certs in $OUT (password supplied via CERT_PASSWORD)"
 ls -la

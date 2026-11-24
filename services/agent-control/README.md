@@ -14,7 +14,10 @@ Control plane para OpenSRE: política (allow-list), HITL, kill-switch e cadeia d
 | POST | `/agentic/v1/actions` | Avalia ação (deny / allow / pending_hitl) |
 | POST | `/agentic/v1/approvals/{id}/approve\|deny` | HITL humano |
 | POST | `/agentic/v1/kill-switch` | Desativa SA + tenta revoke orchestration |
-| GET | `/agentic/v1/audit?incident_id=` | Cadeia agente→humano→ação |
+| GET | `/agentic/v1/audit?incident_id=&agent_id=&type=&limit=` | Cadeia agente→humano→ação (aprovador) |
+| GET | `/agentic/v1/audit/export?...` | Exportação CSV da auditoria (aprovador) |
+| GET | `/agentic/v1/sessions?limit=100` | Inventário dos tickets de sessão recentes, sem segredos/comandos (aprovador) |
+| DELETE | `/agentic/v1/sessions/{id}?reason=...` | Revoga uma sessão rastreada (aprovador) |
 | GET | `/agentic/v1/policy/cloud-llm` | Flag inferência (default false) |
 
 ## Dev
@@ -32,3 +35,5 @@ bash ../../deploy/validation/smoke-agent-control-mock.sh
 - Tokens admin nunca no runtime do modelo.  
 - Kill-switch = mesmo primitivo de offboarding (orchestration revoke).  
 - HA: stores in-memory → PG/Redis (ADR-011).
+- `SPRING_PROFILES_ACTIVE=production` exige tokens de agente e aprovador distintos.
+- `AGENT_AUDIT_MAX_EVENTS` limita retenção local da auditoria; `AGENT_STATE_MAX_ENTRIES` limita aprovações/tickets.

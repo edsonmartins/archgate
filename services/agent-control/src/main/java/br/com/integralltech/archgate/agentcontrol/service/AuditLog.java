@@ -2,6 +2,7 @@ package br.com.integralltech.archgate.agentcontrol.service;
 
 import br.com.integralltech.archgate.agentcontrol.domain.Models.AuditEvent;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -18,6 +19,9 @@ import java.util.stream.Collectors;
 public class AuditLog {
 
   private final List<AuditEvent> events = new CopyOnWriteArrayList<>();
+
+  @Value("${archgate.agent.audit.max-events:10000}")
+  private int maxEvents = 10000;
 
   public AuditEvent record(
       String type,
@@ -42,6 +46,9 @@ public class AuditLog {
         meta != null ? meta : Map.of()
     );
     events.add(e);
+    while (events.size() > Math.max(1, maxEvents)) {
+      events.remove(0);
+    }
     return e;
   }
 
@@ -59,5 +66,16 @@ public class AuditLog {
 
   public List<AuditEvent> all() {
     return new ArrayList<>(events);
+  }
+
+  public List<AuditEvent> query(String incidentId, String agentId, String type, int limit) {
+    int safeLimit = Math.max(1, Math.min(limit, 1000));
+    return events.stream()
+        .filter(e -> incidentId == null || incidentId.isBlank() || incidentId.equals(e.incidentId()))
+        .filter(e -> agentId == null || agentId.isBlank() || agentId.equals(e.agentId()))
+        .filter(e -> type == null || type.isBlank() || type.equals(e.type()))
+        .sorted((left, right) -> right.at().compareTo(left.at()))
+        .limit(safeLimit)
+        .toList();
   }
 }

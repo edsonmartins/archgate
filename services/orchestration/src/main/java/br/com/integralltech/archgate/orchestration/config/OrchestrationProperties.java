@@ -16,6 +16,10 @@ public record OrchestrationProperties(
     String apiToken,
     /** HMAC-SHA256 secret for Axis webhook bodies. Unset = webhooks refused. */
     String webhookSecret,
+    /** Enables timestamp and nonce checks for webhook replay protection. */
+    boolean webhookReplayProtection,
+    /** Accepted clock skew for webhook timestamps, in seconds. */
+    long webhookTimestampToleranceSeconds,
     Endpoint archguard,
     Endpoint warpgate,
     Endpoint guacamole,

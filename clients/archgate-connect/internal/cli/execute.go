@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-
 )
 
 const version = "0.2.0-dev"
@@ -13,10 +12,15 @@ const version = "0.2.0-dev"
 // Execute is the CLI entrypoint (args without program name).
 func Execute(args []string) error {
 	jsonOut := false
+	strict := false
 	filtered := make([]string, 0, len(args))
 	for _, a := range args {
 		if a == "--json" || a == "-j" {
 			jsonOut = true
+			continue
+		}
+		if a == "--strict" {
+			strict = true
 			continue
 		}
 		filtered = append(filtered, a)
@@ -52,7 +56,7 @@ func Execute(args []string) error {
 	case "ls", "list":
 		return cmdLs(jsonOut)
 	case "doctor":
-		return cmdDoctor(jsonOut)
+		return cmdDoctor(jsonOut, strict)
 	case "go":
 		return cmdGo(rest)
 	case "connect":
@@ -95,7 +99,7 @@ Uso:
   archgate logout
   archgate status | whoami
   archgate ls [--json]
-  archgate doctor [--json]
+  archgate doctor [--json] [--strict]
   archgate go <target>           Dispatcher: ssh | db | open (pelo catálogo)
   archgate go <t> --terminal     SSH em Terminal.app / xterm
   archgate go <t> --clipboard    DB: copia linha psql
@@ -117,6 +121,7 @@ Uso:
 
 Flags globais:
   --json / -j                    Saída machine-readable (ls, status, doctor, db)
+  --strict                       doctor falha se algum check obrigatório reprovar
 
 Identidade SSH:
   Warpgate user = ARCHGATE_WG_USER ou credentials.warpgate_user

@@ -10,6 +10,14 @@ Contratos: [`documentos/runbooks/orchestration-api-contracts.md`](../../document
 - Modo **mock** (default): adapters in-memory `archguard`, `warpgate`, `guacamole`, `openbao`
 - Modo **live** (`ORCH_MODE=live`): HTTP adapters + `ORCH_DRY_RUN=true` por default (só log)
 
+A imagem Docker usa `SPRING_PROFILES_ACTIVE=production` e não habilita mock/dry-run.
+As chamadas dos adapters HTTP têm timeout de conexão e leitura configurável por
+`ORCH_HTTP_TIMEOUT_MS` (10 segundos por padrão; limitado a 100ms..120s),
+evitando que um componente externo indisponível bloqueie indefinidamente o ciclo
+de lifecycle; retries continuam limitados a três tentativas para `429` e `5xx`.
+Para laboratório, sobrescreva explicitamente `SPRING_PROFILES_ACTIVE` e as variáveis
+`ORCH_MODE`/`ORCH_DRY_RUN` no deployment.
+
 ## API
 
 | Método | Path | Efeito |
@@ -22,6 +30,8 @@ Contratos: [`documentos/runbooks/orchestration-api-contracts.md`](../../document
 | POST | `/orchestration/v1/webhooks/axis` | Axis events + `Idempotency-Key` |
 | GET | `/orchestration/v1/status/last` | última orquestração global |
 | GET | `/orchestration/v1/status/users/{username}` | última op do user |
+| GET | `/orchestration/v1/status/operations/{operationId}` | resultado persistido da operação |
+| GET | `/orchestration/v1/status/components` | modo, dry-run e adapters carregados |
 
 Porta default: `8090` (`ORCH_PORT`).
 
@@ -50,6 +60,8 @@ cd services/orchestration
 mvn -q test
 mvn -q spring-boot:run
 # curl -s localhost:8090/actuator/health
+# curl -s -H "Authorization: Bearer $ORCH_API_TOKEN" \
+#   localhost:8090/orchestration/v1/status/components
 ```
 
 ## Smoke

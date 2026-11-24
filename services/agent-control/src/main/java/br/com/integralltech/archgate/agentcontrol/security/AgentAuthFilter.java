@@ -89,12 +89,17 @@ public class AgentAuthFilter extends OncePerRequestFilter {
 
   /** Approve / deny / kill-switch belong to the human plane only. */
   private static boolean requiresApprover(HttpServletRequest request) {
+    String path = request.getRequestURI();
+    if (path.startsWith("/agentic/v1/audit") || path.startsWith("/agentic/v1/kill-switch")
+        || path.equals("/agentic/v1/sessions")
+        || (path.startsWith("/agentic/v1/sessions/")
+            && "DELETE".equalsIgnoreCase(request.getMethod()))) {
+      return true;
+    }
     if (!"POST".equalsIgnoreCase(request.getMethod())) {
       return false;
     }
-    String path = request.getRequestURI();
-    return path.startsWith("/agentic/v1/kill-switch")
-        || path.endsWith("/approve")
+    return path.endsWith("/approve")
         || path.endsWith("/deny");
   }
 

@@ -73,6 +73,36 @@ class OrchestrationControllerTest {
   }
 
   @Test
+  void exposesOperationStatusAndReturnsNotFoundForUnknownOperation() throws Exception {
+    String operationId = mvc.perform(post("/orchestration/v1/tenants/sync")
+            .header("Authorization", AUTH))
+        .andExpect(status().isOk())
+        .andReturn().getResponse().getContentAsString()
+        .replaceAll(".*\\\"operationId\\\":\\\"([^\\\"]+)\\\".*", "$1");
+
+    mvc.perform(get("/orchestration/v1/status/operations/" + operationId)
+            .header("Authorization", AUTH))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.operationId").value(operationId))
+        .andExpect(jsonPath("$.operation").value("tenants.sync"));
+
+    mvc.perform(get("/orchestration/v1/status/operations/not-found")
+            .header("Authorization", AUTH))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void exposesLoadedComponentsAndRuntimeMode() throws Exception {
+    mvc.perform(get("/orchestration/v1/status/components")
+            .header("Authorization", AUTH))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.mode").value("mock"))
+        .andExpect(jsonPath("$.dry_run").value(true))
+        .andExpect(jsonPath("$.components").isArray())
+        .andExpect(jsonPath("$.components[0]").value("archguard"));
+  }
+
+  @Test
   void validationRejectsBlankUsername() throws Exception {
     mvc.perform(post("/orchestration/v1/users/revoke")
             .header("Authorization", AUTH)

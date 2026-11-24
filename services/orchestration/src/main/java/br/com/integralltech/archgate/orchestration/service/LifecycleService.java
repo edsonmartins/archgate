@@ -18,10 +18,16 @@ public class LifecycleService {
 
   private final List<ComponentAdapter> adapters;
   private final Map<String, OrchestrationResult> lastByUser = new ConcurrentHashMap<>();
+  private final OperationRepository operationRepository;
   private volatile OrchestrationResult lastGlobal;
 
   public LifecycleService(List<ComponentAdapter> adapters) {
+    this(adapters, new InMemoryOperationRepository());
+  }
+
+  public LifecycleService(List<ComponentAdapter> adapters, OperationRepository operationRepository) {
     this.adapters = adapters;
+    this.operationRepository = operationRepository;
   }
 
   public OrchestrationResult provision(
@@ -66,9 +72,7 @@ public class LifecycleService {
     OrchestrationResult r = errors.isEmpty()
         ? OrchestrationResult.ok(opId, "users.provision", steps, details)
         : OrchestrationResult.partial(opId, "users.provision", steps, details);
-    lastByUser.put(username, r);
-    lastGlobal = r;
-    return r;
+    return record(username, r);
   }
 
   public OrchestrationResult grant(String username, String target, String ttl) {
@@ -97,9 +101,7 @@ public class LifecycleService {
     OrchestrationResult r = errors.isEmpty()
         ? OrchestrationResult.ok(opId, "access.grant", steps, details)
         : OrchestrationResult.partial(opId, "access.grant", steps, details);
-    lastByUser.put(username, r);
-    lastGlobal = r;
-    return r;
+    return record(username, r);
   }
 
   /**
@@ -108,13 +110,22 @@ public class LifecycleService {
    * Continues across adapters even if one fails (best-effort revoke).
    */
   public OrchestrationResult revoke(String username, String reason) {
+    return revoke(username, null, reason);
+  }
+
+  public OrchestrationResult revoke(String username, String membershipId, String reason) {
     String opId = UUID.randomUUID().toString();
     List<String> steps = new ArrayList<>();
     List<String> errors = new ArrayList<>();
     for (ComponentAdapter a : adapters) {
       try {
-        a.revokeAll(username);
-        steps.add(a.name() + ":revokeAll");
+        if (membershipId != null && !membershipId.isBlank() && "archguard".equals(a.name())) {
+          a.revokeMembership(membershipId);
+          steps.add(a.name() + ":revokeMembership");
+        } else {
+          a.revokeAll(username);
+          steps.add(a.name() + ":revokeAll");
+        }
       } catch (RuntimeException e) {
         steps.add(a.name() + ":revokeAll:FAIL");
         errors.add(a.name() + ": " + e.getMessage());
@@ -122,6 +133,9 @@ public class LifecycleService {
     }
     Map<String, String> details = new LinkedHashMap<>();
     details.put("username", username);
+    if (membershipId != null && !membershipId.isBlank()) {
+      details.put("membership_id", membershipId);
+    }
     details.put("reason", reason != null ? reason : "offboarding");
     if (!errors.isEmpty()) {
       details.put("errors", String.join(" | ", errors));
@@ -130,9 +144,7 @@ public class LifecycleService {
     OrchestrationResult r = errors.isEmpty()
         ? OrchestrationResult.ok(opId, "users.revoke", steps, details)
         : OrchestrationResult.partial(opId, "users.revoke", steps, details);
-    lastByUser.put(username, r);
-    lastGlobal = r;
-    return r;
+    return record(username, r);
   }
 
   public OrchestrationResult syncTenants() {
@@ -144,8 +156,7 @@ public class LifecycleService {
         steps,
         Map.of("note", "Delegates to existing sync-tenants path in live mode")
     );
-    lastGlobal = r;
-    return r;
+    return record(null, r);
   }
 
   public OrchestrationResult lastFor(String username) {
@@ -154,5 +165,26 @@ public class LifecycleService {
 
   public OrchestrationResult lastGlobal() {
     return lastGlobal;
+  }
+
+  public OrchestrationResult byOperation(String operationId) {
+    return operationRepository.find(operationId);
+  }
+
+  public List<OrchestrationResult> recentOperations(int limit) {
+    return operationRepository.recent(limit);
+  }
+
+  public List<String> adapterNames() {
+    return adapters.stream().map(ComponentAdapter::name).toList();
+  }
+
+  private OrchestrationResult record(String username, OrchestrationResult result) {
+    operationRepository.save(result);
+    if (username != null) {
+      lastByUser.put(username, result);
+    }
+    lastGlobal = result;
+    return result;
   }
 }

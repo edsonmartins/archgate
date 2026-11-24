@@ -126,12 +126,15 @@ else
 fi
 
 step "4. Guacamole browser path (Parte A — API preflight)"
+: "${GUAC_ADMIN_USERNAME:?set GUAC_ADMIN_USERNAME for the Guacamole smoke test}"
+: "${GUAC_ADMIN_PASSWORD:?set GUAC_ADMIN_PASSWORD for the Guacamole smoke test}"
 # From runtime: curl to local Traefik; from laptop may use public URL
 CODE=$(curl -sk -o /dev/null -w '%{http_code}' -H "Host: ${GUAC_HOST_HEADER}" "${GUAC_BASE}/" || echo 000)
 echo "    guac_http=$CODE"
 echo "$CODE" | grep -qE '200|301|302|307|308|401|403' || fail "Guacamole HTTP unexpected $CODE"
 TOK=$(curl -sk -H "Host: ${GUAC_HOST_HEADER}" -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'username=guacadmin&password=guacadmin' "${GUAC_BASE}/api/tokens" 2>/dev/null || echo '{}')
+  --data-urlencode "username=${GUAC_ADMIN_USERNAME}" \
+  --data-urlencode "password=${GUAC_ADMIN_PASSWORD}" "${GUAC_BASE}/api/tokens" 2>/dev/null || echo '{}')
 echo "$TOK" | python3 -c 'import sys,json; d=json.load(sys.stdin); assert "authToken" in d, d' \
   || fail "Guacamole token login failed (ADR-007 local auth)"
 AUTH=$(echo "$TOK" | python3 -c 'import sys,json; print(json.load(sys.stdin)["authToken"])')

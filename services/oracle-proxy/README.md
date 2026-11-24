@@ -13,6 +13,9 @@ OpenBao ── Go plugin ──HTTPS/mTLS──> this service ──ojdbc──>
 | **Mock** (default) | `ORACLE_PROXY_MOCK=true` | In-memory users; no Oracle |
 | **JDBC** | `ORACLE_PROXY_MOCK=false` + `ORACLE_JDBC_*` | Real DDL (ojdbc dependency enable in pom) |
 
+A imagem Docker usa o profile `production` e `ORACLE_PROXY_MOCK=false`. O modo mock
+deve ser habilitado explicitamente apenas em ambiente de laboratório.
+
 ## API
 
 | Method | Path | Purpose |

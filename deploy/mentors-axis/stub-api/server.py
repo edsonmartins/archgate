@@ -17,9 +17,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 PORT = int(os.environ.get("AXIS_STUB_PORT", "9030"))
-TOKEN = os.environ.get("AXIS_STUB_TOKEN", "archgate-lab-axis-token")
+TOKEN = os.environ.get("AXIS_STUB_TOKEN", "")
 EMAIL = os.environ.get("AXIS_STUB_EMAIL", "admin@axis.lab")
-PASSWORD = os.environ.get("AXIS_STUB_PASSWORD", "AxisLab2026!")
+PASSWORD = os.environ.get("AXIS_STUB_PASSWORD", "")
+if not PASSWORD:
+    raise RuntimeError("AXIS_STUB_PASSWORD is required")
+if not TOKEN:
+    raise RuntimeError("AXIS_STUB_TOKEN is required")
 
 PROPRIETARIOS = [
     {

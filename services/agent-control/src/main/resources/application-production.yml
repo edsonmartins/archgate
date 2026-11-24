@@ -1,0 +1,6 @@
+# Production keeps both agent authentication and HITL approval credentials
+# mandatory through the fail-closed defaults in application.yml.
+archgate:
+  agent:
+    allow-cloud-llm: false
+

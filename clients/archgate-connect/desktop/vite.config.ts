@@ -13,5 +13,14 @@ export default defineConfig({
     target: 'esnext',
     minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
     sourcemap: !!process.env.TAURI_DEBUG,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          terminal: ['@xterm/xterm', '@xterm/addon-fit'],
+          guacamole: ['guacamole-common-js'],
+          tauri: ['@tauri-apps/api', '@tauri-apps/plugin-shell'],
+        },
+      },
+    },
   },
 })

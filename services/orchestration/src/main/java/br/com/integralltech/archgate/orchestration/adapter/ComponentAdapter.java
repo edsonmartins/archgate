@@ -19,6 +19,11 @@ public interface ComponentAdapter {
   /** Full revoke for username; safe to re-run (idempotent). */
   void revokeAll(String username);
 
+  /** Revoke the Manager membership when the control plane provides its ID. */
+  default void revokeMembership(String membershipId) {
+    // Components without a membership-based control plane keep username revoke.
+  }
+
   /** Soft expire / disable identity only (if partial revoke needed). */
   void expirePerson(String username);
 }

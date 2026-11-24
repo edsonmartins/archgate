@@ -63,11 +63,15 @@ Efeito: bind role/target Warpgate; policy OpenBao se aplicável.
 ```json
 {
   "username": "dev.silva",
+  "membership_id": "<opcional; preferível quando o Manager fornecer o ID>",
   "reason": "offboarding"
 }
 ```
 
-Efeito: **revogar_tudo** — expire archguard, drop leases OpenBao, remove roles WG/Guac (idempotente).
+Quando `membership_id` é informado, o adapter ArchGuard usa o endpoint oficial de
+revogação de membership. Sem ele, mantém-se o caminho legado por username. O efeito
+nos demais componentes continua **revogar_tudo** — drop leases OpenBao e remove
+roles WG/Guac (idempotente).
 
 ### `POST /orchestration/v1/tenants/sync`
 

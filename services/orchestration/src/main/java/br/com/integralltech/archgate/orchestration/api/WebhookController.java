@@ -33,6 +33,7 @@ public class WebhookController {
   public record AxisEvent(
       @NotBlank String event,
       String username,
+      String membership_id,
       String tenant_slug,
       String email,
       String profile,
@@ -49,16 +50,18 @@ public class WebhookController {
       @Valid @RequestBody AxisEvent body
   ) {
     if (idemKey != null && !idemKey.isBlank()) {
-      var cached = idempotency.get(idemKey);
-      if (cached.isPresent()) {
-        return ResponseEntity.ok(cached.get());
+      synchronized (idempotency.lockFor(idemKey)) {
+        var cached = idempotency.get(idemKey);
+        if (cached.isPresent()) {
+          return ResponseEntity.ok(cached.get());
+        }
+        OrchestrationResult result = dispatch(body);
+        idempotency.put(idemKey, result);
+        return ResponseEntity.ok(result);
       }
     }
 
     OrchestrationResult result = dispatch(body);
-    if (idemKey != null) {
-      idempotency.put(idemKey, result);
-    }
     return ResponseEntity.ok(result);
   }
 
@@ -79,6 +82,7 @@ public class WebhookController {
       );
       case "user.offboard", "user.revoke", "users.revoke", "person.delete" -> lifecycle.revoke(
           requireUser(body),
+          body.membership_id(),
           body.reason() != null ? body.reason() : "axis-webhook"
       );
       case "tenants.sync" -> lifecycle.syncTenants();

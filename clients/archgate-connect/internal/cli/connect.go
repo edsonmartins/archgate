@@ -112,8 +112,8 @@ func cmdPrintSSH(args []string, jsonOut bool) error {
 		return fmt.Errorf("target %s is %s/%s — not SSH (use: archgate go %s)", conn.Target, conn.Engine, conn.Protocol, conn.Target)
 	}
 	proxyUser := fmt.Sprintf("%s:%s", user, conn.Target)
-	cmd := fmt.Sprintf("ssh -p %d -o StrictHostKeyChecking=accept-new '%s@%s'",
-		cfg.Bastion.SSHPort, proxyUser, cfg.Bastion.SSHHost)
+	cmd := fmt.Sprintf("ssh -p %d -o StrictHostKeyChecking=%s '%s@%s'",
+		cfg.Bastion.SSHPort, config.SSHStrictHostKeyChecking(), proxyUser, cfg.Bastion.SSHHost)
 	if jsonOut {
 		return printJSON(map[string]any{
 			"command":    cmd,
@@ -181,7 +181,7 @@ func cmdSSH(args []string) error {
 	proxyUser := fmt.Sprintf("%s:%s", user, conn.Target)
 	sshArgs := []string{
 		"-p", strconv.Itoa(cfg.Bastion.SSHPort),
-		"-o", "StrictHostKeyChecking=accept-new",
+		"-o", "StrictHostKeyChecking=" + config.SSHStrictHostKeyChecking(),
 		fmt.Sprintf("%s@%s", proxyUser, cfg.Bastion.SSHHost),
 	}
 	sshArgs = append(sshArgs, extra...)
@@ -454,10 +454,10 @@ func cmdPrintOpen(args []string, jsonOut bool) error {
 	url := openURLForConn(cfg, conn)
 	if jsonOut {
 		return printJSON(map[string]any{
-			"url":      url,
-			"target":   conn.Target,
-			"protocol": conn.Protocol,
-			"engine":   conn.Engine,
+			"url":       url,
+			"target":    conn.Target,
+			"protocol":  conn.Protocol,
+			"engine":    conn.Engine,
 			"guac_base": cfg.Bastion.GuacBase,
 		})
 	}

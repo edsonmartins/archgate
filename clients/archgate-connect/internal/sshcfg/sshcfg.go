@@ -48,7 +48,7 @@ func Apply(bastion config.Bastion, username string, conns []api.Connection) (str
 		fmt.Fprintf(&b, "  HostName %s\n", bastion.SSHHost)
 		fmt.Fprintf(&b, "  Port %d\n", bastion.SSHPort)
 		fmt.Fprintf(&b, "  User %s\n", proxyUser)
-		b.WriteString("  StrictHostKeyChecking accept-new\n\n")
+		fmt.Fprintf(&b, "  StrictHostKeyChecking %s\n\n", config.SSHStrictHostKeyChecking())
 	}
 	b.WriteString(managedFooter + "\n")
 	if err := os.WriteFile(path, []byte(b.String()), 0o600); err != nil {

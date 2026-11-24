@@ -18,7 +18,8 @@ set +a
 : "${POSTGRES_WARPGATE_PASSWORD:?}"
 : "${WARPGATE_OIDC_CLIENT_SECRET:?run bootstrap-identity-axis first}"
 
-ADMIN_PASSWORD="${WARPGATE_ADMIN_PASSWORD:-$(openssl rand -base64 24)}"
+: "${WARPGATE_ADMIN_PASSWORD:?Set WARPGATE_ADMIN_PASSWORD before deploying Warpgate}"
+ADMIN_PASSWORD="$WARPGATE_ADMIN_PASSWORD"
 DATABASE_URL="postgres://warpgate:${POSTGRES_WARPGATE_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/warpgate"
 
 mkdir -p "$DATA"

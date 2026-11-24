@@ -23,8 +23,8 @@ docker service create \
   --publish mode=host,target="${PORT}",published="${PORT}" \
   --env AXIS_STUB_PORT="${PORT}" \
   --env AXIS_STUB_EMAIL="${AXIS_STUB_EMAIL:-admin@axis.lab}" \
-  --env AXIS_STUB_PASSWORD="${AXIS_STUB_PASSWORD:-AxisLab2026!}" \
-  --env AXIS_STUB_TOKEN="${AXIS_STUB_TOKEN:-archgate-lab-axis-token}" \
+  --env AXIS_STUB_PASSWORD="${AXIS_STUB_PASSWORD:?Set AXIS_STUB_PASSWORD before deploying the stub}" \
+  --env AXIS_STUB_TOKEN="${AXIS_STUB_TOKEN:?Set AXIS_STUB_TOKEN before deploying the stub}" \
   --mount type=bind,source="${DATA}/server.py",target=/app/server.py,readonly \
   --restart-condition on-failure \
   --detach=true \
