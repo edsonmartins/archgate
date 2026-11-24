@@ -57,6 +57,14 @@ public class ArchGuardLiveAdapter extends HttpLiveAdapter {
   }
 
   @Override
+  public void revokeMembership(String membershipId) {
+    if (membershipId == null || membershipId.isBlank()) {
+      throw new IllegalArgumentException("ArchGuard membership_id must not be blank");
+    }
+    postJson("/api/v1/memberships/revoke", Map.of("membership_id", membershipId.trim()));
+  }
+
+  @Override
   public void grantAccess(String username, String target, String ttl) {
     // Fine-grained grants belong to the policy/control plane, not to AuthN.
     log.debug("[{}] grantAccess delegated to the policy plane for {} → {}", name(), username, target);

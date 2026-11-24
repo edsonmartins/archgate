@@ -15,6 +15,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -54,6 +59,17 @@ class AgentControlServiceTest {
   }
 
   @Test
+  void approverCanRevokeTrackedSessionIdempotently() {
+    SessionTicket ticket = svc.requestSession(
+        "sa-opensre", "diag.read", "rio-lab-ssh", "INC-REVOKE", "read");
+
+    assertTrue(svc.revokeSession(ticket.id(), "ops.human", "incident closed"));
+    assertFalse(svc.revokeSession(ticket.id(), "ops.human", "duplicate request"));
+    assertTrue(audit.byIncident("INC-REVOKE").stream()
+        .anyMatch(event -> "session.revoked".equals(event.type())));
+  }
+
+  @Test
   void mutantRequiresHitlThenApprove() {
     ActionResult r = svc.submitAction(
         "sa-opensre", "shell.write", "rio-lab-ssh", "systemctl restart nginx", "INC-2"
@@ -69,6 +85,37 @@ class AgentControlServiceTest {
   }
 
   @Test
+  void concurrentApproversOnlyOneCanConsumeApproval() throws Exception {
+    ActionResult r = svc.submitAction(
+        "sa-opensre", "shell.write", "rio-lab-ssh", "systemctl restart nginx", "INC-RACE"
+    );
+
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    try {
+      Future<ApprovalRequest> first = pool.submit(
+          () -> svc.approve(r.approvalId(), "ops.one", "first"));
+      Future<ApprovalRequest> second = pool.submit(
+          () -> svc.approve(r.approvalId(), "ops.two", "second"));
+
+      int successes = 0;
+      int failures = 0;
+      for (Future<ApprovalRequest> result : new Future[]{first, second}) {
+        try {
+          assertEquals(ApprovalState.APPROVED, result.get().state());
+          successes++;
+        } catch (ExecutionException e) {
+          assertTrue(e.getCause() instanceof IllegalStateException);
+          failures++;
+        }
+      }
+      assertEquals(1, successes);
+      assertEquals(1, failures);
+    } finally {
+      pool.shutdownNow();
+    }
+  }
+
+  @Test
   void dangerousCommandDenied() {
     ActionResult r = svc.submitAction(
         "sa-opensre", "shell.write", "rio-lab-ssh", "rm -rf /", "INC-3"
@@ -78,8 +125,11 @@ class AgentControlServiceTest {
 
   @Test
   void killSwitchBlocksFurtherActions() {
+    SessionTicket active = svc.requestSession(
+        "sa-opensre", "diag.read", "rio-lab-ssh", "INC-KILL", "read");
     svc.killSwitch("sa-opensre", "test", "secops");
     assertTrue(kill.isKilled("sa-opensre"));
+    assertTrue(svc.activeSessions(100).stream().noneMatch(t -> t.id().equals(active.id())));
     SessionTicket t = svc.requestSession(
         "sa-opensre", "diag.read", "rio-lab-ssh", "INC-4", "read"
     );

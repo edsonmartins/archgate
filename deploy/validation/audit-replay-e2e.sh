@@ -179,9 +179,12 @@ print("  [OK] audit logs queryable")
 '
 
 step "7. Guacamole: recording extension + connection config + (optional) file after connect"
-# Login guacadmin
+: "${GUAC_ADMIN_USERNAME:?set GUAC_ADMIN_USERNAME for the Guacamole e2e test}"
+: "${GUAC_ADMIN_PASSWORD:?set GUAC_ADMIN_PASSWORD for the Guacamole e2e test}"
+# Login with explicitly supplied Guacamole credentials
 TOK=$(curl -sk -H 'Host: guac.archgate.com.br' -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'username=guacadmin&password=guacadmin' https://127.0.0.1/api/tokens)
+  --data-urlencode "username=${GUAC_ADMIN_USERNAME}" \
+  --data-urlencode "password=${GUAC_ADMIN_PASSWORD}" https://127.0.0.1/api/tokens)
 AUTH=$(echo "$TOK" | python3 -c 'import sys,json; print(json.load(sys.stdin)["authToken"])')
 DS=$(echo "$TOK" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("dataSource","postgresql"))')
 

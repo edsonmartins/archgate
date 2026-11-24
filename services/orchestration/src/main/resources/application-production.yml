@@ -1,0 +1,15 @@
+# Production baseline. Secrets and URLs remain environment-provided.
+archgate:
+  orchestration:
+    mode: live
+    dry-run: false
+    webhook-replay-protection: true
+    archguard:
+      enabled: true
+    warpgate:
+      enabled: true
+    guacamole:
+      enabled: true
+    openbao:
+      enabled: true
+

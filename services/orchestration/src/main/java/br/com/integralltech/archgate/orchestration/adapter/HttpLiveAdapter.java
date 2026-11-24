@@ -6,9 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Base HTTP adapter for live platform components.
@@ -18,6 +20,12 @@ import java.util.Map;
  */
 public abstract class HttpLiveAdapter implements ComponentAdapter {
 
+  private static final int MAX_ATTEMPTS = 3;
+  private static final long RETRY_BACKOFF_MS = 100L;
+  private static final int DEFAULT_HTTP_TIMEOUT_MS = 10_000;
+  private static final int MIN_HTTP_TIMEOUT_MS = 100;
+  private static final int MAX_HTTP_TIMEOUT_MS = 120_000;
+
   protected final Logger log = LoggerFactory.getLogger(getClass());
   protected final OrchestrationProperties.Endpoint endpoint;
   protected final boolean dryRun;
@@ -26,13 +34,29 @@ public abstract class HttpLiveAdapter implements ComponentAdapter {
   protected HttpLiveAdapter(OrchestrationProperties.Endpoint endpoint, boolean dryRun) {
     this.endpoint = endpoint;
     this.dryRun = dryRun;
+    SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+    int timeoutMs = configuredTimeoutMs();
+    requestFactory.setConnectTimeout(timeoutMs);
+    requestFactory.setReadTimeout(timeoutMs);
     this.client = RestClient.builder()
+        .requestFactory(requestFactory)
         .baseUrl(endpoint.baseUrl() != null ? endpoint.baseUrl().replaceAll("/$", "") : "http://localhost")
         .defaultHeader("Authorization",
             endpoint.token() != null && !endpoint.token().isBlank()
                 ? "Bearer " + endpoint.token()
                 : "")
         .build();
+  }
+
+  private static int configuredTimeoutMs() {
+    String raw = System.getenv("ORCH_HTTP_TIMEOUT_MS");
+    if (raw == null || raw.isBlank()) return DEFAULT_HTTP_TIMEOUT_MS;
+    try {
+      int value = Integer.parseInt(raw.trim());
+      return Math.max(MIN_HTTP_TIMEOUT_MS, Math.min(MAX_HTTP_TIMEOUT_MS, value));
+    } catch (NumberFormatException ignored) {
+      return DEFAULT_HTTP_TIMEOUT_MS;
+    }
   }
 
   protected boolean isLiveHttp() {
@@ -45,12 +69,8 @@ public abstract class HttpLiveAdapter implements ComponentAdapter {
       return;
     }
     try {
-      client.put()
-          .uri(path)
-          .contentType(MediaType.APPLICATION_JSON)
-          .body(body)
-          .retrieve()
-          .toBodilessEntity();
+      retry(() -> client.put().uri(path).contentType(MediaType.APPLICATION_JSON)
+          .body(body).retrieve().toBodilessEntity());
       log.info("[{}] PUT {} OK", name(), path);
     } catch (RestClientResponseException e) {
       throw new OrchestrationHttpException(name(), "PUT", path, e.getStatusCode().value(), e.getResponseBodyAsString(), e);
@@ -63,12 +83,8 @@ public abstract class HttpLiveAdapter implements ComponentAdapter {
       return;
     }
     try {
-      client.post()
-          .uri(path)
-          .contentType(MediaType.APPLICATION_JSON)
-          .body(body)
-          .retrieve()
-          .toBodilessEntity();
+      retry(() -> client.post().uri(path).contentType(MediaType.APPLICATION_JSON)
+          .body(body).retrieve().toBodilessEntity());
       log.info("[{}] POST {} OK", name(), path);
     } catch (RestClientResponseException e) {
       throw new OrchestrationHttpException(name(), "POST", path, e.getStatusCode().value(), e.getResponseBodyAsString(), e);
@@ -81,12 +97,8 @@ public abstract class HttpLiveAdapter implements ComponentAdapter {
       return null;
     }
     try {
-      return client.post()
-          .uri(path)
-          .contentType(MediaType.APPLICATION_JSON)
-          .body(body)
-          .retrieve()
-          .body(responseType);
+      return retry(() -> client.post().uri(path).contentType(MediaType.APPLICATION_JSON)
+          .body(body).retrieve().body(responseType));
     } catch (RestClientResponseException e) {
       throw new OrchestrationHttpException(name(), "POST", path, e.getStatusCode().value(), e.getResponseBodyAsString(), e);
     }
@@ -116,12 +128,8 @@ public abstract class HttpLiveAdapter implements ComponentAdapter {
       return;
     }
     try {
-      client.patch()
-          .uri(path)
-          .contentType(MediaType.APPLICATION_JSON)
-          .body(body)
-          .retrieve()
-          .toBodilessEntity();
+      retry(() -> client.patch().uri(path).contentType(MediaType.APPLICATION_JSON)
+          .body(body).retrieve().toBodilessEntity());
       log.info("[{}] PATCH {} OK", name(), path);
     } catch (RestClientResponseException e) {
       throw new OrchestrationHttpException(name(), "PATCH", path, e.getStatusCode().value(), e.getResponseBodyAsString(), e);
@@ -134,10 +142,7 @@ public abstract class HttpLiveAdapter implements ComponentAdapter {
       return;
     }
     try {
-      client.delete()
-          .uri(path)
-          .retrieve()
-          .toBodilessEntity();
+      retry(() -> client.delete().uri(path).retrieve().toBodilessEntity());
       log.info("[{}] DELETE {} OK", name(), path);
     } catch (RestClientResponseException e) {
       // Idempotent revoke: 404 = already gone
@@ -147,6 +152,32 @@ public abstract class HttpLiveAdapter implements ComponentAdapter {
       }
       throw new OrchestrationHttpException(name(), "DELETE", path, e.getStatusCode().value(), e.getResponseBodyAsString(), e);
     }
+  }
+
+  private <T> T retry(Supplier<T> request) {
+    RestClientResponseException last = null;
+    for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      try {
+        return request.get();
+      } catch (RestClientResponseException e) {
+        last = e;
+        if (!isRetryable(e) || attempt == MAX_ATTEMPTS) {
+          throw e;
+        }
+        try {
+          Thread.sleep(RETRY_BACKOFF_MS * attempt);
+        } catch (InterruptedException interrupted) {
+          Thread.currentThread().interrupt();
+          throw e;
+        }
+      }
+    }
+    throw last;
+  }
+
+  private static boolean isRetryable(RestClientResponseException e) {
+    int status = e.getStatusCode().value();
+    return status == 429 || status >= 500;
   }
 
   @Override

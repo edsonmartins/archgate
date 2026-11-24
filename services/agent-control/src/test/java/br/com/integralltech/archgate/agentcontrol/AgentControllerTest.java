@@ -43,6 +43,17 @@ class AgentControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("issued"));
 
+    mvc.perform(get("/agentic/v1/sessions")
+            .header("Authorization", APPROVER)
+            .param("limit", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isArray())
+        .andExpect(jsonPath("$[0].agentId").value("sa-opensre"));
+
+    mvc.perform(get("/agentic/v1/sessions")
+            .header("Authorization", AGENT))
+        .andExpect(status().isForbidden());
+
     MvcResult mut = mvc.perform(post("/agentic/v1/actions")
             .header("Authorization", AGENT)
             .contentType(MediaType.APPLICATION_JSON)
@@ -77,6 +88,10 @@ class AgentControllerTest {
             .param("incident_id", "INC-E2E"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray());
+
+    mvc.perform(get("/agentic/v1/audit")
+            .header("Authorization", AGENT))
+        .andExpect(status().isForbidden());
 
     mvc.perform(post("/agentic/v1/kill-switch")
             .header("Authorization", APPROVER)

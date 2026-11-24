@@ -43,7 +43,7 @@ bash deploy/mentors-axis/stub-api/deploy.sh
 MENTORS_AXIS_URL=http://archgate-axis_stub:9030 bash deploy/mentors-axis/wire-console-live.sh
 ```
 
-Credenciais stub: `admin@axis.lab` / `AxisLab2026!` · token `archgate-lab-axis-token`.  
+Credenciais stub: forneça `AXIS_STUB_USERNAME`, `AXIS_STUB_PASSWORD` e `AXIS_STUB_TOKEN` no ambiente; nenhum valor padrão é versionado.
 Proprietários seed: `rio_quality`, `grupo_marra`, `acme`.
 
 Evidência lab: health + authenticate + findAll **PASS** na rede `archgate-data`; console em `MENTORS_AXIS_MOCK=0`.

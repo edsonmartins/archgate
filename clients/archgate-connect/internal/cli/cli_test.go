@@ -69,6 +69,23 @@ func TestHelpVersion(t *testing.T) {
 	}
 }
 
+func TestDoctorStrictFailsOnNonProductionHostKeyPolicy(t *testing.T) {
+
+	dir := t.TempDir()
+	t.Setenv("ARCHGATE_CONFIG_DIR", dir)
+	t.Setenv("ARCHGATE_MOCK", "1")
+	t.Setenv("ARCHGATE_KEYCHAIN", "file")
+	t.Setenv("ARCHGATE_CONNECT_LAB_TOKEN", "strict-test-token")
+	t.Setenv("ARCHGATE_SSH_STRICT_HOST_KEY_CHECKING", "accept-new")
+
+	if err := Execute([]string{"login", "--lab", "--user", "strict-user"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := Execute([]string{"doctor", "--strict", "--json"}); err == nil {
+		t.Fatal("doctor --strict should fail when host-key policy is not yes")
+	}
+}
+
 func TestPrintSSHUsesWarpgateUserNotCatalogNickname(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("ARCHGATE_CONFIG_DIR", dir)

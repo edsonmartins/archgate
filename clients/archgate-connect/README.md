@@ -45,6 +45,8 @@ archgate config apply          # Hosts em ~/.ssh/config.d/archgate
 ssh archgate-rio-aws-api-b
 
 archgate doctor
+# CI/homologação: falha se algum check do doctor reprovar
+archgate doctor --strict --json
 archgate manager                 # abre ArchGate Manager (admin) no browser
 archgate manager --path /sites
 archgate org-accounts            # Manager → Contas da org (OCB; sem vault no Connect)
@@ -73,6 +75,14 @@ O desktop Tauri **só executa o CLI** — não hardcodeia host/usuário Warpgate
 | Refresh falhou / sem refresh_token | `session expired — run: archgate login` |
 
 Lab (`login --lab`) não usa refresh (token de catálogo local).
+
+Para produção, configure `ARCHGATE_SSH_STRICT_HOST_KEY_CHECKING=yes` e
+pré-provisione a chave do bastion em `known_hosts`. O padrão `accept-new` é
+mantido apenas para laboratório/primeiro uso.
+
+O client prefere o keychain do sistema. Fallback para `credentials.json` em
+texto puro exige `ARCHGATE_KEYCHAIN=file` ou
+`ARCHGATE_ALLOW_PLAINTEXT_CREDENTIALS=1` explicitamente.
 
 ### Multi-OS / packaging
 

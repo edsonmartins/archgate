@@ -55,7 +55,7 @@ func runCLI() {
 	proxy := flag.String("proxy", env("ORACLE_PROXY_URL", "http://127.0.0.1:9040"), "oracle-proxy base URL")
 	op := flag.String("op", "create", "create|update|delete|rotate-root|type|init-smoke")
 	user := flag.String("user", "v_lab_user", "username")
-	pass := flag.String("pass", "ChangeMe123!", "password")
+	pass := flag.String("pass", env("ORACLE_PLUGIN_PASSWORD", ""), "password (required for create/update/rotate-root)")
 	_ = cli
 	flag.Parse()
 
@@ -90,6 +90,9 @@ func runCLI() {
 	c, err := client.NewWithMTLS(*proxy)
 	if err != nil {
 		log.Fatal(err)
+	}
+	if (*op == "create" || *op == "update" || *op == "rotate-root") && *pass == "" {
+		log.Fatal("password is required; use -pass or ORACLE_PLUGIN_PASSWORD")
 	}
 	switch *op {
 	case "create":

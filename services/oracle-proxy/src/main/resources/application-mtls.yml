@@ -9,11 +9,11 @@ server:
   ssl:
     enabled: true
     key-store: ${ORACLE_PROXY_KEYSTORE:file:/certs/server-keystore.p12}
-    key-store-password: ${ORACLE_PROXY_KEYSTORE_PASSWORD:changeit}
+    key-store-password: ${ORACLE_PROXY_KEYSTORE_PASSWORD:}
     key-store-type: PKCS12
     client-auth: need
     trust-store: ${ORACLE_PROXY_TRUSTSTORE:file:/certs/truststore.p12}
-    trust-store-password: ${ORACLE_PROXY_TRUSTSTORE_PASSWORD:changeit}
+    trust-store-password: ${ORACLE_PROXY_TRUSTSTORE_PASSWORD:}
     trust-store-type: PKCS12
 
 oracle:

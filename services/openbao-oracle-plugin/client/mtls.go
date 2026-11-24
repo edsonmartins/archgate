@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -52,6 +53,9 @@ func HasMTLSEnv() bool {
 
 // NewWithMTLS returns a client; if mTLS env not set, behaves like New().
 func NewWithMTLS(baseURL string) (*ProxyClient, error) {
+	if envTruthy(os.Getenv("ORACLE_PROXY_REQUIRE_MTLS")) && !HasMTLSEnv() {
+		return nil, fmt.Errorf("mTLS required but ORACLE_PROXY_CLIENT_CERT/KEY are not configured")
+	}
 	c := New(baseURL)
 	tlsCfg, err := TLSConfigFromEnv()
 	if err != nil {
@@ -66,4 +70,13 @@ func NewWithMTLS(baseURL string) (*ProxyClient, error) {
 		}
 	}
 	return c, nil
+}
+
+func envTruthy(value string) bool {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "1", "true", "yes", "on":
+		return true
+	default:
+		return false
+	}
 }

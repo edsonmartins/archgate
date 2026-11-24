@@ -29,6 +29,12 @@ public class JdbcStatementExecutor implements StatementExecutor {
       @Value("${oracle.jdbc.url}") String url,
       @Value("${oracle.jdbc.user}") String user,
       @Value("${oracle.jdbc.password}") String password) {
+    if (url == null || url.isBlank() || user == null || user.isBlank()
+        || password == null || password.isBlank()) {
+      throw new IllegalStateException(
+          "Oracle JDBC is enabled but ORACLE_JDBC_URL, ORACLE_ADMIN_USER and "
+              + "ORACLE_ADMIN_PASSWORD must all be configured");
+    }
     this.url = url;
     this.user = user;
     this.password = password;

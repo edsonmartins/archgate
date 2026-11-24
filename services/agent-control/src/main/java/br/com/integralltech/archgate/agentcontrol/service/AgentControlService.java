@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -34,6 +35,9 @@ public class AgentControlService {
   private final KillSwitchRegistry killSwitch;
   private final String orchestrationUrl;
   private final boolean allowCloudLlm;
+
+  @Value("${archgate.agent.state.max-entries:10000}")
+  private int maxStateEntries = 10000;
 
   private final Map<String, ApprovalRequest> approvals = new ConcurrentHashMap<>();
   private final Map<String, SessionTicket> sessions = new ConcurrentHashMap<>();
@@ -84,6 +88,7 @@ public class AgentControlService {
           incidentId, ApprovalState.PENDING, null, null
       );
       approvals.put(ar.id(), ar);
+      trimApprovals();
       trail.add("hitl:" + ar.id());
       auditLog.record("session.pending_hitl", agentId, null, incidentId, target, action, ar.id(), Map.of());
       return new SessionTicket(
@@ -102,6 +107,7 @@ public class AgentControlService {
         trail
     );
     sessions.put(id, t);
+    trimSessions();
     auditLog.record(
         "session.issued", agentId, null, incidentId, target, action, id,
         Map.of("ttl", t.ttl(), "mode", t.mode())
@@ -133,6 +139,7 @@ public class AgentControlService {
           incidentId, ApprovalState.PENDING, null, null
       );
       approvals.put(ar.id(), ar);
+      trimApprovals();
       auditLog.record("action.pending_hitl", agentId, null, incidentId, target, action, ar.id(),
           Map.of("command", command != null ? command : ""));
       return new ActionResult(corr, Decision.PENDING_HITL, d.reason(), ar.id(), corr);
@@ -144,9 +151,8 @@ public class AgentControlService {
   }
 
   public ApprovalRequest approve(String approvalId, String approver, String reason) {
-    ApprovalRequest ar = requirePending(approvalId);
-    ApprovalRequest done = ar.withState(ApprovalState.APPROVED, approver, reason);
-    approvals.put(approvalId, done);
+    ApprovalRequest ar = transitionPending(approvalId, ApprovalState.APPROVED, approver, reason);
+    ApprovalRequest done = approvals.get(approvalId);
     auditLog.record(
         "hitl.approved", ar.agentId(), approver, ar.incidentId(), ar.target(), ar.action(),
         reason, Map.of("approval_id", approvalId, "command", ar.command() != null ? ar.command() : "")
@@ -155,9 +161,8 @@ public class AgentControlService {
   }
 
   public ApprovalRequest deny(String approvalId, String approver, String reason) {
-    ApprovalRequest ar = requirePending(approvalId);
-    ApprovalRequest done = ar.withState(ApprovalState.DENIED, approver, reason);
-    approvals.put(approvalId, done);
+    ApprovalRequest ar = transitionPending(approvalId, ApprovalState.DENIED, approver, reason);
+    ApprovalRequest done = approvals.get(approvalId);
     auditLog.record(
         "hitl.denied", ar.agentId(), approver, ar.incidentId(), ar.target(), ar.action(),
         reason, Map.of("approval_id", approvalId)
@@ -168,6 +173,7 @@ public class AgentControlService {
   public Map<String, Object> killSwitch(String agentId, String reason, String actor) {
     killSwitch.kill(agentId, reason, actor);
     auditLog.record("kill_switch", agentId, actor, null, null, "kill", reason, Map.of());
+    int revokedSessions = revokeSessionsForAgent(agentId, actor, "kill-switch:" + reason);
 
     // Best-effort notify orchestration revoke (live offboarding of SA)
     String orchStatus = "skipped";
@@ -189,11 +195,13 @@ public class AgentControlService {
         "killed", true,
         "reason", reason != null ? reason : "",
         "actor", actor != null ? actor : "",
+        "revoked_sessions", revokedSessions,
         "orchestration", orchStatus
     );
   }
 
   public Optional<ApprovalRequest> getApproval(String id) {
+    expirePendingApprovals();
     return Optional.ofNullable(approvals.get(id));
   }
 
@@ -201,7 +209,37 @@ public class AgentControlService {
     return allowCloudLlm;
   }
 
+  /** Administrative session inventory; deliberately omits secrets and commands. */
+  public List<SessionTicket> activeSessions(int limit) {
+    int bounded = Math.max(1, Math.min(1000, limit));
+    return sessions.values().stream()
+        .sorted((left, right) -> right.at().compareTo(left.at()))
+        .limit(bounded)
+        .toList();
+  }
+
+  /** Revokes one locally tracked session without exposing its credentials. */
+  public boolean revokeSession(String sessionId, String actor, String reason) {
+    SessionTicket session = sessions.remove(sessionId);
+    if (session == null) return false;
+    auditLog.record("session.revoked", session.agentId(), actor, session.incidentId(),
+        session.target(), "session.revoke", reason == null ? "" : reason,
+        Map.of("session_id", sessionId));
+    return true;
+  }
+
+  private int revokeSessionsForAgent(String agentId, String actor, String reason) {
+    int revoked = 0;
+    for (SessionTicket session : List.copyOf(sessions.values())) {
+      if (session.agentId().equals(agentId) && revokeSession(session.id(), actor, reason)) {
+        revoked++;
+      }
+    }
+    return revoked;
+  }
+
   private ApprovalRequest requirePending(String id) {
+    expirePendingApprovals();
     ApprovalRequest ar = approvals.get(id);
     if (ar == null) {
       throw new IllegalArgumentException("approval not found: " + id);
@@ -212,9 +250,65 @@ public class AgentControlService {
     return ar;
   }
 
+  /** Atomically consumes a pending approval so concurrent approvers cannot both win. */
+  private ApprovalRequest transitionPending(
+      String approvalId, ApprovalState next, String approver, String reason) {
+    ApprovalRequest ar = requirePending(approvalId);
+    ApprovalRequest done = ar.withState(next, approver, reason);
+    if (!approvals.replace(approvalId, ar, done)) {
+      throw new IllegalStateException("approval changed concurrently");
+    }
+    return ar;
+  }
+
+  @Scheduled(fixedDelayString = "${archgate.agent.approvals.cleanup-ms:60000}")
+  void expirePendingApprovals() {
+    Instant cutoff = Instant.now().minus(parseTtl(policyLoader.policy().maxTtl()));
+    approvals.forEach((id, approval) -> {
+      if (approval.state() == ApprovalState.PENDING && approval.createdAt().isBefore(cutoff)
+          && approvals.replace(id, approval, approval.withState(
+              ApprovalState.EXPIRED, null, "approval TTL expired"))) {
+        auditLog.record("hitl.expired", approval.agentId(), null, approval.incidentId(),
+            approval.target(), approval.action(), "approval TTL expired", Map.of(
+                "approval_id", approval.id()));
+      }
+    });
+  }
+
+  private static java.time.Duration parseTtl(String value) {
+    if (value == null || value.isBlank()) return java.time.Duration.ofMinutes(15);
+    String normalized = value.trim().toLowerCase();
+    try {
+      if (normalized.endsWith("h")) return java.time.Duration.ofHours(Long.parseLong(normalized, 0, normalized.length() - 1, 10));
+      if (normalized.endsWith("m")) return java.time.Duration.ofMinutes(Long.parseLong(normalized, 0, normalized.length() - 1, 10));
+      if (normalized.endsWith("s")) return java.time.Duration.ofSeconds(Long.parseLong(normalized, 0, normalized.length() - 1, 10));
+    } catch (NumberFormatException ignored) {
+      // Fall through to the safe default.
+    }
+    return java.time.Duration.ofMinutes(15);
+  }
+
   private void guardRate(String agentId) {
     if (!rateLimiter.tryAcquire(agentId)) {
       throw new IllegalStateException("rate limit exceeded for " + agentId);
+    }
+  }
+
+  private void trimApprovals() {
+    while (approvals.size() > Math.max(1, maxStateEntries)) {
+      approvals.entrySet().stream()
+          .min(Map.Entry.comparingByValue((left, right) -> left.createdAt().compareTo(right.createdAt())))
+          .map(Map.Entry::getKey)
+          .ifPresent(approvals::remove);
+    }
+  }
+
+  private void trimSessions() {
+    while (sessions.size() > Math.max(1, maxStateEntries)) {
+      sessions.entrySet().stream()
+          .min(Map.Entry.comparingByValue((left, right) -> left.at().compareTo(right.at())))
+          .map(Map.Entry::getKey)
+          .ifPresent(sessions::remove);
     }
   }
 }

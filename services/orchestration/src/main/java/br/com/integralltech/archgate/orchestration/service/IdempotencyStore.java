@@ -15,6 +15,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class IdempotencyStore {
 
   private final Map<String, OrchestrationResult> byKey = new ConcurrentHashMap<>();
+  private final Map<String, Object> locks = new ConcurrentHashMap<>();
+
+  public Object lockFor(String key) {
+    if (key == null || key.isBlank()) {
+      return this;
+    }
+    return locks.computeIfAbsent(key, ignored -> new Object());
+  }
 
   public Optional<OrchestrationResult> get(String key) {
     if (key == null || key.isBlank()) {

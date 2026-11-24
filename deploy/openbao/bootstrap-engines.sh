@@ -2,6 +2,8 @@
 # Enable SSH CA + Postgres dynamic + audit + minimal policy (Fase 2 lab)
 set -euo pipefail
 
+: "${OPENBAO_DB_ADMIN_PASSWORD:?Set OPENBAO_DB_ADMIN_PASSWORD before bootstrapping the database engine}"
+
 BOOTSTRAP="${BOOTSTRAP:-/root/archgate/bootstrap.env}"
 set -a
 # shellcheck disable=SC1090
@@ -87,13 +89,13 @@ done
 if [[ -z "${ADMIN_U:-}" ]]; then
   echo "  [!!] no postgres admin — skip database engine (set POSTGRES_ADMIN_PASSWORD)"
 else
-  PGPASSWORD="$ADMIN_P" psql -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$ADMIN_U" -d postgres -v ON_ERROR_STOP=1 <<SQL
+  PGPASSWORD="$ADMIN_P" psql -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$ADMIN_U" -d postgres -v ON_ERROR_STOP=1 -v openbao_pass="$OPENBAO_DB_ADMIN_PASSWORD" <<SQL
 DO \$\$
 BEGIN
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'openbao_admin') THEN
-    CREATE ROLE openbao_admin LOGIN PASSWORD 'OpenBaoLabAdmin2026!';
+    CREATE ROLE openbao_admin LOGIN PASSWORD :'openbao_pass';
   ELSE
-    ALTER ROLE openbao_admin WITH LOGIN PASSWORD 'OpenBaoLabAdmin2026!';
+    ALTER ROLE openbao_admin WITH LOGIN PASSWORD :'openbao_pass';
   END IF;
 END
 \$\$;
@@ -113,13 +115,13 @@ SQL
 
   bao POST sys/mounts/database '{"type":"database"}' >/dev/null 2>&1 || true
   bao POST database/config/archgate-lab "$(python3 - <<PY
-import json
+import json, os
 print(json.dumps({
   "plugin_name": "postgresql-database-plugin",
   "allowed_roles": "lab-readonly",
   "connection_url": "postgresql://{{username}}:{{password}}@${POSTGRES_HOST}:${POSTGRES_PORT}/archgate_lab?sslmode=disable",
   "username": "openbao_admin",
-  "password": "OpenBaoLabAdmin2026!",
+  "password": os.environ["OPENBAO_DB_ADMIN_PASSWORD"],
 }))
 PY
 )" >/dev/null
@@ -141,7 +143,7 @@ PY
   log "database role lab-readonly (TTL 30m)"
   grep -v '^OPENBAO_DB_ADMIN_PASSWORD=' "$BOOTSTRAP" > /tmp/bs.bao2 || true
   mv /tmp/bs.bao2 "$BOOTSTRAP"
-  echo "OPENBAO_DB_ADMIN_PASSWORD=OpenBaoLabAdmin2026!" >> "$BOOTSTRAP"
+  echo "OPENBAO_DB_ADMIN_PASSWORD=${OPENBAO_DB_ADMIN_PASSWORD}" >> "$BOOTSTRAP"
   chmod 600 "$BOOTSTRAP"
 fi
 

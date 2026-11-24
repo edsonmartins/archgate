@@ -17,18 +17,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = {
     "archgate.orchestration.api-token=test-token",
     "archgate.orchestration.webhook-secret=test-webhook-secret",
+    "archgate.orchestration.webhook-replay-protection=true",
+    "archgate.orchestration.webhook-timestamp-tolerance-seconds=300",
 })
 @AutoConfigureMockMvc
 class WebhookControllerTest {
 
   private static final String AUTH = "Bearer test-token";
   private static final String SECRET = "test-webhook-secret";
+  private static final String TIMESTAMP = String.valueOf(java.time.Instant.now().getEpochSecond());
 
   @Autowired
   MockMvc mvc;
 
   private static String sign(String body) {
     return "sha256=" + Tokens.hmacSha256Hex(SECRET, body.getBytes(StandardCharsets.UTF_8));
+  }
+
+  private static String signProtected(String body, String timestamp) {
+    String payload = timestamp + "." + body;
+    return "sha256=" + Tokens.hmacSha256Hex(SECRET, payload.getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -39,7 +47,9 @@ class WebhookControllerTest {
 
     mvc.perform(post("/orchestration/v1/webhooks/axis")
             .header("Authorization", AUTH)
-            .header("X-ArchGate-Signature", sign(body))
+            .header("X-ArchGate-Signature", signProtected(body, TIMESTAMP))
+            .header("X-ArchGate-Timestamp", TIMESTAMP)
+            .header("X-ArchGate-Nonce", "evt-001-b")
             .header("Idempotency-Key", "evt-001")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
@@ -50,7 +60,9 @@ class WebhookControllerTest {
     // Same key → cached result, no re-execution.
     String opId = mvc.perform(post("/orchestration/v1/webhooks/axis")
             .header("Authorization", AUTH)
-            .header("X-ArchGate-Signature", sign(body))
+            .header("X-ArchGate-Signature", signProtected(body, TIMESTAMP))
+            .header("X-ArchGate-Timestamp", TIMESTAMP)
+            .header("X-ArchGate-Nonce", "evt-001-a")
             .header("Idempotency-Key", "evt-001")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
@@ -76,11 +88,30 @@ class WebhookControllerTest {
         """;
     mvc.perform(post("/orchestration/v1/webhooks/axis")
             .header("Authorization", AUTH)
-            .header("X-ArchGate-Signature", sign(body))
+            .header("X-ArchGate-Signature", signProtected(body, TIMESTAMP))
+            .header("X-ArchGate-Timestamp", TIMESTAMP)
+            .header("X-ArchGate-Nonce", "provision-001")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.operation").value("users.provision"));
+  }
+
+  @Test
+  void offboardEventPropagatesMembershipId() throws Exception {
+    String body = """
+        {"event":"user.offboard","username":"axis-user-membership","membership_id":"m-123","reason":"left"}
+        """;
+    mvc.perform(post("/orchestration/v1/webhooks/axis")
+            .header("Authorization", AUTH)
+            .header("X-ArchGate-Signature", signProtected(body, TIMESTAMP))
+            .header("X-ArchGate-Timestamp", TIMESTAMP)
+            .header("X-ArchGate-Nonce", "membership-001")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.operation").value("users.revoke"))
+        .andExpect(jsonPath("$.details.membership_id").value("m-123"));
   }
 
   @Test
@@ -91,7 +122,10 @@ class WebhookControllerTest {
     mvc.perform(post("/orchestration/v1/webhooks/axis")
             .header("Authorization", AUTH)
             .header("X-ArchGate-Signature",
-                Tokens.hmacSha256Hex(SECRET, body.getBytes(StandardCharsets.UTF_8)))
+                Tokens.hmacSha256Hex(SECRET,
+                    (TIMESTAMP + "." + body).getBytes(StandardCharsets.UTF_8)))
+            .header("X-ArchGate-Timestamp", TIMESTAMP)
+            .header("X-ArchGate-Nonce", "sync-001")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isOk());
@@ -118,7 +152,9 @@ class WebhookControllerTest {
         """;
     mvc.perform(post("/orchestration/v1/webhooks/axis")
             .header("Authorization", AUTH)
-            .header("X-ArchGate-Signature", sign(signed))
+            .header("X-ArchGate-Signature", signProtected(signed, TIMESTAMP))
+            .header("X-ArchGate-Timestamp", TIMESTAMP)
+            .header("X-ArchGate-Nonce", "tampered-001")
             .contentType(MediaType.APPLICATION_JSON)
             .content(tampered))
         .andExpect(status().isUnauthorized());
@@ -129,6 +165,8 @@ class WebhookControllerTest {
     mvc.perform(post("/orchestration/v1/webhooks/axis")
             .header("Authorization", AUTH)
             .header("X-ArchGate-Signature", "sha256=deadbeef")
+            .header("X-ArchGate-Timestamp", TIMESTAMP)
+            .header("X-ArchGate-Nonce", "bad-signature-001")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {"event":"tenants.sync"}
@@ -142,7 +180,9 @@ class WebhookControllerTest {
         {"event":"tenants.sync"}
         """;
     mvc.perform(post("/orchestration/v1/webhooks/axis")
-            .header("X-ArchGate-Signature", sign(body))
+            .header("X-ArchGate-Signature", signProtected(body, TIMESTAMP))
+            .header("X-ArchGate-Timestamp", TIMESTAMP)
+            .header("X-ArchGate-Nonce", "anonymous-001")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body))
         .andExpect(status().isUnauthorized());

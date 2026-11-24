@@ -77,8 +77,9 @@ class LifecycleServiceTest {
 
   @Test
   void lastStatusTracked() {
-    svc.provision("t", "u1", "e@x", "operator", List.of());
+    OrchestrationResult result = svc.provision("t", "u1", "e@x", "operator", List.of());
     assertEquals("users.provision", svc.lastFor("u1").operation());
     assertEquals("users.provision", svc.lastGlobal().operation());
+    assertEquals(result.operationId(), svc.byOperation(result.operationId()).operationId());
   }
 }

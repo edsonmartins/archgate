@@ -10,10 +10,13 @@ MYSQL_HOST="${AXIS_MYSQL_HOST:-192.168.1.110}"
 MYSQL_PORT="${AXIS_MYSQL_PORT:-3308}"
 MYSQL_DB="${AXIS_MYSQL_DB:-axis}"
 MYSQL_USER="${AXIS_MYSQL_USER:-axis}"
-MYSQL_PASS="${AXIS_MYSQL_PASSWORD:-axis@727204}"
+MYSQL_PASS="${AXIS_MYSQL_PASSWORD:-}"
 MQTT_URL="${AXIS_MQTT_BROKER_URL:-tcp://192.168.1.110:1883}"
 MQTT_USER="${AXIS_MQTT_BROKER_USERNAME:-admin}"
-MQTT_PASS="${AXIS_MQTT_BROKER_PASSWORD:-admin}"
+MQTT_PASS="${AXIS_MQTT_BROKER_PASSWORD:-}"
+
+: "${MYSQL_PASS:?Set AXIS_MYSQL_PASSWORD before deploying Mentors Axis}"
+: "${MQTT_PASS:?Set AXIS_MQTT_BROKER_PASSWORD before deploying Mentors Axis}"
 
 docker image inspect "$IMAGE" >/dev/null 2>&1 || {
   echo "Image $IMAGE missing — build first (Dockerfile.lab)" >&2

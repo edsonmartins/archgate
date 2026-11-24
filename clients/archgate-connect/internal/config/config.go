@@ -13,14 +13,14 @@ import (
 )
 
 type Bastion struct {
-	SSHHost     string `json:"ssh_host"`
-	SSHPort     int    `json:"ssh_port"`
-	PGHost      string `json:"pg_host"`
-	PGPort      int    `json:"pg_port"`
-	PGDatabase  string `json:"pg_database"`
+	SSHHost    string `json:"ssh_host"`
+	SSHPort    int    `json:"ssh_port"`
+	PGHost     string `json:"pg_host"`
+	PGPort     int    `json:"pg_port"`
+	PGDatabase string `json:"pg_database"`
 	// MySQL via Warpgate protocol proxy (default listen 33306; may be disabled on bastion).
-	MySQLHost string `json:"mysql_host"`
-	MySQLPort int    `json:"mysql_port"`
+	MySQLHost   string `json:"mysql_host"`
+	MySQLPort   int    `json:"mysql_port"`
 	HTTPBase    string `json:"http_base"`
 	GuacBase    string `json:"guac_base"`
 	ConsoleBase string `json:"console_base"`
@@ -32,7 +32,7 @@ type Credentials struct {
 	RefreshToken string `json:"refresh_token,omitempty"`
 	// ExpiresAt is Unix seconds when AccessToken should be considered expired.
 	// Zero means unknown (refresh only after 401).
-	ExpiresAt int64 `json:"expires_at,omitempty"`
+	ExpiresAt int64  `json:"expires_at,omitempty"`
 	Username  string `json:"username,omitempty"`
 	// WarpgateUser is the bastion login (e.g. uat-op-a). Not the target OS user.
 	WarpgateUser string `json:"warpgate_user,omitempty"`
@@ -204,7 +204,11 @@ func SaveCredentials(c *Credentials) error {
 	}
 	if UseKeychain() {
 		if err := saveKeychain(c); err != nil {
-			// Fall back to file so login never fails hard on headless/CI.
+			// Never downgrade to plaintext silently on a desktop. Headless/CI must
+			// opt in explicitly with ARCHGATE_ALLOW_PLAINTEXT_CREDENTIALS=1.
+			if os.Getenv("ARCHGATE_ALLOW_PLAINTEXT_CREDENTIALS") != "1" {
+				return fmt.Errorf("keychain unavailable and plaintext fallback disabled: %w", err)
+			}
 			if ferr := saveFileCredentials(c); ferr != nil {
 				return fmt.Errorf("keychain: %w; file: %v", err, ferr)
 			}
@@ -239,6 +243,16 @@ func ClearCredentials() error {
 func MockMode() bool {
 	v := os.Getenv("ARCHGATE_MOCK")
 	return v == "1" || v == "true" || v == "yes"
+}
+
+// SSHStrictHostKeyChecking controls host-key policy for generated SSH commands.
+// Lab keeps accept-new for first-use convenience; production should set yes.
+func SSHStrictHostKeyChecking() string {
+	v := strings.ToLower(strings.TrimSpace(os.Getenv("ARCHGATE_SSH_STRICT_HOST_KEY_CHECKING")))
+	if v == "yes" || v == "accept-new" || v == "no" {
+		return v
+	}
+	return "accept-new"
 }
 
 func env(k, def string) string {

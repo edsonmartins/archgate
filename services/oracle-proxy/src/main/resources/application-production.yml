@@ -1,0 +1,5 @@
+# Production must never use the in-memory SQL recorder.
+oracle:
+  proxy:
+    mock: false
+

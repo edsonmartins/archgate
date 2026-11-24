@@ -11,6 +11,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Authenticates every orchestration route.
@@ -35,10 +38,13 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
 
   /** Header carrying the hex HMAC of the raw body, optionally "sha256=" prefixed. */
   public static final String SIGNATURE_HEADER = "X-ArchGate-Signature";
+  public static final String TIMESTAMP_HEADER = "X-ArchGate-Timestamp";
+  public static final String NONCE_HEADER = "X-ArchGate-Nonce";
 
   private static final String WEBHOOK_PREFIX = "/orchestration/v1/webhooks";
 
   private final OrchestrationProperties props;
+  private final Map<String, Long> seenNonces = new ConcurrentHashMap<>();
 
   public ServiceTokenFilter(OrchestrationProperties props) {
     this.props = props;
@@ -91,8 +97,34 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
     if (provided == null || provided.isBlank()) {
       return false;
     }
-    String expected = Tokens.hmacSha256Hex(props.webhookSecret(), request.body());
+    String signingPayload = new String(request.body(), StandardCharsets.UTF_8);
+    if (props.webhookReplayProtection()) {
+      if (!replayHeadersValid(request)) return false;
+      signingPayload = request.getHeader(TIMESTAMP_HEADER) + "."
+          + new String(request.body(), StandardCharsets.UTF_8);
+    }
+    String expected = Tokens.hmacSha256Hex(
+        props.webhookSecret(), signingPayload.getBytes(StandardCharsets.UTF_8));
     return Tokens.constantTimeEquals(stripPrefix(provided), expected);
+  }
+
+  private boolean replayHeadersValid(HttpServletRequest request) {
+    String timestamp = request.getHeader(TIMESTAMP_HEADER);
+    String nonce = request.getHeader(NONCE_HEADER);
+    if (timestamp == null || nonce == null || nonce.isBlank()) return false;
+    try {
+      long sent = Long.parseLong(timestamp);
+      long now = Instant.now().getEpochSecond();
+      long tolerance = Math.max(1, props.webhookTimestampToleranceSeconds());
+      if (Math.abs(now - sent) > tolerance) return false;
+      long expires = sent + tolerance;
+      Long previous = seenNonces.putIfAbsent(nonce, expires);
+      if (previous != null) return false;
+      seenNonces.entrySet().removeIf(e -> e.getValue() < now);
+      return true;
+    } catch (NumberFormatException e) {
+      return false;
+    }
   }
 
   private static String stripPrefix(String signature) {

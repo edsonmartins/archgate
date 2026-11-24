@@ -22,6 +22,12 @@ archgate:
     # agent token must never be enough to approve the agent's own actions.
     approver-token: ${AGENT_APPROVER_TOKEN:}
     max-requests-per-minute: ${AGENT_RATE_LIMIT:30}
+    audit:
+      max-events: ${AGENT_AUDIT_MAX_EVENTS:10000}
+    state:
+      max-entries: ${AGENT_STATE_MAX_ENTRIES:10000}
+    approvals:
+      cleanup-ms: ${AGENT_APPROVAL_CLEANUP_MS:60000}
     # When true, cloud LLM endpoints are rejected by policy gate
     allow-cloud-llm: ${AGENT_ALLOW_CLOUD_LLM:false}
     orchestration-url: ${ORCH_URL:http://127.0.0.1:8090}

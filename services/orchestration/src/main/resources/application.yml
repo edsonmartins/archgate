@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: archgate-orchestration
+  autoconfigure:
+    exclude: ${ORCH_AUTOCONFIG_EXCLUDE:org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration}
+  sql:
+    init:
+      mode: ${SPRING_SQL_INIT_MODE:never}
 
 management:
   endpoints:
@@ -21,6 +26,8 @@ archgate:
     api-token: ${ORCH_API_TOKEN:}
     # HMAC-SHA256 secret for Axis webhook bodies. Unset = webhooks refused.
     webhook-secret: ${ORCH_WEBHOOK_SECRET:}
+    webhook-replay-protection: ${ORCH_WEBHOOK_REPLAY_PROTECTION:false}
+    webhook-timestamp-tolerance-seconds: ${ORCH_WEBHOOK_TIMESTAMP_TOLERANCE_SECONDS:300}
     archguard:
       enabled: ${ORCH_ARCHGUARD_ENABLED:false}
       base-url: ${ORCH_ARCHGUARD_URL:https://app.archguard.com.br}

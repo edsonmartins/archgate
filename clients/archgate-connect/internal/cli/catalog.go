@@ -145,7 +145,7 @@ func cmdLs(jsonOut bool) error {
 	return nil
 }
 
-func cmdDoctor(jsonOut bool) error {
+func cmdDoctor(jsonOut bool, strict bool) error {
 	cfg, err := config.Load()
 	if err != nil {
 		return err
@@ -178,6 +178,9 @@ func cmdDoctor(jsonOut bool) error {
 	}
 	_, errSSH := exec.LookPath("ssh")
 	checks = append(checks, check{"openssh_cli", errSSH == nil, map[bool]string{true: "on PATH", false: "MISSING"}[errSSH == nil]})
+	policy := config.SSHStrictHostKeyChecking()
+	policyOK := policy == "yes"
+	checks = append(checks, check{"ssh_host_key_policy", policyOK, policy + " (production recommendation: yes)"})
 	if logged && !config.MockMode() {
 		if b, err := loadBootstrap(cfg); err == nil {
 			checks = append(checks, check{"catalog", true, fmt.Sprintf("%d connections", len(b.Connections))})
@@ -186,7 +189,17 @@ func cmdDoctor(jsonOut bool) error {
 		}
 	}
 	if jsonOut {
-		return printJSON(map[string]any{"version": version, "checks": checks})
+		if err := printJSON(map[string]any{"version": version, "checks": checks}); err != nil {
+			return err
+		}
+		if strict {
+			for _, c := range checks {
+				if !c.OK {
+					return fmt.Errorf("doctor failed: %s", c.Name)
+				}
+			}
+		}
+		return nil
 	}
 	fmt.Println("ArchGate Connect doctor")
 	fmt.Printf("  version: %s\n", version)
@@ -197,6 +210,13 @@ func cmdDoctor(jsonOut bool) error {
 			mark = "FAIL"
 		}
 		fmt.Printf("  %-14s %s  %s\n", c.Name+":", mark, c.Detail)
+	}
+	if strict {
+		for _, c := range checks {
+			if !c.OK {
+				return fmt.Errorf("doctor failed: %s", c.Name)
+			}
+		}
 	}
 	fmt.Println("  urls:")
 	for _, u := range []string{cfg.Bastion.ConsoleBase, cfg.Bastion.HTTPBase, cfg.Bastion.GuacBase} {

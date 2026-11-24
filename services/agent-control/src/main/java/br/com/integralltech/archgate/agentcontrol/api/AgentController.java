@@ -14,7 +14,10 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -160,15 +163,57 @@ public class AgentController {
   @GetMapping("/audit")
   public List<AuditEvent> audit(
       @RequestParam(required = false) String incident_id,
-      @RequestParam(required = false) String agent_id
+      @RequestParam(required = false) String agent_id,
+      @RequestParam(required = false) String type,
+      @RequestParam(defaultValue = "100") int limit
   ) {
-    if (incident_id != null && !incident_id.isBlank()) {
-      return auditLog.byIncident(incident_id);
+    return auditLog.query(incident_id, agent_id, type, limit);
+  }
+
+  @GetMapping("/sessions")
+  public List<SessionTicket> sessions(
+      @RequestParam(defaultValue = "100") int limit) {
+    return service.activeSessions(limit);
+  }
+
+  @DeleteMapping("/sessions/{id}")
+  public ResponseEntity<Void> revokeSession(
+      @PathVariable String id,
+      @RequestParam(required = false) String reason,
+      HttpServletRequest http) {
+    boolean revoked = service.revokeSession(id, declaredApprover(http), reason);
+    return revoked ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+  }
+
+  @GetMapping(value = "/audit/export", produces = "text/csv")
+  public ResponseEntity<String> exportAudit(
+      @RequestParam(required = false) String incident_id,
+      @RequestParam(required = false) String agent_id,
+      @RequestParam(required = false) String type,
+      @RequestParam(defaultValue = "1000") int limit
+  ) {
+    StringBuilder csv = new StringBuilder(
+        "id,at,type,agent_id,human_approver,incident_id,target,action,detail\n");
+    for (AuditEvent event : auditLog.query(incident_id, agent_id, type, limit)) {
+      csv.append(csv(event.id())).append(',')
+          .append(csv(event.at())).append(',')
+          .append(csv(event.type())).append(',')
+          .append(csv(event.agentId())).append(',')
+          .append(csv(event.humanApprover())).append(',')
+          .append(csv(event.incidentId())).append(',')
+          .append(csv(event.target())).append(',')
+          .append(csv(event.action())).append(',')
+          .append(csv(event.detail())).append('\n');
     }
-    if (agent_id != null && !agent_id.isBlank()) {
-      return auditLog.byAgent(agent_id);
-    }
-    return auditLog.all();
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=archgate-audit.csv")
+        .contentType(MediaType.parseMediaType("text/csv"))
+        .body(csv.toString());
+  }
+
+  private static String csv(Object value) {
+    String text = value == null ? "" : String.valueOf(value);
+    return "\"" + text.replace("\"", "\"\"") + "\"";
   }
 
   @GetMapping("/policy/cloud-llm")
